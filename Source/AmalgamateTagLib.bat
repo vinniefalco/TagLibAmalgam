@@ -29,3 +29,27 @@ SET OPTIONS=-i %SRCDIR% -w "*.c;*.cpp;*.h;*.hpp;*.tcc" -s ^
 
 %TOOL% %OPTIONS% TagLibAmalgamTemplate.h %DESTDIR%\TagLibAmalgam.h
 %TOOL% %OPTIONS% TagLibAmalgamTemplate.cpp %DESTDIR%\TagLibAmalgam.cpp
+
+..\..\..\..\TagLib\taglib\toolkit
+..\..\..\..\TagLib\taglib\asf
+..\..\..\..\TagLib\taglib\mpeg
+..\..\..\..\TagLib\taglib\ogg
+..\..\..\..\TagLib\taglib\ogg\flac
+..\..\..\..\TagLib\taglib\flac
+..\..\..\..\TagLib\taglib\mpc
+..\..\..\..\TagLib\taglib\mp4
+..\..\..\..\TagLib\taglib\ogg\vorbis
+..\..\..\..\TagLib\taglib\ogg\speex
+..\..\..\..\TagLib\taglib\mpeg\id3v2
+..\..\..\..\TagLib\taglib\mpeg\id3v2\frames
+..\..\..\..\TagLib\taglib\mpeg\id3v1
+..\..\..\..\TagLib\taglib\ape
+..\..\..\..\TagLib\taglib\wavpack
+..\..\..\..\TagLib\taglib\trueaudio
+..\..\..\..\TagLib\taglib\riff
+..\..\..\..\TagLib\taglib\riff\aiff
+..\..\..\..\TagLib\taglib\riff\wav
+..\..\..\..\TagLib\taglib\mod
+..\..\..\..\TagLib\taglib\s3m
+..\..\..\..\TagLib\taglib\it
+..\..\..\..\TagLib\taglib\xm
