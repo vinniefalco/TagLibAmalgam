@@ -10,3 +10,5 @@
  */
 
 #include "tag.h"
+#include "taglib.h"
+#include "fileref.h"

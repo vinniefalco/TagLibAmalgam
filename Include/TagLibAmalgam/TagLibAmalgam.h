@@ -1364,3 +1364,1542 @@ namespace TagLib {
 
 /*** End of inlined file: tag.h ***/
 
+
+/*** Start of inlined file: fileref.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILEREF_H
+#define TAGLIB_FILEREF_H
+
+
+/*** Start of inlined file: tfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILE_H
+#define TAGLIB_FILE_H
+
+
+/*** Start of inlined file: tiostream.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_IOSTREAM_H
+#define TAGLIB_IOSTREAM_H
+
+namespace TagLib {
+
+#ifdef _WIN32
+  class TAGLIB_EXPORT FileName
+  {
+  public:
+	FileName(const wchar_t *name) : m_wname(name) {}
+	FileName(const char *name) : m_name(name) {}
+	operator const wchar_t *() const { return m_wname.c_str(); }
+	operator const char *() const { return m_name.c_str(); }
+  private:
+	std::string m_name;
+	std::wstring m_wname;
+  };
+#else
+  typedef const char *FileName;
+#endif
+
+  //! An abstract class that provides operations on a sequence of bytes
+
+  class TAGLIB_EXPORT IOStream
+  {
+  public:
+	/*!
+	 * Position in the file used for seeking.
+	 */
+	enum Position {
+	  //! Seek from the beginning of the file.
+	  Beginning,
+	  //! Seek from the current position in the file.
+	  Current,
+	  //! Seek from the end of the file.
+	  End
+	};
+
+	IOStream();
+
+	/*!
+	 * Destroys this IOStream instance.
+	 */
+	virtual ~IOStream();
+
+	/*!
+	 * Returns the stream name in the local file system encoding.
+	 */
+	virtual FileName name() const = 0;
+
+	/*!
+	 * Reads a block of size \a length at the current get pointer.
+	 */
+	virtual ByteVector readBlock(ulong length) = 0;
+
+	/*!
+	 * Attempts to write the block \a data at the current get pointer.  If the
+	 * file is currently only opened read only -- i.e. readOnly() returns true --
+	 * this attempts to reopen the file in read/write mode.
+	 *
+	 * \note This should be used instead of using the streaming output operator
+	 * for a ByteVector.  And even this function is significantly slower than
+	 * doing output with a char[].
+	 */
+	virtual void writeBlock(const ByteVector &data) = 0;
+
+	/*!
+	 * Insert \a data at position \a start in the file overwriting \a replace
+	 * bytes of the original content.
+	 *
+	 * \note This method is slow since it requires rewriting all of the file
+	 * after the insertion point.
+	 */
+	virtual void insert(const ByteVector &data, ulong start = 0, ulong replace = 0) = 0;
+
+	/*!
+	 * Removes a block of the file starting a \a start and continuing for
+	 * \a length bytes.
+	 *
+	 * \note This method is slow since it involves rewriting all of the file
+	 * after the removed portion.
+	 */
+	virtual void removeBlock(ulong start = 0, ulong length = 0) = 0;
+
+	/*!
+	 * Returns true if the file is read only (or if the file can not be opened).
+	 */
+	virtual bool readOnly() const = 0;
+
+	/*!
+	 * Since the file can currently only be opened as an argument to the
+	 * constructor (sort-of by design), this returns if that open succeeded.
+	 */
+	virtual bool isOpen() const = 0;
+
+	/*!
+	 * Move the I/O pointer to \a offset in the stream from position \a p.  This
+	 * defaults to seeking from the beginning of the stream.
+	 *
+	 * \see Position
+	 */
+	virtual void seek(long offset, Position p = Beginning) = 0;
+
+	/*!
+	 * Reset the end-of-stream and error flags on the stream.
+	 */
+	virtual void clear();
+
+	/*!
+	 * Returns the current offset within the stream.
+	 */
+	virtual long tell() const = 0;
+
+	/*!
+	 * Returns the length of the stream.
+	 */
+	virtual long length() = 0;
+
+	/*!
+	 * Truncates the stream to a \a length.
+	 */
+	virtual void truncate(long length) = 0;
+
+  private:
+	IOStream(const IOStream &);
+	IOStream &operator=(const IOStream &);
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tiostream.h ***/
+
+namespace TagLib {
+
+  class String;
+  class Tag;
+  class AudioProperties;
+
+  //! A file class with some useful methods for tag manipulation
+
+  /*!
+   * This class is a basic file class with some methods that are particularly
+   * useful for tag editors.  It has methods to take advantage of
+   * ByteVector and a binary search method for finding patterns in a file.
+   */
+
+  class TAGLIB_EXPORT File
+  {
+  public:
+	/*!
+	 * Position in the file used for seeking.
+	 */
+	enum Position {
+	  //! Seek from the beginning of the file.
+	  Beginning,
+	  //! Seek from the current position in the file.
+	  Current,
+	  //! Seek from the end of the file.
+	  End
+	};
+
+	/*!
+	 * Destroys this File instance.
+	 */
+	virtual ~File();
+
+	/*!
+	 * Returns the file name in the local file system encoding.
+	 */
+	FileName name() const;
+
+	/*!
+	 * Returns a pointer to this file's tag.  This should be reimplemented in
+	 * the concrete subclasses.
+	 */
+	virtual Tag *tag() const = 0;
+
+	/*!
+	 * Returns a pointer to this file's audio properties.  This should be
+	 * reimplemented in the concrete subclasses.  If no audio properties were
+	 * read then this will return a null pointer.
+	 */
+	virtual AudioProperties *audioProperties() const = 0;
+
+	/*!
+	 * Save the file and its associated tags.  This should be reimplemented in
+	 * the concrete subclasses.  Returns true if the save succeeds.
+	 *
+	 * \warning On UNIX multiple processes are able to write to the same file at
+	 * the same time.  This can result in serious file corruption.  If you are
+	 * developing a program that makes use of TagLib from multiple processes you
+	 * must insure that you are only doing writes to a particular file from one
+	 * of them.
+	 */
+	virtual bool save() = 0;
+
+	/*!
+	 * Reads a block of size \a length at the current get pointer.
+	 */
+	ByteVector readBlock(ulong length);
+
+	/*!
+	 * Attempts to write the block \a data at the current get pointer.  If the
+	 * file is currently only opened read only -- i.e. readOnly() returns true --
+	 * this attempts to reopen the file in read/write mode.
+	 *
+	 * \note This should be used instead of using the streaming output operator
+	 * for a ByteVector.  And even this function is significantly slower than
+	 * doing output with a char[].
+	 */
+	void writeBlock(const ByteVector &data);
+
+	/*!
+	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
+	 * not be found.  If \a before is set, the search will only continue until the
+	 * pattern \a before is found.  This is useful for tagging purposes to search
+	 * for a tag before the synch frame.
+	 *
+	 * Searching starts at \a fromOffset, which defaults to the beginning of the
+	 * file.
+	 *
+	 * \note This has the practial limitation that \a pattern can not be longer
+	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
+	 */
+	long find(const ByteVector &pattern,
+			  long fromOffset = 0,
+			  const ByteVector &before = ByteVector::null);
+
+	/*!
+	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
+	 * not be found.  If \a before is set, the search will only continue until the
+	 * pattern \a before is found.  This is useful for tagging purposes to search
+	 * for a tag before the synch frame.
+	 *
+	 * Searching starts at \a fromOffset and proceeds from the that point to the
+	 * beginning of the file and defaults to the end of the file.
+	 *
+	 * \note This has the practial limitation that \a pattern can not be longer
+	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
+	 */
+	long rfind(const ByteVector &pattern,
+			   long fromOffset = 0,
+			   const ByteVector &before = ByteVector::null);
+
+	/*!
+	 * Insert \a data at position \a start in the file overwriting \a replace
+	 * bytes of the original content.
+	 *
+	 * \note This method is slow since it requires rewriting all of the file
+	 * after the insertion point.
+	 */
+	void insert(const ByteVector &data, ulong start = 0, ulong replace = 0);
+
+	/*!
+	 * Removes a block of the file starting a \a start and continuing for
+	 * \a length bytes.
+	 *
+	 * \note This method is slow since it involves rewriting all of the file
+	 * after the removed portion.
+	 */
+	void removeBlock(ulong start = 0, ulong length = 0);
+
+	/*!
+	 * Returns true if the file is read only (or if the file can not be opened).
+	 */
+	bool readOnly() const;
+
+	/*!
+	 * Since the file can currently only be opened as an argument to the
+	 * constructor (sort-of by design), this returns if that open succeeded.
+	 */
+	bool isOpen() const;
+
+	/*!
+	 * Returns true if the file is open and readble.
+	 */
+	bool isValid() const;
+
+	/*!
+	 * Move the I/O pointer to \a offset in the file from position \a p.  This
+	 * defaults to seeking from the beginning of the file.
+	 *
+	 * \see Position
+	 */
+	void seek(long offset, Position p = Beginning);
+
+	/*!
+	 * Reset the end-of-file and error flags on the file.
+	 */
+	void clear();
+
+	/*!
+	 * Returns the current offset within the file.
+	 */
+	long tell() const;
+
+	/*!
+	 * Returns the length of the file.
+	 */
+	long length();
+
+	/*!
+	 * Returns true if \a file can be opened for reading.  If the file does not
+	 * exist, this will return false.
+	 *
+	 * \deprecated
+	 */
+	static bool isReadable(const char *file);
+
+	/*!
+	 * Returns true if \a file can be opened for writing.
+	 *
+	 * \deprecated
+	 */
+	static bool isWritable(const char *name);
+
+  protected:
+	/*!
+	 * Construct a File object and opens the \a file.  \a file should be a
+	 * be a C-string in the local file system encoding.
+	 *
+	 * \note Constructor is protected since this class should only be
+	 * instantiated through subclasses.
+	 */
+	File(FileName file);
+
+	/*!
+	 * Construct a File object and use the \a stream instance.
+	 *
+	 * \note Constructor is protected since this class should only be
+	 * instantiated through subclasses.
+	 */
+	File(IOStream *stream);
+
+	/*!
+	 * Marks the file as valid or invalid.
+	 *
+	 * \see isValid()
+	 */
+	void setValid(bool valid);
+
+	/*!
+	 * Truncates the file to a \a length.
+	 */
+	void truncate(long length);
+
+	/*!
+	 * Returns the buffer size that is used for internal buffering.
+	 */
+	static uint bufferSize();
+
+  private:
+	File(const File &);
+	File &operator=(const File &);
+
+	class FilePrivate;
+	FilePrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tfile.h ***/
+
+
+/*** Start of inlined file: tstringlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_STRINGLIST_H
+#define TAGLIB_STRINGLIST_H
+
+
+/*** Start of inlined file: tlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_LIST_H
+#define TAGLIB_LIST_H
+
+#include <list>
+
+namespace TagLib {
+
+  //! A generic, implicitly shared list.
+
+  /*!
+   * This is basic generic list that's somewhere between a std::list and a
+   * QValueList.  This class is implicitly shared.  For example:
+   *
+   * \code
+   *
+   * TagLib::List<int> l = someOtherIntList;
+   *
+   * \endcode
+   *
+   * The above example is very cheap.  This also makes lists suitable for the
+   * return types of functions.  The above example will just copy a pointer rather
+   * than copying the data in the list.  When your \e shared list's data changes,
+   * only \e then will the data be copied.
+   */
+
+  template <class T> class List
+  {
+  public:
+#ifndef DO_NOT_DOCUMENT
+	typedef typename std::list<T>::iterator Iterator;
+	typedef typename std::list<T>::const_iterator ConstIterator;
+#endif
+
+	/*!
+	 * Constructs an empty list.
+	 */
+	List();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	List(const List<T> &l);
+
+	/*!
+	 * Destroys this List instance.  If auto deletion is enabled and this list
+	 * contains a pointer type all of the memebers are also deleted.
+	 */
+	virtual ~List();
+
+	/*!
+	 * Returns an STL style iterator to the beginning of the list.  See
+	 * std::list::const_iterator for the semantics.
+	 */
+	Iterator begin();
+
+	/*!
+	 * Returns an STL style constant iterator to the beginning of the list.  See
+	 * std::list::iterator for the semantics.
+	 */
+	ConstIterator begin() const;
+
+	/*!
+	 * Returns an STL style iterator to the end of the list.  See
+	 * std::list::iterator for the semantics.
+	 */
+	Iterator end();
+
+	/*!
+	 * Returns an STL style constant iterator to the end of the list.  See
+	 * std::list::const_iterator for the semantics.
+	 */
+	ConstIterator end() const;
+
+	/*!
+	 * Inserts a copy of \a value before \a it.
+	 */
+	Iterator insert(Iterator it, const T &value);
+
+	/*!
+	 * Inserts the \a value into the list.  This assumes that the list is
+	 * currently sorted.  If \a unique is true then the value will not
+	 * be inserted if it is already in the list.
+	 */
+	List<T> &sortedInsert(const T &value, bool unique = false);
+
+	/*!
+	 * Appends \a item to the end of the list and returns a reference to the
+	 * list.
+	 */
+	List<T> &append(const T &item);
+
+	/*!
+	 * Appends all of the values in \a l to the end of the list and returns a
+	 * reference to the list.
+	 */
+	List<T> &append(const List<T> &l);
+
+	/*!
+	 * Prepends \a item to the beginning list and returns a reference to the
+	 * list.
+	 */
+	List<T> &prepend(const T &item);
+
+	/*!
+	 * Prepends all of the items in \a l to the beginning list and returns a
+	 * reference to the list.
+	 */
+	List<T> &prepend(const List<T> &l);
+
+	/*!
+	 * Clears the list.  If auto deletion is enabled and this list contains a
+	 * pointer type the members are also deleted.
+	 *
+	 * \see setAutoDelete()
+	 */
+	List<T> &clear();
+
+	/*!
+	 * Returns the number of elements in the list.
+	 */
+	uint size() const;
+	bool isEmpty() const;
+
+	/*!
+	 * Find the first occurrence of \a value.
+	 */
+	Iterator find(const T &value);
+
+	/*!
+	 * Find the first occurrence of \a value.
+	 */
+	ConstIterator find(const T &value) const;
+
+	/*!
+	 * Returns true if the list contains \a value.
+	 */
+	bool contains(const T &value) const;
+
+	/*!
+	 * Erase the item at \a it from the list.
+	 */
+	Iterator erase(Iterator it);
+
+	/*!
+	 * Returns a reference to the first item in the list.
+	 */
+	const T &front() const;
+
+	/*!
+	 * Returns a reference to the first item in the list.
+	 */
+	T &front();
+
+	/*!
+	 * Returns a reference to the last item in the list.
+	 */
+	const T &back() const;
+
+	/*!
+	 * Returns a reference to the last item in the list.
+	 */
+	T &back();
+
+	/*!
+	 * Auto delete the members of the list when the last reference to the list
+	 * passes out of scope.  This will have no effect on lists which do not
+	 * contain a pointer type.
+	 *
+	 * \note This relies on partial template instantiation -- most modern C++
+	 * compilers should now support this.
+	 */
+	void setAutoDelete(bool autoDelete);
+
+	/*!
+	 * Returns a reference to item \a i in the list.
+	 *
+	 * \warning This method is slow.  Use iterators to loop through the list.
+	 */
+	T &operator[](uint i);
+
+	/*!
+	 * Returns a const reference to item \a i in the list.
+	 *
+	 * \warning This method is slow.  Use iterators to loop through the list.
+	 */
+	const T &operator[](uint i) const;
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	List<T> &operator=(const List<T> &l);
+
+	/*!
+	 * Compares this list with \a l and returns true if all of the elements are
+	 * the same.
+	 */
+	bool operator==(const List<T> &l) const;
+
+  protected:
+	/*
+	 * If this List is being shared via implicit sharing, do a deep copy of the
+	 * data and separate from the shared members.  This should be called by all
+	 * non-const subclass members.
+	 */
+	void detach();
+
+  private:
+#ifndef DO_NOT_DOCUMENT
+	template <class TP> class ListPrivate;
+	ListPrivate<T> *d;
+#endif
+  };
+
+}
+
+// Since GCC doesn't support the "export" keyword, we have to include the
+// implementation.
+
+
+/*** Start of inlined file: tlist.tcc ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#include <algorithm>
+
+namespace TagLib {
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+// The functionality of List<T>::setAutoDelete() is implemented here partial
+// template specialization.  This is implemented in such a way that calling
+// setAutoDelete() on non-pointer types will simply have no effect.
+
+// A base for the generic and specialized private class types.  New
+// non-templatized members should be added here.
+
+class ListPrivateBase : public RefCounter
+{
+public:
+  ListPrivateBase() : autoDelete(false) {}
+  bool autoDelete;
+};
+
+// A generic implementation
+
+template <class T>
+template <class TP> class List<T>::ListPrivate  : public ListPrivateBase
+{
+public:
+  ListPrivate() : ListPrivateBase() {}
+  ListPrivate(const std::list<TP> &l) : ListPrivateBase(), list(l) {}
+  void clear() {
+	list.clear();
+  }
+  std::list<TP> list;
+};
+
+// A partial specialization for all pointer types that implements the
+// setAutoDelete() functionality.
+
+template <class T>
+template <class TP> class List<T>::ListPrivate<TP *>  : public ListPrivateBase
+{
+public:
+  ListPrivate() : ListPrivateBase() {}
+  ListPrivate(const std::list<TP *> &l) : ListPrivateBase(), list(l) {}
+  ~ListPrivate() {
+	clear();
+  }
+  void clear() {
+	if(autoDelete) {
+	  typename std::list<TP *>::const_iterator it = list.begin();
+	  for(; it != list.end(); ++it)
+		delete *it;
+	}
+	list.clear();
+  }
+  std::list<TP *> list;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+List<T>::List()
+{
+  d = new ListPrivate<T>;
+}
+
+template <class T>
+List<T>::List(const List<T> &l) : d(l.d)
+{
+  d->ref();
+}
+
+template <class T>
+List<T>::~List()
+{
+  if(d->deref())
+	delete d;
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::begin()
+{
+  detach();
+  return d->list.begin();
+}
+
+template <class T>
+typename List<T>::ConstIterator List<T>::begin() const
+{
+  return d->list.begin();
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::end()
+{
+  detach();
+  return d->list.end();
+}
+
+template <class T>
+typename List<T>::ConstIterator List<T>::end() const
+{
+  return d->list.end();
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::insert(Iterator it, const T &item)
+{
+  detach();
+  return d->list.insert(it, item);
+}
+
+template <class T>
+List<T> &List<T>::sortedInsert(const T &value, bool unique)
+{
+  detach();
+  Iterator it = begin();
+  while(it != end() && *it < value)
+	++it;
+  if(unique && it != end() && *it == value)
+	return *this;
+  insert(it, value);
+  return *this;
+}
+
+template <class T>
+List<T> &List<T>::append(const T &item)
+{
+  detach();
+  d->list.push_back(item);
+  return *this;
+}
+
+template <class T>
+List<T> &List<T>::append(const List<T> &l)
+{
+  detach();
+  d->list.insert(d->list.end(), l.begin(), l.end());
+  return *this;
+}
+
+template <class T>
+List<T> &List<T>::prepend(const T &item)
+{
+  detach();
+  d->list.push_front(item);
+  return *this;
+}
+
+template <class T>
+List<T> &List<T>::prepend(const List<T> &l)
+{
+  detach();
+  d->list.insert(d->list.begin(), l.begin(), l.end());
+  return *this;
+}
+
+template <class T>
+List<T> &List<T>::clear()
+{
+  detach();
+  d->clear();
+  return *this;
+}
+
+template <class T>
+TagLib::uint List<T>::size() const
+{
+  return d->list.size();
+}
+
+template <class T>
+bool List<T>::isEmpty() const
+{
+  return d->list.empty();
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::find(const T &value)
+{
+  return std::find(d->list.begin(), d->list.end(), value);
+}
+
+template <class T>
+typename List<T>::ConstIterator List<T>::find(const T &value) const
+{
+  return std::find(d->list.begin(), d->list.end(), value);
+}
+
+template <class T>
+bool List<T>::contains(const T &value) const
+{
+  return std::find(d->list.begin(), d->list.end(), value) != d->list.end();
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::erase(Iterator it)
+{
+  return d->list.erase(it);
+}
+
+template <class T>
+const T &List<T>::front() const
+{
+  return d->list.front();
+}
+
+template <class T>
+T &List<T>::front()
+{
+  detach();
+  return d->list.front();
+}
+
+template <class T>
+const T &List<T>::back() const
+{
+  return d->list.back();
+}
+
+template <class T>
+void List<T>::setAutoDelete(bool autoDelete)
+{
+  d->autoDelete = autoDelete;
+}
+
+template <class T>
+T &List<T>::back()
+{
+  detach();
+  return d->list.back();
+}
+
+template <class T>
+T &List<T>::operator[](uint i)
+{
+  Iterator it = d->list.begin();
+
+  for(uint j = 0; j < i; j++)
+	++it;
+
+  return *it;
+}
+
+template <class T>
+const T &List<T>::operator[](uint i) const
+{
+  ConstIterator it = d->list.begin();
+
+  for(uint j = 0; j < i; j++)
+	++it;
+
+  return *it;
+}
+
+template <class T>
+List<T> &List<T>::operator=(const List<T> &l)
+{
+  if(&l == this)
+	return *this;
+
+  if(d->deref())
+	delete d;
+  d = l.d;
+  d->ref();
+  return *this;
+}
+
+template <class T>
+bool List<T>::operator==(const List<T> &l) const
+{
+  return d->list == l.d->list;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected members
+////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+void List<T>::detach()
+{
+  if(d->count() > 1) {
+	d->deref();
+	d = new ListPrivate<T>(d->list);
+  }
+}
+
+} // namespace TagLib
+
+/*** End of inlined file: tlist.tcc ***/
+
+#endif
+
+/*** End of inlined file: tlist.h ***/
+
+
+/*** Start of inlined file: tbytevectorlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_BYTEVECTORLIST_H
+#define TAGLIB_BYTEVECTORLIST_H
+
+namespace TagLib {
+
+  //! A list of ByteVectors
+
+  /*!
+   * A List specialization with some handy features useful for ByteVectors.
+   */
+
+  class TAGLIB_EXPORT ByteVectorList : public List<ByteVector>
+  {
+  public:
+
+	/*!
+	 * Construct an empty ByteVectorList.
+	 */
+	ByteVectorList();
+
+	/*!
+	 * Destroys this ByteVectorList instance.
+	 */
+	virtual ~ByteVectorList();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	ByteVectorList(const ByteVectorList &l);
+
+	/*!
+	 * Convert the ByteVectorList to a ByteVector separated by \a separator.  By
+	 * default a space is used.
+	 */
+	ByteVector toByteVector(const ByteVector &separator = " ") const;
+
+	/*!
+	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
+	 * not include the pattern in the returned ByteVectors.
+	 */
+	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
+								int byteAlign = 1);
+	/*!
+	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
+	 * not include the pattern in the returned ByteVectors.  \a max is the
+	 * maximum number of entries that will be separated.  If \a max for instance
+	 * is 2 then a maximum of 1 match will be found and the vector will be split
+	 * on that match.
+	 */
+	// BIC: merge with the function above
+	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
+								int byteAlign, int max);
+  private:
+	class ByteVectorListPrivate;
+	ByteVectorListPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tbytevectorlist.h ***/
+
+#include <ostream>
+
+namespace TagLib {
+
+  //! A list of strings
+
+  /*!
+   * This is a spcialization of the List class with some members convention for
+   * string operations.
+   */
+
+  class TAGLIB_EXPORT StringList : public List<String>
+  {
+  public:
+
+	/*!
+	 * Constructs an empty StringList.
+	 */
+	StringList();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	StringList(const StringList &l);
+
+	/*!
+	 * Constructs a StringList with \a s as a member.
+	 */
+	StringList(const String &s);
+
+	/*!
+	 * Makes a deep copy of the data in \a vl.
+	 *
+	 * \note This should only be used with the 8-bit codecs Latin1 and UTF8, when
+	 * used with other codecs it will simply print a warning and exit.
+	 */
+	StringList(const ByteVectorList &vl, String::Type t = String::Latin1);
+
+	/*!
+	 * Destroys this StringList instance.
+	 */
+	virtual ~StringList();
+
+	/*!
+	 * Concatenate the list of strings into one string separated by \a separator.
+	 */
+	String toString(const String &separator = " ") const;
+
+	/*!
+	 * Appends \a s to the end of the list and returns a reference to the
+	 * list.
+	 */
+	StringList &append(const String &s);
+
+	/*!
+	 * Appends all of the values in \a l to the end of the list and returns a
+	 * reference to the list.
+	 */
+	StringList &append(const StringList &l);
+
+	/*!
+	 * Splits the String \a s into several strings at \a pattern.  This will not include
+	 * the pattern in the returned strings.
+	 */
+	static StringList split(const String &s, const String &pattern);
+
+  private:
+	class StringListPrivate;
+	StringListPrivate *d;
+  };
+
+}
+
+/*!
+ * \related TagLib::StringList
+ * Send the StringList to an output stream.
+ */
+std::ostream &operator<<(std::ostream &s, const TagLib::StringList &l);
+
+#endif
+
+/*** End of inlined file: tstringlist.h ***/
+
+
+/*** Start of inlined file: audioproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_AUDIOPROPERTIES_H
+#define TAGLIB_AUDIOPROPERTIES_H
+
+namespace TagLib {
+
+  //! A simple, abstract interface to common audio properties
+
+  /*!
+   * The values here are common to most audio formats.  For more specific, codec
+   * dependant values, please see see the subclasses APIs.  This is meant to
+   * compliment the TagLib::File and TagLib::Tag APIs in providing a simple
+   * interface that is sufficient for most applications.
+   */
+
+  class TAGLIB_EXPORT AudioProperties
+  {
+  public:
+
+	/*!
+	 * Reading audio properties from a file can sometimes be very time consuming
+	 * and for the most accurate results can often involve reading the entire
+	 * file.  Because in many situations speed is critical or the accuracy of the
+	 * values is not particularly important this allows the level of desired
+	 * accuracy to be set.
+	 */
+	enum ReadStyle {
+	  //! Read as little of the file as possible
+	  Fast,
+	  //! Read more of the file and make better values guesses
+	  Average,
+	  //! Read as much of the file as needed to report accurate values
+	  Accurate
+	};
+
+	/*!
+	 * Destroys this AudioProperties instance.
+	 */
+	virtual ~AudioProperties();
+
+	/*!
+	 * Returns the length of the file in seconds.
+	 */
+	virtual int length() const = 0;
+
+	/*!
+	 * Returns the most appropriate bit rate for the file in kb/s.  For constant
+	 * bitrate formats this is simply the bitrate of the file.  For variable
+	 * bitrate formats this is either the average or nominal bitrate.
+	 */
+	virtual int bitrate() const = 0;
+
+	/*!
+	 * Returns the sample rate in Hz.
+	 */
+	virtual int sampleRate() const = 0;
+
+	/*!
+	 * Returns the number of audio channels.
+	 */
+	virtual int channels() const = 0;
+
+  protected:
+
+	/*!
+	 * Construct an audio properties instance.  This is protected as this class
+	 * should not be instantiated directly, but should be instantiated via its
+	 * subclasses and can be fetched from the FileRef or File APIs.
+	 *
+	 * \see ReadStyle
+	 */
+	AudioProperties(ReadStyle style);
+
+  private:
+	AudioProperties(const AudioProperties &);
+	AudioProperties &operator=(const AudioProperties &);
+
+	class AudioPropertiesPrivate;
+	AudioPropertiesPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: audioproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  //! This class provides a simple abstraction for creating and handling files
+
+  /*!
+   * FileRef exists to provide a minimal, generic and value-based wrapper around
+   * a File.  It is lightweight and implicitly shared, and as such suitable for
+   * pass-by-value use.  This hides some of the uglier details of TagLib::File
+   * and the non-generic portions of the concrete file implementations.
+   *
+   * This class is useful in a "simple usage" situation where it is desirable
+   * to be able to get and set some of the tag information that is similar
+   * across file types.
+   *
+   * Also note that it is probably a good idea to plug this into your mime
+   * type system rather than using the constructor that accepts a file name using
+   * the FileTypeResolver.
+   *
+   * \see FileTypeResolver
+   * \see addFileTypeResolver()
+   */
+
+  class TAGLIB_EXPORT FileRef
+  {
+  public:
+
+  //! A class for pluggable file type resolution.
+
+  /*!
+   * This class is used to add extend TagLib's very basic file name based file
+   * type resolution.
+   *
+   * This can be accomplished with:
+   *
+   * \code
+   *
+   * class MyFileTypeResolver : FileTypeResolver
+   * {
+   *   TagLib::File *createFile(TagLib::FileName *fileName, bool, AudioProperties::ReadStyle)
+   *   {
+   *     if(someCheckForAnMP3File(fileName))
+   *       return new TagLib::MPEG::File(fileName);
+   *     return 0;
+   *   }
+   * }
+   *
+   * FileRef::addFileTypeResolver(new MyFileTypeResolver);
+   *
+   * \endcode
+   *
+   * Naturally a less contrived example would be slightly more complex.  This
+   * can be used to plug in mime-type detection systems or to add new file types
+   * to TagLib.
+   */
+
+	class TAGLIB_EXPORT FileTypeResolver
+	{
+	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
+	public:
+	  /*!
+	   * This method must be overridden to provide an additional file type
+	   * resolver.  If the resolver is able to determine the file type it should
+	   * return a valid File object; if not it should return 0.
+	   *
+	   * \note The created file is then owned by the FileRef and should not be
+	   * deleted.  Deletion will happen automatically when the FileRef passes
+	   * out of scope.
+	   */
+	  virtual File *createFile(FileName fileName,
+							   bool readAudioProperties = true,
+							   AudioProperties::ReadStyle
+							   audioPropertiesStyle = AudioProperties::Average) const = 0;
+	};
+
+	/*!
+	 * Creates a null FileRef.
+	 */
+	FileRef();
+
+	/*!
+	 * Create a FileRef from \a fileName.  If \a readAudioProperties is true then
+	 * the audio properties will be read using \a audioPropertiesStyle.  If
+	 * \a readAudioProperties is false then \a audioPropertiesStyle will be
+	 * ignored.
+	 *
+	 * Also see the note in the class documentation about why you may not want to
+	 * use this method in your application.
+	 */
+	explicit FileRef(FileName fileName,
+					 bool readAudioProperties = true,
+					 AudioProperties::ReadStyle
+					 audioPropertiesStyle = AudioProperties::Average);
+
+	/*!
+	 * Contruct a FileRef using \a file.  The FileRef now takes ownership of the
+	 * pointer and will delete the File when it passes out of scope.
+	 */
+	explicit FileRef(File *file);
+
+	/*!
+	 * Make a copy of \a ref.
+	 */
+	FileRef(const FileRef &ref);
+
+	/*!
+	 * Destroys this FileRef instance.
+	 */
+	virtual ~FileRef();
+
+	/*!
+	 * Returns a pointer to represented file's tag.
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 *
+	 * \warning Do not cast it to any subclasses of \class Tag.
+	 * Use tag returning methods of appropriate subclasses of \class File instead.
+	 *
+	 * \see File::tag()
+	 */
+	Tag *tag() const;
+
+	/*!
+	 * Returns the audio properties for this FileRef.  If no audio properties
+	 * were read then this will returns a null pointer.
+	 */
+	AudioProperties *audioProperties() const;
+
+	/*!
+	 * Returns a pointer to the file represented by this handler class.
+	 *
+	 * As a general rule this call should be avoided since if you need to work
+	 * with file objects directly, you are probably better served instantiating
+	 * the File subclasses (i.e. MPEG::File) manually and working with their APIs.
+	 *
+	 * This <i>handle</i> exists to provide a minimal, generic and value-based
+	 * wrapper around a File.  Accessing the file directly generally indicates
+	 * a moving away from this simplicity (and into things beyond the scope of
+	 * FileRef).
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 */
+	File *file() const;
+
+	/*!
+	 * Saves the file.  Returns true on success.
+	 */
+	bool save();
+
+	/*!
+	 * Adds a FileTypeResolver to the list of those used by TagLib.  Each
+	 * additional FileTypeResolver is added to the front of a list of resolvers
+	 * that are tried.  If the FileTypeResolver returns zero the next resolver
+	 * is tried.
+	 *
+	 * Returns a pointer to the added resolver (the same one that's passed in --
+	 * this is mostly so that static inialializers have something to use for
+	 * assignment).
+	 *
+	 * \see FileTypeResolver
+	 */
+	static const FileTypeResolver *addFileTypeResolver(const FileTypeResolver *resolver);
+
+	/*!
+	 * As is mentioned elsewhere in this class's documentation, the default file
+	 * type resolution code provided by TagLib only works by comparing file
+	 * extensions.
+	 *
+	 * This method returns the list of file extensions that are used by default.
+	 *
+	 * The extensions are all returned in lowercase, though the comparison used
+	 * by TagLib for resolution is case-insensitive.
+	 *
+	 * \note This does not account for any additional file type resolvers that
+	 * are plugged in.  Also note that this is not intended to replace a propper
+	 * mime-type resolution system, but is just here for reference.
+	 *
+	 * \see FileTypeResolver
+	 */
+	static StringList defaultFileExtensions();
+
+	/*!
+	 * Returns true if the file (and as such other pointers) are null.
+	 */
+	bool isNull() const;
+
+	/*!
+	 * Assign the file pointed to by \a ref to this FileRef.
+	 */
+	FileRef &operator=(const FileRef &ref);
+
+	/*!
+	 * Returns true if this FileRef and \a ref point to the same File object.
+	 */
+	bool operator==(const FileRef &ref) const;
+
+	/*!
+	 * Returns true if this FileRef and \a ref do not point to the same File
+	 * object.
+	 */
+	bool operator!=(const FileRef &ref) const;
+
+	/*!
+	 * A simple implementation of file type guessing.  If \a readAudioProperties
+	 * is true then the audio properties will be read using
+	 * \a audioPropertiesStyle.  If \a readAudioProperties is false then
+	 * \a audioPropertiesStyle will be ignored.
+	 *
+	 * \note You generally shouldn't use this method, but instead the constructor
+	 * directly.
+	 *
+	 * \deprecated
+	 */
+	static File *create(FileName fileName,
+						bool readAudioProperties = true,
+						AudioProperties::ReadStyle audioPropertiesStyle = AudioProperties::Average);
+
+  private:
+	class FileRefPrivate;
+	FileRefPrivate *d;
+  };
+
+} // namespace TagLib
+
+#endif
+
+/*** End of inlined file: fileref.h ***/
+
