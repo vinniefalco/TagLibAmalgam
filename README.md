@@ -1,6 +1,6 @@
 # TagLib Amalgamation
 
-A distribution of the [TagLib](http://developer.kde.org/~wheeler/taglib.html/) library in amalgamated source
+A distribution of the [TagLib](http://developer.kde.org/~wheeler/taglib.html) library in amalgamated source
 form. The amalgamation is built using the [Amalgamate](http://github.com/vinniefalco/Amalgamate/)
 Tool.
 
@@ -22,5 +22,5 @@ linked. This amalgamation eliminates those problems.
 - Edit "TagLibConfig.h" to suit your needs.
 
 ### Terms and Conditions
-The amalgamation uses the same license as [TagLib](http://developer.kde.org/~wheeler/taglib.html/)<br>
+The amalgamation uses the same license as [TagLib](http://developer.kde.org/~wheeler/taglib.html)<br>
 The author hereby releases all his public TagLib changes to the public domain.
