@@ -13,6 +13,14 @@
 
 //#include "TagLibConfig.h"
 
+#include "toolkit/tstring.cpp"
+#include "toolkit/tfile.cpp"
+
+#include "tag.cpp"
+#include "tagunion.cpp"
+#include "fileref.cpp"
+#include "audioproperties.cpp"
+
 #include "mpeg/mpegfile.cpp"
 #include "mpeg/mpegproperties.cpp"
 #include "mpeg/mpegheader.cpp"
@@ -49,7 +57,7 @@
 #include "ogg/vorbis/vorbisfile.cpp"
 #include "ogg/vorbis/vorbisproperties.cpp"
 
-//#include "flac/flacfile.cpp"
+#include "flac/flacfile.cpp"
 #include "flac/flacpicture.cpp"
 #include "flac/flacproperties.cpp"
 #include "flac/flacmetadatablock.cpp"
@@ -57,7 +65,7 @@
 
 #include "ogg/flac/oggflacfile.cpp"
 
-//#include "mpc/mpcfile.cpp"
+#include "mpc/mpcfile.cpp"
 #include "mpc/mpcproperties.cpp"
 
 #include "mp4/mp4file.cpp"
@@ -67,19 +75,19 @@
 #include "mp4/mp4properties.cpp"
 #include "mp4/mp4coverart.cpp"
 
-#include "ape/apetag.cpp"
-//#include "ape/apefooter.cpp"
+//#include "ape/apetag.cpp"
+#include "ape/apefooter.cpp"
 #include "ape/apeitem.cpp"
-//#include "ape/apefile.cpp"
+#include "ape/apefile.cpp"
 #include "ape/apeproperties.cpp"
 
-//#include "wavpack/wavpackfile.cpp"
+#include "wavpack/wavpackfile.cpp"
 #include "wavpack/wavpackproperties.cpp"
 
 #include "ogg/speex/speexfile.cpp"
 #include "ogg/speex/speexproperties.cpp"
 
-//#include "trueaudio/trueaudiofile.cpp"
+#include "trueaudio/trueaudiofile.cpp"
 #include "trueaudio/trueaudioproperties.cpp"
 
 #include "asf/asftag.cpp"
@@ -110,18 +118,11 @@
 #include "xm/xmfile.cpp"
 #include "xm/xmproperties.cpp"
 
-//#include "toolkit/tstring.cpp"
 #include "toolkit/tstringlist.cpp"
 #include "toolkit/tbytevector.cpp"
 #include "toolkit/tbytevectorlist.cpp"
 #include "toolkit/tbytevectorstream.cpp"
 #include "toolkit/tiostream.cpp"
-//#include "toolkit/tfile.cpp"
 #include "toolkit/tfilestream.cpp"
 #include "toolkit/tdebug.cpp"
 #include "toolkit/unicode.cpp"
-
-//#include "tag.cpp"
-//#include "tagunion.cpp"
-//#include "fileref.cpp"
-#include "audioproperties.cpp"

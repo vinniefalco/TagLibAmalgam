@@ -14,7 +14,7 @@
 //#include "TagLibConfig.h"
 
 
-/*** Start of inlined file: mpegfile.cpp ***/
+/*** Start of inlined file: tstring.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-/*** Start of inlined file: tagunion.h ***/
+/*** Start of inlined file: tstring.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -57,33 +57,8 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_TAGUNION_H
-#define TAGLIB_TAGUNION_H
-
-
-/*** Start of inlined file: tag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_TAG_H
-#define TAGLIB_TAG_H
+#ifndef TAGLIB_STRING_H
+#define TAGLIB_STRING_H
 
 
 /*** Start of inlined file: taglib_export.h ***/
@@ -131,31 +106,6 @@
 #endif
 
 /*** End of inlined file: taglib_export.h ***/
-
-
-/*** Start of inlined file: tstring.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_STRING_H
-#define TAGLIB_STRING_H
 
 
 /*** Start of inlined file: taglib.h ***/
@@ -1270,221 +1220,162 @@ TAGLIB_EXPORT std::ostream &operator<<(std::ostream &s, const TagLib::String &st
 
 /*** End of inlined file: tstring.h ***/
 
-namespace TagLib {
 
-  //! A simple, generic interface to common audio meta data fields
+/*** Start of inlined file: unicode.h ***/
+#ifndef TAGLIB_UNICODE_H
+#define TAGLIB_UNICODE_H
 
-  /*!
-   * This is an attempt to abstract away the difference in the meta data formats
-   * of various audio codecs and tagging schemes.  As such it is generally a
-   * subset of what is available in the specific formats but should be suitable
-   * for most applications.  This is meant to compliment the generic APIs found
-   * in TagLib::AudioProperties, TagLib::File and TagLib::FileRef.
-   */
+/*******************************************************************************
+ *                                                                             *
+ * THIS FILE IS INCLUDED IN TAGLIB, BUT IS NOT COPYRIGHTED BY THE TAGLIB       *
+ * AUTHORS, NOT PART OF THE TAGLIB API AND COULD GO AWAY AT ANY POINT IN TIME. *
+ * AS SUCH IT SHOULD BE CONSIERED FOR INTERNAL USE ONLY.                       *
+ *                                                                             *
+ *******************************************************************************/
 
-  class TAGLIB_EXPORT Tag
-  {
-  public:
+#ifndef DO_NOT_DOCUMENT  // tell Doxygen not to document this header
 
-	/*!
-	 * Detroys this Tag instance.
-	 */
-	virtual ~Tag();
+/*
+ * Copyright 2001 Unicode, Inc.
+ *
+ * Disclaimer
+ *
+ * This source code is provided as is by Unicode, Inc. No claims are
+ * made as to fitness for any particular purpose. No warranties of any
+ * kind are expressed or implied. The recipient agrees to determine
+ * applicability of information provided. If this file has been
+ * purchased on magnetic or optical media from Unicode, Inc., the
+ * sole remedy for any claim will be exchange of defective media
+ * within 90 days of receipt.
+ *
+ * Limitations on Rights to Redistribute This Code
+ *
+ * Unicode, Inc. hereby grants the right to freely use the information
+ * supplied in this file in the creation of products supporting the
+ * Unicode Standard, and to make copies of this file in any form
+ * for internal or external distribution as long as this notice
+ * remains attached.
+ */
 
-	/*!
-	 * Returns the track name; if no track name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String title() const = 0;
+/*
+ * This file has been modified by Scott Wheeler <wheeler@kde.org> to remove
+ * the UTF32 conversion functions and to place the appropriate functions
+ * in their own C++ namespace.
+ */
 
-	/*!
-	 * Returns the artist name; if no artist name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String artist() const = 0;
+/* ---------------------------------------------------------------------
 
-	/*!
-	 * Returns the album name; if no album name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String album() const = 0;
+	Conversions between UTF32, UTF-16, and UTF-8.  Header file.
 
-	/*!
-	 * Returns the track comment; if no comment is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String comment() const = 0;
+	Several functions are included here, forming a complete set of
+	conversions between the three formats.  UTF-7 is not included
+	here, but is handled in a separate source file.
 
-	/*!
-	 * Returns the genre name; if no genre is present in the tag String::null
-	 * will be returned.
-	 */
-	virtual String genre() const = 0;
+	Each of these routines takes pointers to input buffers and output
+	buffers.  The input buffers are const.
 
-	/*!
-	 * Returns the year; if there is no year set, this will return 0.
-	 */
-	virtual uint year() const = 0;
+	Each routine converts the text between *sourceStart and sourceEnd,
+	putting the result into the buffer between *targetStart and
+	targetEnd. Note: the end pointers are *after* the last item: e.g.
+	*(sourceEnd - 1) is the last item.
 
-	/*!
-	 * Returns the track number; if there is no track number set, this will
-	 * return 0.
-	 */
-	virtual uint track() const = 0;
+	The return result indicates whether the conversion was successful,
+	and if not, whether the problem was in the source or target buffers.
+	(Only the first encountered problem is indicated.)
 
-	/*!
-	 * Sets the title to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setTitle(const String &s) = 0;
+	After the conversion, *sourceStart and *targetStart are both
+	updated to point to the end of last text successfully converted in
+	the respective buffers.
 
-	/*!
-	 * Sets the artist to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setArtist(const String &s) = 0;
+	Input parameters:
+	sourceStart - pointer to a pointer to the source buffer.
+		The contents of this are modified on return so that
+		it points at the next thing to be converted.
+	targetStart - similarly, pointer to pointer to the target buffer.
+	sourceEnd, targetEnd - respectively pointers to the ends of the
+		two buffers, for overflow checking only.
 
-	/*!
-	 * Sets the album to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setAlbum(const String &s) = 0;
+	These conversion functions take a ConversionFlags argument. When this
+	flag is set to strict, both irregular sequences and isolated surrogates
+	will cause an error.  When the flag is set to lenient, both irregular
+	sequences and isolated surrogates are converted.
 
-	/*!
-	 * Sets the comment to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setComment(const String &s) = 0;
+	Whether the flag is strict or lenient, all illegal sequences will cause
+	an error return. This includes sequences such as: <F4 90 80 80>, <C0 80>,
+	or <A0> in UTF-8, and values above 0x10FFFF in UTF-32. Conformant code
+	must check for illegal sequences.
 
-	/*!
-	 * Sets the genre to \a s.  If \a s is String::null then this value will be
-	 * cleared.  For tag formats that use a fixed set of genres, the appropriate
-	 * value will be selected based on a string comparison.  A list of available
-	 * genres for those formats should be available in that type's
-	 * implementation.
-	 */
-	virtual void setGenre(const String &s) = 0;
+	When the flag is set to lenient, characters over 0x10FFFF are converted
+	to the replacement character; otherwise (when the flag is set to strict)
+	they constitute an error.
 
-	/*!
-	 * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
-	 */
-	virtual void setYear(uint i) = 0;
+	Output parameters:
+	The value "sourceIllegal" is returned from some routines if the input
+	sequence is malformed.  When "sourceIllegal" is returned, the source
+	value will point to the illegal value that caused the problem. E.g.,
+	in UTF-8 when a sequence is malformed, it points to the start of the
+	malformed sequence.
 
-	/*!
-	 * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
-	 */
-	virtual void setTrack(uint i) = 0;
+	Author: Mark E. Davis, 1994.
+	Rev History: Rick McGowan, fixes & updates May 2001.
+		 Fixes & updates, Sept 2001.
 
-	/*!
-	 * Returns true if the tag does not contain any data.  This should be
-	 * reimplemented in subclasses that provide more than the basic tagging
-	 * abilities in this class.
-	 */
-	virtual bool isEmpty() const;
+------------------------------------------------------------------------ */
 
-	/*!
-	 * Copies the generic data from one tag to another.
-	 *
-	 * \note This will no affect any of the lower level details of the tag.  For
-	 * instance if any of the tag type specific data (maybe a URL for a band) is
-	 * set, this will not modify or copy that.  This just copies using the API
-	 * in this class.
-	 *
-	 * If \a overwrite is true then the values will be unconditionally copied.
-	 * If false only empty values will be overwritten.
-	 */
-	static void duplicate(const Tag *source, Tag *target, bool overwrite = true);
+/* ---------------------------------------------------------------------
+	The following 4 definitions are compiler-specific.
+	The C standard does not guarantee that wchar_t has at least
+	16 bits, so wchar_t is no less portable than unsigned short!
+	All should be unsigned values to avoid sign extension during
+	bit mask & shift operations.
+------------------------------------------------------------------------ */
 
-  protected:
-	/*!
-	 * Construct a Tag.  This is protected since tags should only be instantiated
-	 * through subclasses.
-	 */
-	Tag();
+/* Some fundamental constants */
+#define UNI_REPLACEMENT_CHAR (UTF32)0x0000FFFD
+#define UNI_MAX_BMP (UTF32)0x0000FFFF
+#define UNI_MAX_UTF16 (UTF32)0x0010FFFF
+#define UNI_MAX_UTF32 (UTF32)0x7FFFFFFF
 
-  private:
-	Tag(const Tag &);
-	Tag &operator=(const Tag &);
+namespace Unicode {
 
-	class TagPrivate;
-	TagPrivate *d;
-  };
-}
+typedef unsigned long	UTF32;	/* at least 32 bits */
+typedef unsigned short	UTF16;	/* at least 16 bits */
+typedef unsigned char	UTF8;	/* typically 8 bits */
+typedef unsigned char	Boolean; /* 0 or 1 */
 
-#endif
+typedef enum {
+	conversionOK = 0,	/* conversion successful */
+	sourceExhausted = 1,	/* partial character in source, but hit end */
+	targetExhausted = 2,	/* insuff. room in target for conversion */
+	sourceIllegal = 3	/* source sequence is illegal/malformed */
+} ConversionResult;
 
-/*** End of inlined file: tag.h ***/
+typedef enum {
+	strictConversion = 0,
+	lenientConversion
+} ConversionFlags;
 
-#ifndef DO_NOT_DOCUMENT
+ConversionResult ConvertUTF8toUTF16 (
+		const UTF8** sourceStart, const UTF8* sourceEnd,
+		UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags);
 
-namespace TagLib {
+ConversionResult ConvertUTF16toUTF8 (
+		const UTF16** sourceStart, const UTF16* sourceEnd,
+		UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags);
 
-  /*!
-   * \internal
-   */
+Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd);
 
-  class TagUnion : public Tag
-  {
-  public:
+} // namespace Unicode
 
-	enum AccessType { Read, Write };
-
-	/*!
-	 * Creates a TagLib::Tag that is the union of \a first, \a second, and
-	 * \a third.  The TagUnion takes ownership of these tags and will handle
-	 * their deletion.
-	 */
-	TagUnion(Tag *first = 0, Tag *second = 0, Tag *third = 0);
-
-	virtual ~TagUnion();
-
-	Tag *operator[](int index) const;
-	Tag *tag(int index) const;
-
-	void set(int index, Tag *tag);
-
-	virtual String title() const;
-	virtual String artist() const;
-	virtual String album() const;
-	virtual String comment() const;
-	virtual String genre() const;
-	virtual uint year() const;
-	virtual uint track() const;
-
-	virtual void setTitle(const String &s);
-	virtual void setArtist(const String &s);
-	virtual void setAlbum(const String &s);
-	virtual void setComment(const String &s);
-	virtual void setGenre(const String &s);
-	virtual void setYear(uint i);
-	virtual void setTrack(uint i);
-	virtual bool isEmpty() const;
-
-	template <class T> T *access(int index, bool create)
-	{
-	  if(!create || tag(index))
-		return static_cast<T *>(tag(index));
-
-	  set(index, new T);
-	  return static_cast<T *>(tag(index));
-	}
-
-  private:
-	TagUnion(const Tag &);
-	TagUnion &operator=(const Tag &);
-
-	class TagUnionPrivate;
-	TagUnionPrivate *d;
-  };
-}
+/* --------------------------------------------------------------------- */
 
 #endif
 #endif
 
-/*** End of inlined file: tagunion.h ***/
+/*** End of inlined file: unicode.h ***/
 
 
-/*** Start of inlined file: id3v2tag.h ***/
+/*** Start of inlined file: tdebug.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -1505,8 +1396,79 @@ namespace TagLib {
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ID3V2TAG_H
-#define TAGLIB_ID3V2TAG_H
+#ifndef TAGLIB_DEBUG_H
+#define TAGLIB_DEBUG_H
+
+namespace TagLib {
+
+  class String;
+  class ByteVector;
+
+#ifndef DO_NOT_DOCUMENT
+#ifndef NDEBUG
+
+  /*!
+   * A simple function that prints debugging output to cerr if debugging is
+   * not disabled.
+   *
+   * \warning Do not use this outside of TagLib, it could lead to undefined
+   * symbols in your build if TagLib is built with NDEBUG defined and your
+   * application is not.
+   *
+   * \internal
+   */
+  void debug(const String &s);
+
+  /*!
+   * For debugging binary data.
+   *
+   * \warning Do not use this outside of TagLib, it could lead to undefined
+   * symbols in your build if TagLib is built with NDEBUG defined and your
+   * application is not.
+   *
+   * \internal
+   */
+  void debugData(const ByteVector &v);
+
+#else
+
+  // Define these to an empty statement if debugging is disabled.
+
+#define debug(x)
+#define debugData(x)
+
+#endif
+#endif
+}
+
+#endif
+
+/*** End of inlined file: tdebug.h ***/
+
+
+/*** Start of inlined file: tstringlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_STRINGLIST_H
+#define TAGLIB_STRINGLIST_H
 
 
 /*** Start of inlined file: tlist.h ***/
@@ -2073,6 +2035,2926 @@ void List<T>::detach()
 /*** End of inlined file: tlist.h ***/
 
 
+/*** Start of inlined file: tbytevectorlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_BYTEVECTORLIST_H
+#define TAGLIB_BYTEVECTORLIST_H
+
+namespace TagLib {
+
+  //! A list of ByteVectors
+
+  /*!
+   * A List specialization with some handy features useful for ByteVectors.
+   */
+
+  class TAGLIB_EXPORT ByteVectorList : public List<ByteVector>
+  {
+  public:
+
+	/*!
+	 * Construct an empty ByteVectorList.
+	 */
+	ByteVectorList();
+
+	/*!
+	 * Destroys this ByteVectorList instance.
+	 */
+	virtual ~ByteVectorList();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	ByteVectorList(const ByteVectorList &l);
+
+	/*!
+	 * Convert the ByteVectorList to a ByteVector separated by \a separator.  By
+	 * default a space is used.
+	 */
+	ByteVector toByteVector(const ByteVector &separator = " ") const;
+
+	/*!
+	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
+	 * not include the pattern in the returned ByteVectors.
+	 */
+	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
+								int byteAlign = 1);
+	/*!
+	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
+	 * not include the pattern in the returned ByteVectors.  \a max is the
+	 * maximum number of entries that will be separated.  If \a max for instance
+	 * is 2 then a maximum of 1 match will be found and the vector will be split
+	 * on that match.
+	 */
+	// BIC: merge with the function above
+	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
+								int byteAlign, int max);
+  private:
+	class ByteVectorListPrivate;
+	ByteVectorListPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tbytevectorlist.h ***/
+
+#include <ostream>
+
+namespace TagLib {
+
+  //! A list of strings
+
+  /*!
+   * This is a spcialization of the List class with some members convention for
+   * string operations.
+   */
+
+  class TAGLIB_EXPORT StringList : public List<String>
+  {
+  public:
+
+	/*!
+	 * Constructs an empty StringList.
+	 */
+	StringList();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	StringList(const StringList &l);
+
+	/*!
+	 * Constructs a StringList with \a s as a member.
+	 */
+	StringList(const String &s);
+
+	/*!
+	 * Makes a deep copy of the data in \a vl.
+	 *
+	 * \note This should only be used with the 8-bit codecs Latin1 and UTF8, when
+	 * used with other codecs it will simply print a warning and exit.
+	 */
+	StringList(const ByteVectorList &vl, String::Type t = String::Latin1);
+
+	/*!
+	 * Destroys this StringList instance.
+	 */
+	virtual ~StringList();
+
+	/*!
+	 * Concatenate the list of strings into one string separated by \a separator.
+	 */
+	String toString(const String &separator = " ") const;
+
+	/*!
+	 * Appends \a s to the end of the list and returns a reference to the
+	 * list.
+	 */
+	StringList &append(const String &s);
+
+	/*!
+	 * Appends all of the values in \a l to the end of the list and returns a
+	 * reference to the list.
+	 */
+	StringList &append(const StringList &l);
+
+	/*!
+	 * Splits the String \a s into several strings at \a pattern.  This will not include
+	 * the pattern in the returned strings.
+	 */
+	static StringList split(const String &s, const String &pattern);
+
+  private:
+	class StringListPrivate;
+	StringListPrivate *d;
+  };
+
+}
+
+/*!
+ * \related TagLib::StringList
+ * Send the StringList to an output stream.
+ */
+std::ostream &operator<<(std::ostream &s, const TagLib::StringList &l);
+
+#endif
+
+/*** End of inlined file: tstringlist.h ***/
+
+#include <ostream>
+
+#include <string.h>
+
+namespace TagLib {
+
+  inline unsigned short byteSwap(unsigned short x)
+  {
+	return (((x) >> 8) & 0xff) | (((x) & 0xff) << 8);
+  }
+
+  inline unsigned short combine(unsigned char c1, unsigned char c2)
+  {
+	return (c1 << 8) | c2;
+  }
+}
+
+using namespace TagLib;
+
+class String::StringPrivate : public RefCounter
+{
+public:
+  StringPrivate(const wstring &s) :
+	RefCounter(),
+	data(s),
+	CString(0) {}
+
+  StringPrivate() :
+	RefCounter(),
+	CString(0) {}
+
+  ~StringPrivate() {
+	delete [] CString;
+  }
+
+  wstring data;
+
+  /*!
+   * This is only used to hold the a pointer to the most recent value of
+   * toCString.
+   */
+  char *CString;
+};
+
+String String::null;
+
+////////////////////////////////////////////////////////////////////////////////
+
+String::String()
+{
+  d = new StringPrivate;
+}
+
+String::String(const String &s) : d(s.d)
+{
+  d->ref();
+}
+
+String::String(const std::string &s, Type t)
+{
+  d = new StringPrivate;
+
+  if(t == UTF16 || t == UTF16BE || t == UTF16LE) {
+	debug("String::String() -- A std::string should not contain UTF16.");
+	return;
+  }
+
+  int length = s.length();
+  d->data.resize(length);
+  wstring::iterator targetIt = d->data.begin();
+
+  for(std::string::const_iterator it = s.begin(); it != s.end(); it++) {
+	*targetIt = uchar(*it);
+	++targetIt;
+  }
+
+  prepare(t);
+}
+
+String::String(const wstring &s, Type t)
+{
+  d = new StringPrivate(s);
+  prepare(t);
+}
+
+String::String(const wchar_t *s, Type t)
+{
+  d = new StringPrivate(s);
+  prepare(t);
+}
+
+String::String(const char *s, Type t)
+{
+  d = new StringPrivate;
+
+  if(t == UTF16 || t == UTF16BE || t == UTF16LE) {
+	debug("String::String() -- A const char * should not contain UTF16.");
+	return;
+  }
+
+  int length = ::strlen(s);
+  d->data.resize(length);
+
+  wstring::iterator targetIt = d->data.begin();
+
+  for(int i = 0; i < length; i++) {
+	*targetIt = uchar(s[i]);
+	++targetIt;
+  }
+
+  prepare(t);
+}
+
+String::String(wchar_t c, Type t)
+{
+  d = new StringPrivate;
+  d->data += c;
+  prepare(t);
+}
+
+String::String(char c, Type t)
+{
+  d = new StringPrivate;
+
+  if(t == UTF16 || t == UTF16BE || t == UTF16LE) {
+	debug("String::String() -- A std::string should not contain UTF16.");
+	return;
+  }
+
+  d->data += uchar(c);
+  prepare(t);
+}
+
+String::String(const ByteVector &v, Type t)
+{
+  d = new StringPrivate;
+
+  if(v.isEmpty())
+	return;
+
+  if(t == Latin1 || t == UTF8) {
+
+	int length = 0;
+	d->data.resize(v.size());
+	wstring::iterator targetIt = d->data.begin();
+	for(ByteVector::ConstIterator it = v.begin(); it != v.end() && (*it); ++it) {
+	  *targetIt = uchar(*it);
+	  ++targetIt;
+	  ++length;
+	}
+	d->data.resize(length);
+  }
+  else  {
+	d->data.resize(v.size() / 2);
+	wstring::iterator targetIt = d->data.begin();
+
+	for(ByteVector::ConstIterator it = v.begin();
+		it != v.end() && it + 1 != v.end() && combine(*it, *(it + 1));
+		it += 2)
+	{
+	  *targetIt = combine(*it, *(it + 1));
+	  ++targetIt;
+	}
+  }
+  prepare(t);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+String::~String()
+{
+  if(d->deref())
+	delete d;
+}
+
+std::string String::to8Bit(bool unicode) const
+{
+  std::string s;
+  s.resize(d->data.size());
+
+  if(!unicode) {
+	std::string::iterator targetIt = s.begin();
+	for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+	  *targetIt = char(*it);
+	  ++targetIt;
+	}
+	return s;
+  }
+
+  const int outputBufferSize = d->data.size() * 3 + 1;
+
+  Unicode::UTF16 *sourceBuffer = new Unicode::UTF16[d->data.size() + 1];
+  Unicode::UTF8  *targetBuffer = new Unicode::UTF8[outputBufferSize];
+
+  for(unsigned int i = 0; i < d->data.size(); i++)
+	sourceBuffer[i] = Unicode::UTF16(d->data[i]);
+
+  const Unicode::UTF16 *source = sourceBuffer;
+  Unicode::UTF8 *target = targetBuffer;
+
+  Unicode::ConversionResult result =
+	Unicode::ConvertUTF16toUTF8(&source, sourceBuffer + d->data.size(),
+								&target, targetBuffer + outputBufferSize,
+								Unicode::lenientConversion);
+
+  if(result != Unicode::conversionOK)
+	debug("String::to8Bit() - Unicode conversion error.");
+
+  int newSize = target - targetBuffer;
+  s.resize(newSize);
+  targetBuffer[newSize] = 0;
+
+  s = (char *) targetBuffer;
+
+  delete [] sourceBuffer;
+  delete [] targetBuffer;
+
+  return s;
+}
+
+TagLib::wstring String::toWString() const
+{
+  return d->data;
+}
+
+const char *String::toCString(bool unicode) const
+{
+  delete [] d->CString;
+
+  std::string buffer = to8Bit(unicode);
+  d->CString = new char[buffer.size() + 1];
+  strcpy(d->CString, buffer.c_str());
+
+  return d->CString;
+}
+
+String::Iterator String::begin()
+{
+  return d->data.begin();
+}
+
+String::ConstIterator String::begin() const
+{
+  return d->data.begin();
+}
+
+String::Iterator String::end()
+{
+  return d->data.end();
+}
+
+String::ConstIterator String::end() const
+{
+  return d->data.end();
+}
+
+int String::find(const String &s, int offset) const
+{
+  wstring::size_type position = d->data.find(s.d->data, offset);
+
+  if(position != wstring::npos)
+	return position;
+  else
+	return -1;
+}
+
+int String::rfind(const String &s, int offset) const
+{
+  wstring::size_type position =
+	d->data.rfind(s.d->data, offset == -1 ? wstring::npos : offset);
+
+  if(position != wstring::npos)
+	return position;
+  else
+	return -1;
+}
+
+StringList String::split(const String &separator) const
+{
+  StringList list;
+  for(int index = 0;;)
+  {
+	int sep = find(separator, index);
+	if(sep < 0)
+	{
+	  list.append(substr(index, size() - index));
+	  break;
+	}
+	else
+	{
+	  list.append(substr(index, sep - index));
+	  index = sep + separator.size();
+	}
+  }
+  return list;
+}
+
+bool String::startsWith(const String &s) const
+{
+  if(s.length() > length())
+	return false;
+
+  return substr(0, s.length()) == s;
+}
+
+String String::substr(uint position, uint n) const
+{
+  if(n > position + d->data.size())
+	n = d->data.size() - position;
+
+  String s;
+  s.d->data = d->data.substr(position, n);
+  return s;
+}
+
+String &String::append(const String &s)
+{
+  detach();
+  d->data += s.d->data;
+  return *this;
+}
+
+String String::upper() const
+{
+  String s;
+
+  static int shift = 'A' - 'a';
+
+  for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); ++it) {
+	if(*it >= 'a' && *it <= 'z')
+	  s.d->data.push_back(*it + shift);
+	else
+	  s.d->data.push_back(*it);
+  }
+
+  return s;
+}
+
+TagLib::uint String::size() const
+{
+  return d->data.size();
+}
+
+TagLib::uint String::length() const
+{
+  return size();
+}
+
+bool String::isEmpty() const
+{
+  return d->data.size() == 0;
+}
+
+bool String::isNull() const
+{
+  return d == null.d;
+}
+
+ByteVector String::data(Type t) const
+{
+  ByteVector v;
+
+  switch(t) {
+
+  case Latin1:
+  {
+	for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++)
+	  v.append(char(*it));
+	break;
+  }
+  case UTF8:
+  {
+	std::string s = to8Bit(true);
+	v.setData(s.c_str(), s.length());
+	break;
+  }
+  case UTF16:
+  {
+	// Assume that if we're doing UTF16 and not UTF16BE that we want little
+	// endian encoding.  (Byte Order Mark)
+
+	v.append(char(0xff));
+	v.append(char(0xfe));
+
+	for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+
+	  char c1 = *it & 0xff;
+	  char c2 = *it >> 8;
+
+	  v.append(c1);
+	  v.append(c2);
+	}
+	break;
+  }
+  case UTF16BE:
+  {
+	for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+
+	  char c1 = *it >> 8;
+	  char c2 = *it & 0xff;
+
+	  v.append(c1);
+	  v.append(c2);
+	}
+	break;
+  }
+  case UTF16LE:
+  {
+	for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+
+	  char c1 = *it & 0xff;
+	  char c2 = *it >> 8;
+
+	  v.append(c1);
+	  v.append(c2);
+	}
+	break;
+  }
+  }
+
+  return v;
+}
+
+int String::toInt() const
+{
+  return toInt(0);
+}
+
+int String::toInt(bool *ok) const
+{
+  int value = 0;
+
+  uint size = d->data.size();
+  bool negative = size > 0 && d->data[0] == '-';
+  uint start = negative ? 1 : 0;
+  uint i = start;
+
+  for(; i < size && d->data[i] >= '0' && d->data[i] <= '9'; i++)
+	value = value * 10 + (d->data[i] - '0');
+
+  if(negative)
+	value = value * -1;
+
+  if(ok)
+	*ok = (size > start && i == size);
+
+  return value;
+}
+
+String String::stripWhiteSpace() const
+{
+  wstring::const_iterator begin = d->data.begin();
+  wstring::const_iterator end = d->data.end();
+
+  while(begin != end &&
+		(*begin == '\t' || *begin == '\n' || *begin == '\f' ||
+		 *begin == '\r' || *begin == ' '))
+  {
+	++begin;
+  }
+
+  if(begin == end)
+	return null;
+
+  // There must be at least one non-whitespace character here for us to have
+  // gotten this far, so we should be safe not doing bounds checking.
+
+  do {
+	--end;
+  } while(*end == '\t' || *end == '\n' ||
+		  *end == '\f' || *end == '\r' || *end == ' ');
+
+  return String(wstring(begin, end + 1));
+}
+
+bool String::isLatin1() const
+{
+  for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+	if(*it >= 256)
+	  return false;
+  }
+  return true;
+}
+
+bool String::isAscii() const
+{
+  for(wstring::const_iterator it = d->data.begin(); it != d->data.end(); it++) {
+	if(*it >= 128)
+	  return false;
+  }
+  return true;
+}
+
+String String::number(int n) // static
+{
+  if(n == 0)
+	return String("0");
+
+  String charStack;
+
+  bool negative = n < 0;
+
+  if(negative)
+	n = n * -1;
+
+  while(n > 0) {
+	int remainder = n % 10;
+	charStack += char(remainder + '0');
+	n = (n - remainder) / 10;
+  }
+
+  String s;
+
+  if(negative)
+	s += '-';
+
+  for(int i = charStack.d->data.size() - 1; i >= 0; i--)
+	s += charStack.d->data[i];
+
+  return s;
+}
+
+TagLib::wchar &String::operator[](int i)
+{
+  detach();
+
+  return d->data[i];
+}
+
+const TagLib::wchar &String::operator[](int i) const
+{
+  return d->data[i];
+}
+
+bool String::operator==(const String &s) const
+{
+  return d == s.d || d->data == s.d->data;
+}
+
+bool String::operator!=(const String &s) const
+{
+  return !operator==(s);
+}
+
+String &String::operator+=(const String &s)
+{
+  detach();
+
+  d->data += s.d->data;
+  return *this;
+}
+
+String &String::operator+=(const wchar_t *s)
+{
+  detach();
+
+  d->data += s;
+  return *this;
+}
+
+String &String::operator+=(const char *s)
+{
+  detach();
+
+  for(int i = 0; s[i] != 0; i++)
+	d->data += uchar(s[i]);
+  return *this;
+}
+
+String &String::operator+=(wchar_t c)
+{
+  detach();
+
+  d->data += c;
+  return *this;
+}
+
+String &String::operator+=(char c)
+{
+  detach();
+
+  d->data += uchar(c);
+  return *this;
+}
+
+String &String::operator=(const String &s)
+{
+  if(&s == this)
+	return *this;
+
+  if(d->deref())
+	delete d;
+  d = s.d;
+  d->ref();
+  return *this;
+}
+
+String &String::operator=(const std::string &s)
+{
+  if(d->deref())
+	delete d;
+
+  d = new StringPrivate;
+
+  d->data.resize(s.size());
+
+  wstring::iterator targetIt = d->data.begin();
+  for(std::string::const_iterator it = s.begin(); it != s.end(); it++) {
+	*targetIt = uchar(*it);
+	++targetIt;
+  }
+
+  return *this;
+}
+
+String &String::operator=(const wstring &s)
+{
+  if(d->deref())
+	delete d;
+  d = new StringPrivate(s);
+  return *this;
+}
+
+String &String::operator=(const wchar_t *s)
+{
+  if(d->deref())
+	delete d;
+  d = new StringPrivate(s);
+  return *this;
+}
+
+String &String::operator=(char c)
+{
+  if(d->deref())
+	delete d;
+  d = new StringPrivate;
+  d->data += uchar(c);
+  return *this;
+}
+
+String &String::operator=(wchar_t c)
+{
+  if(d->deref())
+	delete d;
+  d = new StringPrivate;
+  d->data += c;
+  return *this;
+}
+
+String &String::operator=(const char *s)
+{
+  if(d->deref())
+	delete d;
+
+  d = new StringPrivate;
+
+  int length = ::strlen(s);
+  d->data.resize(length);
+
+  wstring::iterator targetIt = d->data.begin();
+  for(int i = 0; i < length; i++) {
+	*targetIt = uchar(s[i]);
+	++targetIt;
+  }
+
+  return *this;
+}
+
+String &String::operator=(const ByteVector &v)
+{
+  if(d->deref())
+	delete d;
+
+  d = new StringPrivate;
+  d->data.resize(v.size());
+  wstring::iterator targetIt = d->data.begin();
+
+  uint i = 0;
+
+  for(ByteVector::ConstIterator it = v.begin(); it != v.end() && (*it); ++it) {
+	*targetIt = uchar(*it);
+	++targetIt;
+	++i;
+  }
+
+  // If we hit a null in the ByteVector, shrink the string again.
+
+  d->data.resize(i);
+
+  return *this;
+}
+
+bool String::operator<(const String &s) const
+{
+  return d->data < s.d->data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected members
+////////////////////////////////////////////////////////////////////////////////
+
+void String::detach()
+{
+  if(d->count() > 1) {
+	d->deref();
+	d = new StringPrivate(d->data);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void String::prepare(Type t)
+{
+  switch(t) {
+  case UTF16:
+  {
+	if(d->data.size() >= 1 && (d->data[0] == 0xfeff || d->data[0] == 0xfffe)) {
+	  bool swap = d->data[0] != 0xfeff;
+	  d->data.erase(d->data.begin(), d->data.begin() + 1);
+	  if(swap) {
+		for(uint i = 0; i < d->data.size(); i++)
+		  d->data[i] = byteSwap((unsigned short)d->data[i]);
+	  }
+	}
+	else {
+	  debug("String::prepare() - Invalid UTF16 string.");
+	  d->data.erase(d->data.begin(), d->data.end());
+	}
+	break;
+  }
+  case UTF8:
+  {
+	int bufferSize = d->data.size() + 1;
+	Unicode::UTF8  *sourceBuffer = new Unicode::UTF8[bufferSize];
+	Unicode::UTF16 *targetBuffer = new Unicode::UTF16[bufferSize];
+
+	unsigned int i = 0;
+	for(; i < d->data.size(); i++)
+	  sourceBuffer[i] = Unicode::UTF8(d->data[i]);
+	sourceBuffer[i] = 0;
+
+	const Unicode::UTF8 *source = sourceBuffer;
+	Unicode::UTF16 *target = targetBuffer;
+
+	Unicode::ConversionResult result =
+	  Unicode::ConvertUTF8toUTF16(&source, sourceBuffer + bufferSize,
+								  &target, targetBuffer + bufferSize,
+								  Unicode::lenientConversion);
+
+	if(result != Unicode::conversionOK)
+	  debug("String::prepare() - Unicode conversion error.");
+
+	int newSize = target != targetBuffer ? target - targetBuffer - 1 : 0;
+	d->data.resize(newSize);
+
+	for(int i = 0; i < newSize; i++)
+	  d->data[i] = targetBuffer[i];
+
+	delete [] sourceBuffer;
+	delete [] targetBuffer;
+
+	break;
+  }
+  case UTF16LE:
+  {
+	for(uint i = 0; i < d->data.size(); i++)
+	  d->data[i] = byteSwap((unsigned short)d->data[i]);
+	break;
+  }
+  default:
+	break;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// related functions
+////////////////////////////////////////////////////////////////////////////////
+
+const TagLib::String operator+(const TagLib::String &s1, const TagLib::String &s2)
+{
+  String s(s1);
+  s.append(s2);
+  return s;
+}
+
+const TagLib::String operator+(const char *s1, const TagLib::String &s2)
+{
+  String s(s1);
+  s.append(s2);
+  return s;
+}
+
+const TagLib::String operator+(const TagLib::String &s1, const char *s2)
+{
+  String s(s1);
+  s.append(s2);
+  return s;
+}
+
+std::ostream &operator<<(std::ostream &s, const String &str)
+{
+  s << str.to8Bit();
+  return s;
+}
+
+/*** End of inlined file: tstring.cpp ***/
+
+
+/*** Start of inlined file: tfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: tfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILE_H
+#define TAGLIB_FILE_H
+
+
+/*** Start of inlined file: tiostream.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_IOSTREAM_H
+#define TAGLIB_IOSTREAM_H
+
+namespace TagLib {
+
+#ifdef _WIN32
+  class TAGLIB_EXPORT FileName
+  {
+  public:
+	FileName(const wchar_t *name) : m_wname(name) {}
+	FileName(const char *name) : m_name(name) {}
+	operator const wchar_t *() const { return m_wname.c_str(); }
+	operator const char *() const { return m_name.c_str(); }
+  private:
+	std::string m_name;
+	std::wstring m_wname;
+  };
+#else
+  typedef const char *FileName;
+#endif
+
+  //! An abstract class that provides operations on a sequence of bytes
+
+  class TAGLIB_EXPORT IOStream
+  {
+  public:
+	/*!
+	 * Position in the file used for seeking.
+	 */
+	enum Position {
+	  //! Seek from the beginning of the file.
+	  Beginning,
+	  //! Seek from the current position in the file.
+	  Current,
+	  //! Seek from the end of the file.
+	  End
+	};
+
+	IOStream();
+
+	/*!
+	 * Destroys this IOStream instance.
+	 */
+	virtual ~IOStream();
+
+	/*!
+	 * Returns the stream name in the local file system encoding.
+	 */
+	virtual FileName name() const = 0;
+
+	/*!
+	 * Reads a block of size \a length at the current get pointer.
+	 */
+	virtual ByteVector readBlock(ulong length) = 0;
+
+	/*!
+	 * Attempts to write the block \a data at the current get pointer.  If the
+	 * file is currently only opened read only -- i.e. readOnly() returns true --
+	 * this attempts to reopen the file in read/write mode.
+	 *
+	 * \note This should be used instead of using the streaming output operator
+	 * for a ByteVector.  And even this function is significantly slower than
+	 * doing output with a char[].
+	 */
+	virtual void writeBlock(const ByteVector &data) = 0;
+
+	/*!
+	 * Insert \a data at position \a start in the file overwriting \a replace
+	 * bytes of the original content.
+	 *
+	 * \note This method is slow since it requires rewriting all of the file
+	 * after the insertion point.
+	 */
+	virtual void insert(const ByteVector &data, ulong start = 0, ulong replace = 0) = 0;
+
+	/*!
+	 * Removes a block of the file starting a \a start and continuing for
+	 * \a length bytes.
+	 *
+	 * \note This method is slow since it involves rewriting all of the file
+	 * after the removed portion.
+	 */
+	virtual void removeBlock(ulong start = 0, ulong length = 0) = 0;
+
+	/*!
+	 * Returns true if the file is read only (or if the file can not be opened).
+	 */
+	virtual bool readOnly() const = 0;
+
+	/*!
+	 * Since the file can currently only be opened as an argument to the
+	 * constructor (sort-of by design), this returns if that open succeeded.
+	 */
+	virtual bool isOpen() const = 0;
+
+	/*!
+	 * Move the I/O pointer to \a offset in the stream from position \a p.  This
+	 * defaults to seeking from the beginning of the stream.
+	 *
+	 * \see Position
+	 */
+	virtual void seek(long offset, Position p = Beginning) = 0;
+
+	/*!
+	 * Reset the end-of-stream and error flags on the stream.
+	 */
+	virtual void clear();
+
+	/*!
+	 * Returns the current offset within the stream.
+	 */
+	virtual long tell() const = 0;
+
+	/*!
+	 * Returns the length of the stream.
+	 */
+	virtual long length() = 0;
+
+	/*!
+	 * Truncates the stream to a \a length.
+	 */
+	virtual void truncate(long length) = 0;
+
+  private:
+	IOStream(const IOStream &);
+	IOStream &operator=(const IOStream &);
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tiostream.h ***/
+
+namespace TagLib {
+
+  class String;
+  class Tag;
+  class AudioProperties;
+
+  //! A file class with some useful methods for tag manipulation
+
+  /*!
+   * This class is a basic file class with some methods that are particularly
+   * useful for tag editors.  It has methods to take advantage of
+   * ByteVector and a binary search method for finding patterns in a file.
+   */
+
+  class TAGLIB_EXPORT File
+  {
+  public:
+	/*!
+	 * Position in the file used for seeking.
+	 */
+	enum Position {
+	  //! Seek from the beginning of the file.
+	  Beginning,
+	  //! Seek from the current position in the file.
+	  Current,
+	  //! Seek from the end of the file.
+	  End
+	};
+
+	/*!
+	 * Destroys this File instance.
+	 */
+	virtual ~File();
+
+	/*!
+	 * Returns the file name in the local file system encoding.
+	 */
+	FileName name() const;
+
+	/*!
+	 * Returns a pointer to this file's tag.  This should be reimplemented in
+	 * the concrete subclasses.
+	 */
+	virtual Tag *tag() const = 0;
+
+	/*!
+	 * Returns a pointer to this file's audio properties.  This should be
+	 * reimplemented in the concrete subclasses.  If no audio properties were
+	 * read then this will return a null pointer.
+	 */
+	virtual AudioProperties *audioProperties() const = 0;
+
+	/*!
+	 * Save the file and its associated tags.  This should be reimplemented in
+	 * the concrete subclasses.  Returns true if the save succeeds.
+	 *
+	 * \warning On UNIX multiple processes are able to write to the same file at
+	 * the same time.  This can result in serious file corruption.  If you are
+	 * developing a program that makes use of TagLib from multiple processes you
+	 * must insure that you are only doing writes to a particular file from one
+	 * of them.
+	 */
+	virtual bool save() = 0;
+
+	/*!
+	 * Reads a block of size \a length at the current get pointer.
+	 */
+	ByteVector readBlock(ulong length);
+
+	/*!
+	 * Attempts to write the block \a data at the current get pointer.  If the
+	 * file is currently only opened read only -- i.e. readOnly() returns true --
+	 * this attempts to reopen the file in read/write mode.
+	 *
+	 * \note This should be used instead of using the streaming output operator
+	 * for a ByteVector.  And even this function is significantly slower than
+	 * doing output with a char[].
+	 */
+	void writeBlock(const ByteVector &data);
+
+	/*!
+	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
+	 * not be found.  If \a before is set, the search will only continue until the
+	 * pattern \a before is found.  This is useful for tagging purposes to search
+	 * for a tag before the synch frame.
+	 *
+	 * Searching starts at \a fromOffset, which defaults to the beginning of the
+	 * file.
+	 *
+	 * \note This has the practial limitation that \a pattern can not be longer
+	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
+	 */
+	long find(const ByteVector &pattern,
+			  long fromOffset = 0,
+			  const ByteVector &before = ByteVector::null);
+
+	/*!
+	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
+	 * not be found.  If \a before is set, the search will only continue until the
+	 * pattern \a before is found.  This is useful for tagging purposes to search
+	 * for a tag before the synch frame.
+	 *
+	 * Searching starts at \a fromOffset and proceeds from the that point to the
+	 * beginning of the file and defaults to the end of the file.
+	 *
+	 * \note This has the practial limitation that \a pattern can not be longer
+	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
+	 */
+	long rfind(const ByteVector &pattern,
+			   long fromOffset = 0,
+			   const ByteVector &before = ByteVector::null);
+
+	/*!
+	 * Insert \a data at position \a start in the file overwriting \a replace
+	 * bytes of the original content.
+	 *
+	 * \note This method is slow since it requires rewriting all of the file
+	 * after the insertion point.
+	 */
+	void insert(const ByteVector &data, ulong start = 0, ulong replace = 0);
+
+	/*!
+	 * Removes a block of the file starting a \a start and continuing for
+	 * \a length bytes.
+	 *
+	 * \note This method is slow since it involves rewriting all of the file
+	 * after the removed portion.
+	 */
+	void removeBlock(ulong start = 0, ulong length = 0);
+
+	/*!
+	 * Returns true if the file is read only (or if the file can not be opened).
+	 */
+	bool readOnly() const;
+
+	/*!
+	 * Since the file can currently only be opened as an argument to the
+	 * constructor (sort-of by design), this returns if that open succeeded.
+	 */
+	bool isOpen() const;
+
+	/*!
+	 * Returns true if the file is open and readble.
+	 */
+	bool isValid() const;
+
+	/*!
+	 * Move the I/O pointer to \a offset in the file from position \a p.  This
+	 * defaults to seeking from the beginning of the file.
+	 *
+	 * \see Position
+	 */
+	void seek(long offset, Position p = Beginning);
+
+	/*!
+	 * Reset the end-of-file and error flags on the file.
+	 */
+	void clear();
+
+	/*!
+	 * Returns the current offset within the file.
+	 */
+	long tell() const;
+
+	/*!
+	 * Returns the length of the file.
+	 */
+	long length();
+
+	/*!
+	 * Returns true if \a file can be opened for reading.  If the file does not
+	 * exist, this will return false.
+	 *
+	 * \deprecated
+	 */
+	static bool isReadable(const char *file);
+
+	/*!
+	 * Returns true if \a file can be opened for writing.
+	 *
+	 * \deprecated
+	 */
+	static bool isWritable(const char *name);
+
+  protected:
+	/*!
+	 * Construct a File object and opens the \a file.  \a file should be a
+	 * be a C-string in the local file system encoding.
+	 *
+	 * \note Constructor is protected since this class should only be
+	 * instantiated through subclasses.
+	 */
+	File(FileName file);
+
+	/*!
+	 * Construct a File object and use the \a stream instance.
+	 *
+	 * \note Constructor is protected since this class should only be
+	 * instantiated through subclasses.
+	 */
+	File(IOStream *stream);
+
+	/*!
+	 * Marks the file as valid or invalid.
+	 *
+	 * \see isValid()
+	 */
+	void setValid(bool valid);
+
+	/*!
+	 * Truncates the file to a \a length.
+	 */
+	void truncate(long length);
+
+	/*!
+	 * Returns the buffer size that is used for internal buffering.
+	 */
+	static uint bufferSize();
+
+  private:
+	File(const File &);
+	File &operator=(const File &);
+
+	class FilePrivate;
+	FilePrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tfile.h ***/
+
+
+/*** Start of inlined file: tfilestream.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILESTREAM_H
+#define TAGLIB_FILESTREAM_H
+
+namespace TagLib {
+
+  class String;
+  class Tag;
+  class AudioProperties;
+
+  //! A file class with some useful methods for tag manipulation
+
+  /*!
+   * This class is a basic file class with some methods that are particularly
+   * useful for tag editors.  It has methods to take advantage of
+   * ByteVector and a binary search method for finding patterns in a file.
+   */
+
+  class TAGLIB_EXPORT FileStream : public IOStream
+  {
+  public:
+	/*!
+	 * Construct a File object and opens the \a file.  \a file should be a
+	 * be a C-string in the local file system encoding.
+	 */
+	FileStream(FileName file, bool openReadOnly = false);
+
+	/*!
+	 * Destroys this FileStream instance.
+	 */
+	virtual ~FileStream();
+
+	/*!
+	 * Returns the file name in the local file system encoding.
+	 */
+	FileName name() const;
+
+	/*!
+	 * Reads a block of size \a length at the current get pointer.
+	 */
+	ByteVector readBlock(ulong length);
+
+	/*!
+	 * Attempts to write the block \a data at the current get pointer.  If the
+	 * file is currently only opened read only -- i.e. readOnly() returns true --
+	 * this attempts to reopen the file in read/write mode.
+	 *
+	 * \note This should be used instead of using the streaming output operator
+	 * for a ByteVector.  And even this function is significantly slower than
+	 * doing output with a char[].
+	 */
+	void writeBlock(const ByteVector &data);
+
+	/*!
+	 * Insert \a data at position \a start in the file overwriting \a replace
+	 * bytes of the original content.
+	 *
+	 * \note This method is slow since it requires rewriting all of the file
+	 * after the insertion point.
+	 */
+	void insert(const ByteVector &data, ulong start = 0, ulong replace = 0);
+
+	/*!
+	 * Removes a block of the file starting a \a start and continuing for
+	 * \a length bytes.
+	 *
+	 * \note This method is slow since it involves rewriting all of the file
+	 * after the removed portion.
+	 */
+	void removeBlock(ulong start = 0, ulong length = 0);
+
+	/*!
+	 * Returns true if the file is read only (or if the file can not be opened).
+	 */
+	bool readOnly() const;
+
+	/*!
+	 * Since the file can currently only be opened as an argument to the
+	 * constructor (sort-of by design), this returns if that open succeeded.
+	 */
+	bool isOpen() const;
+
+	/*!
+	 * Move the I/O pointer to \a offset in the file from position \a p.  This
+	 * defaults to seeking from the beginning of the file.
+	 *
+	 * \see Position
+	 */
+	void seek(long offset, Position p = Beginning);
+
+	/*!
+	 * Reset the end-of-file and error flags on the file.
+	 */
+	void clear();
+
+	/*!
+	 * Returns the current offset within the file.
+	 */
+	long tell() const;
+
+	/*!
+	 * Returns the length of the file.
+	 */
+	long length();
+
+	/*!
+	 * Truncates the file to a \a length.
+	 */
+	void truncate(long length);
+
+  protected:
+
+	/*!
+	 * Returns the buffer size that is used for internal buffering.
+	 */
+	static uint bufferSize();
+
+  private:
+	class FileStreamPrivate;
+	FileStreamPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: tfilestream.h ***/
+
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+# include <wchar.h>
+# include <windows.h>
+# include <io.h>
+# define ftruncate _chsize
+#else
+# include <unistd.h>
+#endif
+
+#include <stdlib.h>
+
+#ifndef R_OK
+# define R_OK 4
+#endif
+#ifndef W_OK
+# define W_OK 2
+#endif
+
+using namespace TagLib;
+
+class File::FilePrivate
+{
+public:
+  FilePrivate(IOStream *stream);
+
+  IOStream *stream;
+  bool valid;
+  static const uint bufferSize = 1024;
+};
+
+File::FilePrivate::FilePrivate(IOStream *stream) :
+  stream(stream),
+  valid(true)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+File::File(FileName fileName)
+{
+  IOStream *stream = new FileStream(fileName);
+  d = new FilePrivate(stream);
+}
+
+File::File(IOStream *stream)
+{
+  d = new FilePrivate(stream);
+}
+
+File::~File()
+{
+  if(d->stream)
+	delete d->stream;
+  delete d;
+}
+
+FileName File::name() const
+{
+  return d->stream->name();
+}
+
+ByteVector File::readBlock(ulong length)
+{
+  return d->stream->readBlock(length);
+}
+
+void File::writeBlock(const ByteVector &data)
+{
+  d->stream->writeBlock(data);
+}
+
+long File::find(const ByteVector &pattern, long fromOffset, const ByteVector &before)
+{
+  if(!d->stream || pattern.size() > d->bufferSize)
+	  return -1;
+
+  // The position in the file that the current buffer starts at.
+
+  long bufferOffset = fromOffset;
+  ByteVector buffer;
+
+  // These variables are used to keep track of a partial match that happens at
+  // the end of a buffer.
+
+  int previousPartialMatch = -1;
+  int beforePreviousPartialMatch = -1;
+
+  // Save the location of the current read pointer.  We will restore the
+  // position using seek() before all returns.
+
+  long originalPosition = tell();
+
+  // Start the search at the offset.
+
+  seek(fromOffset);
+
+  // This loop is the crux of the find method.  There are three cases that we
+  // want to account for:
+  //
+  // (1) The previously searched buffer contained a partial match of the search
+  // pattern and we want to see if the next one starts with the remainder of
+  // that pattern.
+  //
+  // (2) The search pattern is wholly contained within the current buffer.
+  //
+  // (3) The current buffer ends with a partial match of the pattern.  We will
+  // note this for use in the next itteration, where we will check for the rest
+  // of the pattern.
+  //
+  // All three of these are done in two steps.  First we check for the pattern
+  // and do things appropriately if a match (or partial match) is found.  We
+  // then check for "before".  The order is important because it gives priority
+  // to "real" matches.
+
+  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
+
+	// (1) previous partial match
+
+	if(previousPartialMatch >= 0 && int(d->bufferSize) > previousPartialMatch) {
+	  const int patternOffset = (d->bufferSize - previousPartialMatch);
+	  if(buffer.containsAt(pattern, 0, patternOffset)) {
+		seek(originalPosition);
+		return bufferOffset - d->bufferSize + previousPartialMatch;
+	  }
+	}
+
+	if(!before.isNull() && beforePreviousPartialMatch >= 0 && int(d->bufferSize) > beforePreviousPartialMatch) {
+	  const int beforeOffset = (d->bufferSize - beforePreviousPartialMatch);
+	  if(buffer.containsAt(before, 0, beforeOffset)) {
+		seek(originalPosition);
+		return -1;
+	  }
+	}
+
+	// (2) pattern contained in current buffer
+
+	long location = buffer.find(pattern);
+	if(location >= 0) {
+	  seek(originalPosition);
+	  return bufferOffset + location;
+	}
+
+	if(!before.isNull() && buffer.find(before) >= 0) {
+	  seek(originalPosition);
+	  return -1;
+	}
+
+	// (3) partial match
+
+	previousPartialMatch = buffer.endsWithPartialMatch(pattern);
+
+	if(!before.isNull())
+	  beforePreviousPartialMatch = buffer.endsWithPartialMatch(before);
+
+	bufferOffset += d->bufferSize;
+  }
+
+  // Since we hit the end of the file, reset the status before continuing.
+
+  clear();
+
+  seek(originalPosition);
+
+  return -1;
+}
+
+long File::rfind(const ByteVector &pattern, long fromOffset, const ByteVector &before)
+{
+  if(!d->stream || pattern.size() > d->bufferSize)
+	  return -1;
+
+  // The position in the file that the current buffer starts at.
+
+  ByteVector buffer;
+
+  // These variables are used to keep track of a partial match that happens at
+  // the end of a buffer.
+
+  /*
+  int previousPartialMatch = -1;
+  int beforePreviousPartialMatch = -1;
+  */
+
+  // Save the location of the current read pointer.  We will restore the
+  // position using seek() before all returns.
+
+  long originalPosition = tell();
+
+  // Start the search at the offset.
+
+  long bufferOffset;
+  if(fromOffset == 0) {
+	seek(-1 * int(d->bufferSize), End);
+	bufferOffset = tell();
+  }
+  else {
+	seek(fromOffset + -1 * int(d->bufferSize), Beginning);
+	bufferOffset = tell();
+  }
+
+  // See the notes in find() for an explanation of this algorithm.
+
+  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
+
+	// TODO: (1) previous partial match
+
+	// (2) pattern contained in current buffer
+
+	long location = buffer.rfind(pattern);
+	if(location >= 0) {
+	  seek(originalPosition);
+	  return bufferOffset + location;
+	}
+
+	if(!before.isNull() && buffer.find(before) >= 0) {
+	  seek(originalPosition);
+	  return -1;
+	}
+
+	// TODO: (3) partial match
+
+	bufferOffset -= d->bufferSize;
+	seek(bufferOffset);
+  }
+
+  // Since we hit the end of the file, reset the status before continuing.
+
+  clear();
+
+  seek(originalPosition);
+
+  return -1;
+}
+
+void File::insert(const ByteVector &data, ulong start, ulong replace)
+{
+  d->stream->insert(data, start, replace);
+}
+
+void File::removeBlock(ulong start, ulong length)
+{
+  d->stream->removeBlock(start, length);
+}
+
+bool File::readOnly() const
+{
+  return d->stream->readOnly();
+}
+
+bool File::isOpen() const
+{
+  return d->stream->isOpen();
+}
+
+bool File::isValid() const
+{
+  return isOpen() && d->valid;
+}
+
+void File::seek(long offset, Position p)
+{
+  d->stream->seek(offset, IOStream::Position(p));
+}
+
+void File::truncate(long length)
+{
+  d->stream->truncate(length);
+}
+
+void File::clear()
+{
+  d->stream->clear();
+}
+
+long File::tell() const
+{
+  return d->stream->tell();
+}
+
+long File::length()
+{
+  return d->stream->length();
+}
+
+bool File::isReadable(const char *file)
+{
+  return access(file, R_OK) == 0;
+}
+
+bool File::isWritable(const char *file)
+{
+  return access(file, W_OK) == 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected members
+////////////////////////////////////////////////////////////////////////////////
+
+TagLib::uint File::bufferSize()
+{
+  return FilePrivate::bufferSize;
+}
+
+void File::setValid(bool valid)
+{
+  d->valid = valid;
+}
+
+/*** End of inlined file: tfile.cpp ***/
+
+
+/*** Start of inlined file: tag.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TAG_H
+#define TAGLIB_TAG_H
+
+namespace TagLib {
+
+  //! A simple, generic interface to common audio meta data fields
+
+  /*!
+   * This is an attempt to abstract away the difference in the meta data formats
+   * of various audio codecs and tagging schemes.  As such it is generally a
+   * subset of what is available in the specific formats but should be suitable
+   * for most applications.  This is meant to compliment the generic APIs found
+   * in TagLib::AudioProperties, TagLib::File and TagLib::FileRef.
+   */
+
+  class TAGLIB_EXPORT Tag
+  {
+  public:
+
+	/*!
+	 * Detroys this Tag instance.
+	 */
+	virtual ~Tag();
+
+	/*!
+	 * Returns the track name; if no track name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String title() const = 0;
+
+	/*!
+	 * Returns the artist name; if no artist name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String artist() const = 0;
+
+	/*!
+	 * Returns the album name; if no album name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String album() const = 0;
+
+	/*!
+	 * Returns the track comment; if no comment is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String comment() const = 0;
+
+	/*!
+	 * Returns the genre name; if no genre is present in the tag String::null
+	 * will be returned.
+	 */
+	virtual String genre() const = 0;
+
+	/*!
+	 * Returns the year; if there is no year set, this will return 0.
+	 */
+	virtual uint year() const = 0;
+
+	/*!
+	 * Returns the track number; if there is no track number set, this will
+	 * return 0.
+	 */
+	virtual uint track() const = 0;
+
+	/*!
+	 * Sets the title to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setTitle(const String &s) = 0;
+
+	/*!
+	 * Sets the artist to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setArtist(const String &s) = 0;
+
+	/*!
+	 * Sets the album to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setAlbum(const String &s) = 0;
+
+	/*!
+	 * Sets the comment to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setComment(const String &s) = 0;
+
+	/*!
+	 * Sets the genre to \a s.  If \a s is String::null then this value will be
+	 * cleared.  For tag formats that use a fixed set of genres, the appropriate
+	 * value will be selected based on a string comparison.  A list of available
+	 * genres for those formats should be available in that type's
+	 * implementation.
+	 */
+	virtual void setGenre(const String &s) = 0;
+
+	/*!
+	 * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
+	 */
+	virtual void setYear(uint i) = 0;
+
+	/*!
+	 * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
+	 */
+	virtual void setTrack(uint i) = 0;
+
+	/*!
+	 * Returns true if the tag does not contain any data.  This should be
+	 * reimplemented in subclasses that provide more than the basic tagging
+	 * abilities in this class.
+	 */
+	virtual bool isEmpty() const;
+
+	/*!
+	 * Copies the generic data from one tag to another.
+	 *
+	 * \note This will no affect any of the lower level details of the tag.  For
+	 * instance if any of the tag type specific data (maybe a URL for a band) is
+	 * set, this will not modify or copy that.  This just copies using the API
+	 * in this class.
+	 *
+	 * If \a overwrite is true then the values will be unconditionally copied.
+	 * If false only empty values will be overwritten.
+	 */
+	static void duplicate(const Tag *source, Tag *target, bool overwrite = true);
+
+  protected:
+	/*!
+	 * Construct a Tag.  This is protected since tags should only be instantiated
+	 * through subclasses.
+	 */
+	Tag();
+
+  private:
+	Tag(const Tag &);
+	Tag &operator=(const Tag &);
+
+	class TagPrivate;
+	TagPrivate *d;
+  };
+}
+
+#endif
+
+/*** End of inlined file: tag.h ***/
+
+using namespace TagLib;
+
+class Tag::TagPrivate
+{
+
+};
+
+Tag::Tag()
+{
+
+}
+
+Tag::~Tag()
+{
+
+}
+
+bool Tag::isEmpty() const
+{
+  return (title().isEmpty() &&
+		  artist().isEmpty() &&
+		  album().isEmpty() &&
+		  comment().isEmpty() &&
+		  genre().isEmpty() &&
+		  year() == 0 &&
+		  track() == 0);
+}
+
+void Tag::duplicate(const Tag *source, Tag *target, bool overwrite) // static
+{
+  if(overwrite) {
+	target->setTitle(source->title());
+	target->setArtist(source->artist());
+	target->setAlbum(source->album());
+	target->setComment(source->comment());
+	target->setGenre(source->genre());
+	target->setYear(source->year());
+	target->setTrack(source->track());
+  }
+  else {
+	if(target->title().isEmpty())
+	  target->setTitle(source->title());
+	if(target->artist().isEmpty())
+	  target->setArtist(source->artist());
+	if(target->album().isEmpty())
+	  target->setAlbum(source->album());
+	if(target->comment().isEmpty())
+	  target->setComment(source->comment());
+	if(target->genre().isEmpty())
+	  target->setGenre(source->genre());
+	if(target->year() <= 0)
+	  target->setYear(source->year());
+	if(target->track() <= 0)
+	  target->setTrack(source->track());
+  }
+}
+
+/*** End of inlined file: tag.cpp ***/
+
+
+/*** Start of inlined file: tagunion.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: tagunion.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TAGUNION_H
+#define TAGLIB_TAGUNION_H
+
+#ifndef DO_NOT_DOCUMENT
+
+namespace TagLib {
+
+  /*!
+   * \internal
+   */
+
+  class TagUnion : public Tag
+  {
+  public:
+
+	enum AccessType { Read, Write };
+
+	/*!
+	 * Creates a TagLib::Tag that is the union of \a first, \a second, and
+	 * \a third.  The TagUnion takes ownership of these tags and will handle
+	 * their deletion.
+	 */
+	TagUnion(Tag *first = 0, Tag *second = 0, Tag *third = 0);
+
+	virtual ~TagUnion();
+
+	Tag *operator[](int index) const;
+	Tag *tag(int index) const;
+
+	void set(int index, Tag *tag);
+
+	virtual String title() const;
+	virtual String artist() const;
+	virtual String album() const;
+	virtual String comment() const;
+	virtual String genre() const;
+	virtual uint year() const;
+	virtual uint track() const;
+
+	virtual void setTitle(const String &s);
+	virtual void setArtist(const String &s);
+	virtual void setAlbum(const String &s);
+	virtual void setComment(const String &s);
+	virtual void setGenre(const String &s);
+	virtual void setYear(uint i);
+	virtual void setTrack(uint i);
+	virtual bool isEmpty() const;
+
+	template <class T> T *access(int index, bool create)
+	{
+	  if(!create || tag(index))
+		return static_cast<T *>(tag(index));
+
+	  set(index, new T);
+	  return static_cast<T *>(tag(index));
+	}
+
+  private:
+	TagUnion(const Tag &);
+	TagUnion &operator=(const Tag &);
+
+	class TagUnionPrivate;
+	TagUnionPrivate *d;
+  };
+}
+
+#endif
+#endif
+
+/*** End of inlined file: tagunion.h ***/
+
+using namespace TagLib;
+
+#define stringUnion(method)                                          \
+  if(tag(0) && !tag(0)->method().isEmpty())                          \
+	return tag(0)->method();                                         \
+  if(tag(1) && !tag(1)->method().isEmpty())                          \
+	return tag(1)->method();                                         \
+  if(tag(2) && !tag(2)->method().isEmpty())                          \
+	return tag(2)->method();                                         \
+  return String::null                                                \
+
+#define numberUnion(method)                                          \
+  if(tag(0) && tag(0)->method() > 0)                                 \
+	return tag(0)->method();                                         \
+  if(tag(1) && tag(1)->method() > 0)                                 \
+	return tag(1)->method();                                         \
+  if(tag(2) && tag(2)->method() > 0)                                 \
+	return tag(2)->method();                                         \
+  return 0
+
+#define setUnion(method, value)                                      \
+  if(tag(0))                                                         \
+	tag(0)->set##method(value);                                      \
+  if(tag(1))                                                         \
+	tag(1)->set##method(value);                                      \
+  if(tag(2))                                                         \
+	tag(2)->set##method(value);                                      \
+
+class TagUnion::TagUnionPrivate
+{
+public:
+  TagUnionPrivate() : tags(3, static_cast<Tag *>(0))
+  {
+
+  }
+
+  ~TagUnionPrivate()
+  {
+	delete tags[0];
+	delete tags[1];
+	delete tags[2];
+  }
+
+  std::vector<Tag *> tags;
+};
+
+TagUnion::TagUnion(Tag *first, Tag *second, Tag *third)
+{
+  d = new TagUnionPrivate;
+
+  d->tags[0] = first;
+  d->tags[1] = second;
+  d->tags[2] = third;
+}
+
+TagUnion::~TagUnion()
+{
+  delete d;
+}
+
+Tag *TagUnion::operator[](int index) const
+{
+  return tag(index);
+}
+
+Tag *TagUnion::tag(int index) const
+{
+  return d->tags[index];
+}
+
+void TagUnion::set(int index, Tag *tag)
+{
+  delete d->tags[index];
+  d->tags[index] = tag;
+}
+
+String TagUnion::title() const
+{
+  stringUnion(title);
+}
+
+String TagUnion::artist() const
+{
+  stringUnion(artist);
+}
+
+String TagUnion::album() const
+{
+  stringUnion(album);
+}
+
+String TagUnion::comment() const
+{
+  stringUnion(comment);
+}
+
+String TagUnion::genre() const
+{
+  stringUnion(genre);
+}
+
+TagLib::uint TagUnion::year() const
+{
+  numberUnion(year);
+}
+
+TagLib::uint TagUnion::track() const
+{
+  numberUnion(track);
+}
+
+void TagUnion::setTitle(const String &s)
+{
+  setUnion(Title, s);
+}
+
+void TagUnion::setArtist(const String &s)
+{
+  setUnion(Artist, s);
+}
+
+void TagUnion::setAlbum(const String &s)
+{
+  setUnion(Album, s);
+}
+
+void TagUnion::setComment(const String &s)
+{
+  setUnion(Comment, s);
+}
+
+void TagUnion::setGenre(const String &s)
+{
+  setUnion(Genre, s);
+}
+
+void TagUnion::setYear(uint i)
+{
+  setUnion(Year, i);
+}
+
+void TagUnion::setTrack(uint i)
+{
+  setUnion(Track, i);
+}
+
+bool TagUnion::isEmpty() const
+{
+  if(d->tags[0] && !d->tags[0]->isEmpty())
+	return false;
+  if(d->tags[1] && !d->tags[1]->isEmpty())
+	return false;
+  if(d->tags[2] && !d->tags[2]->isEmpty())
+	return false;
+
+  return true;
+}
+
+/*** End of inlined file: tagunion.cpp ***/
+
+
+/*** Start of inlined file: fileref.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+
+/*** Start of inlined file: fileref.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILEREF_H
+#define TAGLIB_FILEREF_H
+
+
+/*** Start of inlined file: audioproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_AUDIOPROPERTIES_H
+#define TAGLIB_AUDIOPROPERTIES_H
+
+namespace TagLib {
+
+  //! A simple, abstract interface to common audio properties
+
+  /*!
+   * The values here are common to most audio formats.  For more specific, codec
+   * dependant values, please see see the subclasses APIs.  This is meant to
+   * compliment the TagLib::File and TagLib::Tag APIs in providing a simple
+   * interface that is sufficient for most applications.
+   */
+
+  class TAGLIB_EXPORT AudioProperties
+  {
+  public:
+
+	/*!
+	 * Reading audio properties from a file can sometimes be very time consuming
+	 * and for the most accurate results can often involve reading the entire
+	 * file.  Because in many situations speed is critical or the accuracy of the
+	 * values is not particularly important this allows the level of desired
+	 * accuracy to be set.
+	 */
+	enum ReadStyle {
+	  //! Read as little of the file as possible
+	  Fast,
+	  //! Read more of the file and make better values guesses
+	  Average,
+	  //! Read as much of the file as needed to report accurate values
+	  Accurate
+	};
+
+	/*!
+	 * Destroys this AudioProperties instance.
+	 */
+	virtual ~AudioProperties();
+
+	/*!
+	 * Returns the length of the file in seconds.
+	 */
+	virtual int length() const = 0;
+
+	/*!
+	 * Returns the most appropriate bit rate for the file in kb/s.  For constant
+	 * bitrate formats this is simply the bitrate of the file.  For variable
+	 * bitrate formats this is either the average or nominal bitrate.
+	 */
+	virtual int bitrate() const = 0;
+
+	/*!
+	 * Returns the sample rate in Hz.
+	 */
+	virtual int sampleRate() const = 0;
+
+	/*!
+	 * Returns the number of audio channels.
+	 */
+	virtual int channels() const = 0;
+
+  protected:
+
+	/*!
+	 * Construct an audio properties instance.  This is protected as this class
+	 * should not be instantiated directly, but should be instantiated via its
+	 * subclasses and can be fetched from the FileRef or File APIs.
+	 *
+	 * \see ReadStyle
+	 */
+	AudioProperties(ReadStyle style);
+
+  private:
+	AudioProperties(const AudioProperties &);
+	AudioProperties &operator=(const AudioProperties &);
+
+	class AudioPropertiesPrivate;
+	AudioPropertiesPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: audioproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  //! This class provides a simple abstraction for creating and handling files
+
+  /*!
+   * FileRef exists to provide a minimal, generic and value-based wrapper around
+   * a File.  It is lightweight and implicitly shared, and as such suitable for
+   * pass-by-value use.  This hides some of the uglier details of TagLib::File
+   * and the non-generic portions of the concrete file implementations.
+   *
+   * This class is useful in a "simple usage" situation where it is desirable
+   * to be able to get and set some of the tag information that is similar
+   * across file types.
+   *
+   * Also note that it is probably a good idea to plug this into your mime
+   * type system rather than using the constructor that accepts a file name using
+   * the FileTypeResolver.
+   *
+   * \see FileTypeResolver
+   * \see addFileTypeResolver()
+   */
+
+  class TAGLIB_EXPORT FileRef
+  {
+  public:
+
+  //! A class for pluggable file type resolution.
+
+  /*!
+   * This class is used to add extend TagLib's very basic file name based file
+   * type resolution.
+   *
+   * This can be accomplished with:
+   *
+   * \code
+   *
+   * class MyFileTypeResolver : FileTypeResolver
+   * {
+   *   TagLib::File *createFile(TagLib::FileName *fileName, bool, AudioProperties::ReadStyle)
+   *   {
+   *     if(someCheckForAnMP3File(fileName))
+   *       return new TagLib::MPEG::File(fileName);
+   *     return 0;
+   *   }
+   * }
+   *
+   * FileRef::addFileTypeResolver(new MyFileTypeResolver);
+   *
+   * \endcode
+   *
+   * Naturally a less contrived example would be slightly more complex.  This
+   * can be used to plug in mime-type detection systems or to add new file types
+   * to TagLib.
+   */
+
+	class TAGLIB_EXPORT FileTypeResolver
+	{
+	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
+	public:
+	  /*!
+	   * This method must be overridden to provide an additional file type
+	   * resolver.  If the resolver is able to determine the file type it should
+	   * return a valid File object; if not it should return 0.
+	   *
+	   * \note The created file is then owned by the FileRef and should not be
+	   * deleted.  Deletion will happen automatically when the FileRef passes
+	   * out of scope.
+	   */
+	  virtual File *createFile(FileName fileName,
+							   bool readAudioProperties = true,
+							   AudioProperties::ReadStyle
+							   audioPropertiesStyle = AudioProperties::Average) const = 0;
+	};
+
+	/*!
+	 * Creates a null FileRef.
+	 */
+	FileRef();
+
+	/*!
+	 * Create a FileRef from \a fileName.  If \a readAudioProperties is true then
+	 * the audio properties will be read using \a audioPropertiesStyle.  If
+	 * \a readAudioProperties is false then \a audioPropertiesStyle will be
+	 * ignored.
+	 *
+	 * Also see the note in the class documentation about why you may not want to
+	 * use this method in your application.
+	 */
+	explicit FileRef(FileName fileName,
+					 bool readAudioProperties = true,
+					 AudioProperties::ReadStyle
+					 audioPropertiesStyle = AudioProperties::Average);
+
+	/*!
+	 * Contruct a FileRef using \a file.  The FileRef now takes ownership of the
+	 * pointer and will delete the File when it passes out of scope.
+	 */
+	explicit FileRef(File *file);
+
+	/*!
+	 * Make a copy of \a ref.
+	 */
+	FileRef(const FileRef &ref);
+
+	/*!
+	 * Destroys this FileRef instance.
+	 */
+	virtual ~FileRef();
+
+	/*!
+	 * Returns a pointer to represented file's tag.
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 *
+	 * \warning Do not cast it to any subclasses of \class Tag.
+	 * Use tag returning methods of appropriate subclasses of \class File instead.
+	 *
+	 * \see File::tag()
+	 */
+	Tag *tag() const;
+
+	/*!
+	 * Returns the audio properties for this FileRef.  If no audio properties
+	 * were read then this will returns a null pointer.
+	 */
+	AudioProperties *audioProperties() const;
+
+	/*!
+	 * Returns a pointer to the file represented by this handler class.
+	 *
+	 * As a general rule this call should be avoided since if you need to work
+	 * with file objects directly, you are probably better served instantiating
+	 * the File subclasses (i.e. MPEG::File) manually and working with their APIs.
+	 *
+	 * This <i>handle</i> exists to provide a minimal, generic and value-based
+	 * wrapper around a File.  Accessing the file directly generally indicates
+	 * a moving away from this simplicity (and into things beyond the scope of
+	 * FileRef).
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 */
+	File *file() const;
+
+	/*!
+	 * Saves the file.  Returns true on success.
+	 */
+	bool save();
+
+	/*!
+	 * Adds a FileTypeResolver to the list of those used by TagLib.  Each
+	 * additional FileTypeResolver is added to the front of a list of resolvers
+	 * that are tried.  If the FileTypeResolver returns zero the next resolver
+	 * is tried.
+	 *
+	 * Returns a pointer to the added resolver (the same one that's passed in --
+	 * this is mostly so that static inialializers have something to use for
+	 * assignment).
+	 *
+	 * \see FileTypeResolver
+	 */
+	static const FileTypeResolver *addFileTypeResolver(const FileTypeResolver *resolver);
+
+	/*!
+	 * As is mentioned elsewhere in this class's documentation, the default file
+	 * type resolution code provided by TagLib only works by comparing file
+	 * extensions.
+	 *
+	 * This method returns the list of file extensions that are used by default.
+	 *
+	 * The extensions are all returned in lowercase, though the comparison used
+	 * by TagLib for resolution is case-insensitive.
+	 *
+	 * \note This does not account for any additional file type resolvers that
+	 * are plugged in.  Also note that this is not intended to replace a propper
+	 * mime-type resolution system, but is just here for reference.
+	 *
+	 * \see FileTypeResolver
+	 */
+	static StringList defaultFileExtensions();
+
+	/*!
+	 * Returns true if the file (and as such other pointers) are null.
+	 */
+	bool isNull() const;
+
+	/*!
+	 * Assign the file pointed to by \a ref to this FileRef.
+	 */
+	FileRef &operator=(const FileRef &ref);
+
+	/*!
+	 * Returns true if this FileRef and \a ref point to the same File object.
+	 */
+	bool operator==(const FileRef &ref) const;
+
+	/*!
+	 * Returns true if this FileRef and \a ref do not point to the same File
+	 * object.
+	 */
+	bool operator!=(const FileRef &ref) const;
+
+	/*!
+	 * A simple implementation of file type guessing.  If \a readAudioProperties
+	 * is true then the audio properties will be read using
+	 * \a audioPropertiesStyle.  If \a readAudioProperties is false then
+	 * \a audioPropertiesStyle will be ignored.
+	 *
+	 * \note You generally shouldn't use this method, but instead the constructor
+	 * directly.
+	 *
+	 * \deprecated
+	 */
+	static File *create(FileName fileName,
+						bool readAudioProperties = true,
+						AudioProperties::ReadStyle audioPropertiesStyle = AudioProperties::Average);
+
+  private:
+	class FileRefPrivate;
+	FileRefPrivate *d;
+  };
+
+} // namespace TagLib
+
+#endif
+
+/*** End of inlined file: fileref.h ***/
+
+
+/*** Start of inlined file: asffile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFFILE_H
+#define TAGLIB_ASFFILE_H
+
+
+/*** Start of inlined file: asfproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFPROPERTIES_H
+#define TAGLIB_ASFPROPERTIES_H
+
+namespace TagLib {
+
+  namespace ASF {
+
+	//! An implementation of ASF audio properties
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+
+	  /*!
+	   * Create an instance of ASF::Properties.
+	   */
+	  Properties();
+
+	  /*!
+	   * Destroys this ASF::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+	  bool isEncrypted() const;
+
+#ifndef DO_NOT_DOCUMENT
+	  void setLength(int value);
+	  void setBitrate(int value);
+	  void setSampleRate(int value);
+	  void setChannels(int value);
+	  void setEncrypted(bool value);
+#endif
+
+	private:
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: asfproperties.h ***/
+
+
+/*** Start of inlined file: asftag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFTAG_H
+#define TAGLIB_ASFTAG_H
+
+
 /*** Start of inlined file: tmap.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -2465,7 +5347,7 @@ void Map<Key, T>::detach()
 /*** End of inlined file: tmap.h ***/
 
 
-/*** Start of inlined file: id3v2framefactory.h ***/
+/*** Start of inlined file: asfattribute.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -2486,8 +5368,58 @@ void Map<Key, T>::detach()
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ID3V2FRAMEFACTORY_H
-#define TAGLIB_ID3V2FRAMEFACTORY_H
+#ifndef TAGLIB_ASFATTRIBUTE_H
+#define TAGLIB_ASFATTRIBUTE_H
+
+
+/*** Start of inlined file: asfpicture.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef ASFPICTURE_H
+#define ASFPICTURE_H
+
+
+/*** Start of inlined file: attachedpictureframe.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ATTACHEDPICTUREFRAME_H
+#define TAGLIB_ATTACHEDPICTUREFRAME_H
 
 
 /*** Start of inlined file: id3v2frame.h ***/
@@ -3101,1175 +6033,554 @@ namespace TagLib {
 
   namespace ID3v2 {
 
-	class TextIdentificationFrame;
-
-	//! A factory for creating ID3v2 frames during parsing
+	//! An ID3v2 attached picture frame implementation
 
 	/*!
-	 * This factory abstracts away the frame creation process and instantiates
-	 * the appropriate ID3v2::Frame subclasses based on the contents of the
-	 * data.
-	 *
-	 * Reimplementing this factory is the key to adding support for frame types
-	 * not directly supported by TagLib to your application.  To do so you would
-	 * subclass this factory reimplement createFrame().  Then by setting your
-	 * factory to be the default factory in ID3v2::Tag constructor or with
-	 * MPEG::File::setID3v2FrameFactory() you can implement behavior that will
-	 * allow for new ID3v2::Frame subclasses (also provided by you) to be used.
-	 *
-	 * This implements both <i>abstract factory</i> and <i>singleton</i> patterns
-	 * of which more information is available on the web and in software design
-	 * textbooks (Notably <i>Design Patters</i>).
-	 *
-	 * \note You do not need to use this factory to create new frames to add to
-	 * an ID3v2::Tag.  You can instantiate frame subclasses directly (with new)
-	 * and add them to a tag using ID3v2::Tag::addFrame()
-	 *
-	 * \see ID3v2::Tag::addFrame()
+	 * This is an implementation of ID3v2 attached pictures.  Pictures may be
+	 * included in tags, one per APIC frame (but there may be multiple APIC
+	 * frames in a single tag).  These pictures are usually in either JPEG or
+	 * PNG format.
 	 */
 
-	class TAGLIB_EXPORT FrameFactory
+	class TAGLIB_EXPORT AttachedPictureFrame : public Frame
 	{
+	  friend class FrameFactory;
+
 	public:
-	  static FrameFactory *instance();
-	  /*!
-	   * Create a frame based on \a data.  \a synchSafeInts should only be set
-	   * false if we are parsing an old tag (v2.3 or older) that does not support
-	   * synchsafe ints.
-	   *
-	   * \deprecated Please use the method below that accepts a ID3v2::Header
-	   * instance in new code.
-	   */
-	  Frame *createFrame(const ByteVector &data, bool synchSafeInts) const;
 
 	  /*!
-	   * Create a frame based on \a data.  \a version should indicate the ID3v2
-	   * version of the tag.  As ID3v2.4 is the most current version of the
-	   * standard 4 is the default.
-	   *
-	   * \deprecated Please use the method below that accepts a ID3v2::Header
-	   * instance in new code.
+	   * This describes the function or content of the picture.
 	   */
-	  Frame *createFrame(const ByteVector &data, uint version = 4) const;
-
-	  /*!
-	   * Create a frame based on \a data.  \a tagHeader should be a valid
-	   * ID3v2::Header instance.
-	   */
-	  // BIC: make virtual
-	  Frame *createFrame(const ByteVector &data, Header *tagHeader) const;
-
-	  /*!
-	   * Returns the default text encoding for text frames.  If setTextEncoding()
-	   * has not been explicitly called this will only be used for new text
-	   * frames.  However, if this value has been set explicitly all frames will be
-	   * converted to this type (unless it's explitly set differently for the
-	   * individual frame) when being rendered.
-	   *
-	   * \see setDefaultTextEncoding()
-	   */
-	  String::Type defaultTextEncoding() const;
-
-	  /*!
-	   * Set the default text encoding for all text frames that are created to
-	   * \a encoding.  If no value is set the frames with either default to the
-	   * encoding type that was parsed and new frames default to Latin1.
-	   *
-	   * Valid string types for ID3v2 tags are Latin1, UTF8, UTF16 and UTF16BE.
-	   *
-	   * \see defaultTextEncoding()
-	   */
-	  void setDefaultTextEncoding(String::Type encoding);
-
-	protected:
-	  /*!
-	   * Constructs a frame factory.  Because this is a singleton this method is
-	   * protected, but may be used for subclasses.
-	   */
-	  FrameFactory();
-
-	  /*!
-	   * Destroys the frame factory.  In most cases this will never be called (as
-	   * is typical of singletons).
-	   */
-	  virtual ~FrameFactory();
-
-	  /*!
-	   * This method checks for compliance to the current ID3v2 standard (2.4)
-	   * and does nothing in the common case.  However if a frame is found that
-	   * is not compatible with the current standard, this method either updates
-	   * the frame or indicates that it should be discarded.
-	   *
-	   * This method with return true (with or without changes to the frame) if
-	   * this frame should be kept or false if it should be discarded.
-	   *
-	   * See the id3v2.4.0-changes.txt document for further information.
-	   */
-	  virtual bool updateFrame(Frame::Header *header) const;
-
-	private:
-	  FrameFactory(const FrameFactory &);
-	  FrameFactory &operator=(const FrameFactory &);
-
-	  /*!
-	   * This method is used internally to convert a frame from ID \a from to ID
-	   * \a to.  If the frame matches the \a from pattern and converts the frame
-	   * ID in the \a header or simply does nothing if the frame ID does not match.
-	   */
-	  void convertFrame(const char *from, const char *to,
-						Frame::Header *header) const;
-
-	  void updateGenre(TextIdentificationFrame *frame) const;
-
-	  static FrameFactory *factory;
-
-	  class FrameFactoryPrivate;
-	  FrameFactoryPrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: id3v2framefactory.h ***/
-
-namespace TagLib {
-
-  class File;
-
-  //! An ID3v2 implementation
-
-  /*!
-   * This is a relatively complete and flexible framework for working with ID3v2
-   * tags.
-   *
-   * \see ID3v2::Tag
-   */
-
-  namespace ID3v2 {
-
-	class Header;
-	class ExtendedHeader;
-	class Footer;
-
-	typedef List<Frame *> FrameList;
-	typedef Map<ByteVector, FrameList> FrameListMap;
-
-	//! The main class in the ID3v2 implementation
-
-	/*!
-	 * This is the main class in the ID3v2 implementation.  It serves two
-	 * functions.  This first, as is obvious from the public API, is to provide a
-	 * container for the other ID3v2 related classes.  In addition, through the
-	 * read() and parse() protected methods, it provides the most basic level of
-	 * parsing.  In these methods the ID3v2 tag is extracted from the file and
-	 * split into data components.
-	 *
-	 * ID3v2 tags have several parts, TagLib attempts to provide an interface
-	 * for them all.  header(), footer() and extendedHeader() corespond to those
-	 * data structures in the ID3v2 standard and the APIs for the classes that
-	 * they return attempt to reflect this.
-	 *
-	 * Also ID3v2 tags are built up from a list of frames, which are in turn
-	 * have a header and a list of fields.  TagLib provides two ways of accessing
-	 * the list of frames that are in a given ID3v2 tag.  The first is simply
-	 * via the frameList() method.  This is just a list of pointers to the frames.
-	 * The second is a map from the frame type -- i.e. "COMM" for comments -- and
-	 * a list of frames of that type.  (In some cases ID3v2 allows for multiple
-	 * frames of the same type, hence this being a map to a list rather than just
-	 * a map to an individual frame.)
-	 *
-	 * More information on the structure of frames can be found in the ID3v2::Frame
-	 * class.
-	 *
-	 * read() and parse() pass binary data to the other ID3v2 class structures,
-	 * they do not handle parsing of flags or fields, for instace.  Those are
-	 * handled by similar functions within those classes.
-	 *
-	 * \note All pointers to data structures within the tag will become invalid
-	 * when the tag is destroyed.
-	 *
-	 * \warning Dealing with the nasty details of ID3v2 is not for the faint of
-	 * heart and should not be done without much meditation on the spec.  It's
-	 * rather long, but if you're planning on messing with this class and others
-	 * that deal with the details of ID3v2 (rather than the nice, safe, abstract
-	 * TagLib::Tag and friends), it's worth your time to familiarize yourself
-	 * with said spec (which is distrubuted with the TagLib sources).  TagLib
-	 * tries to do most of the work, but with a little luck, you can still
-	 * convince it to generate invalid ID3v2 tags.  The APIs for ID3v2 assume a
-	 * working knowledge of ID3v2 structure.  You're been warned.
-	 */
-
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
-	{
-	public:
-	  /*!
-	   * Constructs an empty ID3v2 tag.
-	   *
-	   * \note You must create at least one frame for this tag to be valid.
-	   */
-	  Tag();
-
-	  /*!
-	   * Constructs an ID3v2 tag read from \a file starting at \a tagOffset.
-	   * \a factory specifies which FrameFactory will be used for the
-	   * construction of new frames.
-	   *
-	   * \note You should be able to ignore the \a factory parameter in almost
-	   * all situations.  You would want to specify your own FrameFactory
-	   * subclass in the case that you are extending TagLib to support additional
-	   * frame types, which would be incorperated into your factory.
-	   *
-	   * \see FrameFactory
-	   */
-	  Tag(File *file, long tagOffset,
-		  const FrameFactory *factory = FrameFactory::instance());
-
-	  /*!
-	   * Destroys this Tag instance.
-	   */
-	  virtual ~Tag();
-
-	  // Reimplementations.
-
-	  virtual String title() const;
-	  virtual String artist() const;
-	  virtual String album() const;
-	  virtual String comment() const;
-	  virtual String genre() const;
-	  virtual uint year() const;
-	  virtual uint track() const;
-
-	  virtual void setTitle(const String &s);
-	  virtual void setArtist(const String &s);
-	  virtual void setAlbum(const String &s);
-	  virtual void setComment(const String &s);
-	  virtual void setGenre(const String &s);
-	  virtual void setYear(uint i);
-	  virtual void setTrack(uint i);
-
-	  virtual bool isEmpty() const;
-
-	  /*!
-	   * Returns a pointer to the tag's header.
-	   */
-	  Header *header() const;
-
-	  /*!
-	   * Returns a pointer to the tag's extended header or null if there is no
-	   * extended header.
-	   */
-	  ExtendedHeader *extendedHeader() const;
-
-	  /*!
-	   * Returns a pointer to the tag's footer or null if there is no footer.
-	   *
-	   * \deprecated I don't see any reason to keep this around since there's
-	   * nothing useful to be retrieved from the footer, but well, again, I'm
-	   * prone to change my mind, so this gets to stay around until near a
-	   * release.
-	   */
-	  Footer *footer() const;
-
-	  /*!
-	   * Returns a reference to the frame list map.  This is an FrameListMap of
-	   * all of the frames in the tag.
-	   *
-	   * This is the most convenient structure for accessing the tag's frames.
-	   * Many frame types allow multiple instances of the same frame type so this
-	   * is a map of lists.  In most cases however there will only be a single
-	   * frame of a certain type.
-	   *
-	   * Let's say for instance that you wanted to access the frame for total
-	   * beats per minute -- the TBPM frame.
-	   *
-	   * \code
-	   * TagLib::MPEG::File f("foo.mp3");
-	   *
-	   * // Check to make sure that it has an ID3v2 tag
-	   *
-	   * if(f.ID3v2Tag()) {
-	   *
-	   *   // Get the list of frames for a specific frame type
-	   *
-	   *   TagLib::ID3v2::FrameList l = f.ID3v2Tag()->frameListMap()["TBPM"];
-	   *
-	   *   if(!l.isEmpty())
-	   *     std::cout << l.front()->toString() << std::endl;
-	   * }
-	   *
-	   * \endcode
-	   *
-	   * \warning You should not modify this data structure directly, instead
-	   * use addFrame() and removeFrame().
-	   *
-	   * \see frameList()
-	   */
-	  const FrameListMap &frameListMap() const;
-
-	  /*!
-	   * Returns a reference to the frame list.  This is an FrameList of all of
-	   * the frames in the tag in the order that they were parsed.
-	   *
-	   * This can be useful if for example you want iterate over the tag's frames
-	   * in the order that they occur in the tag.
-	   *
-	   * \warning You should not modify this data structure directly, instead
-	   * use addFrame() and removeFrame().
-	   */
-	  const FrameList &frameList() const;
-
-	  /*!
-	   * Returns the frame list for frames with the id \a frameID or an empty
-	   * list if there are no frames of that type.  This is just a convenience
-	   * and is equivalent to:
-	   *
-	   * \code
-	   * frameListMap()[frameID];
-	   * \endcode
-	   *
-	   * \see frameListMap()
-	   */
-	  const FrameList &frameList(const ByteVector &frameID) const;
-
-	  /*!
-	   * Add a frame to the tag.  At this point the tag takes ownership of
-	   * the frame and will handle freeing its memory.
-	   *
-	   * \note Using this method will invalidate any pointers on the list
-	   * returned by frameList()
-	   */
-	  void addFrame(Frame *frame);
-
-	  /*!
-	   * Remove a frame from the tag.  If \a del is true the frame's memory
-	   * will be freed; if it is false, it must be deleted by the user.
-	   *
-	   * \note Using this method will invalidate any pointers on the list
-	   * returned by frameList()
-	   */
-	  void removeFrame(Frame *frame, bool del = true);
-
-	  /*!
-	   * Remove all frames of type \a id from the tag and free their memory.
-	   *
-	   * \note Using this method will invalidate any pointers on the list
-	   * returned by frameList()
-	   */
-	  void removeFrames(const ByteVector &id);
-
-	  /*!
-	   * Render the tag back to binary data, suitable to be written to disk.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Render the tag back to binary data, suitable to be written to disk.
-	   *
-	   * The \a version parameter specifies the version of the rendered
-	   * ID3v2 tag. It can be either 4 or 3.
-	   */
-	  // BIC: combine with the above method
-	  ByteVector render(int version) const;
-
-	protected:
-	  /*!
-	   * Reads data from the file specified in the constructor.  It does basic
-	   * parsing of the data in the largest chunks.  It partitions the tag into
-	   * the Header, the body of the tag  (which contains the ExtendedHeader and
-	   * frames) and Footer.
-	   */
-	  void read();
-
-	  /*!
-	   * This is called by read to parse the body of the tag.  It determines if an
-	   * extended header exists and adds frames to the FrameListMap.
-	   */
-	  void parse(const ByteVector &data);
-
-	  /*!
-	   * Sets the value of the text frame with the Frame ID \a id to \a value.
-	   * If the frame does not exist, it is created.
-	   */
-	  void setTextFrame(const ByteVector &id, const String &value);
-
-	  void downgradeFrames(FrameList *existingFrames, FrameList *newFrames) const;
-
-	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
-
-	  class TagPrivate;
-	  TagPrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: id3v2tag.h ***/
-
-
-/*** Start of inlined file: id3v1tag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ID3V1TAG_H
-#define TAGLIB_ID3V1TAG_H
-
-namespace TagLib {
-
-  class File;
-
-  //! An ID3v1 implementation
-
-  namespace ID3v1 {
-
-	//! A abstraction for the string to data encoding in ID3v1 tags.
-
-	/*!
-	 * ID3v1 should in theory always contain ISO-8859-1 (Latin1) data.  In
-	 * practice it does not.  TagLib by default only supports ISO-8859-1 data
-	 * in ID3v1 tags.
-	 *
-	 * However by subclassing this class and reimplementing parse() and render()
-	 * and setting your reimplementation as the default with
-	 * ID3v1::Tag::setStringHandler() you can define how you would like these
-	 * transformations to be done.
-	 *
-	 * \warning It is advisable <b>not</b> to write non-ISO-8859-1 data to ID3v1
-	 * tags.  Please consider disabling the writing of ID3v1 tags in the case
-	 * that the data is not ISO-8859-1.
-	 *
-	 * \see ID3v1::Tag::setStringHandler()
-	 */
-
-	class TAGLIB_EXPORT StringHandler
-	{
-	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
-	public:
-	  // BIC: Add virtual destructor.
-	  StringHandler();
-
-	  /*!
-	   * Decode a string from \a data.  The default implementation assumes that
-	   * \a data is an ISO-8859-1 (Latin1) character array.
-	   */
-	  virtual String parse(const ByteVector &data) const;
-
-	  /*!
-	   * Encode a ByteVector with the data from \a s.  The default implementation
-	   * assumes that \a s is an ISO-8859-1 (Latin1) string.  If the string is
-	   * does not conform to ISO-8859-1, no value is written.
-	   *
-	   * \warning It is recommended that you <b>not</b> override this method, but
-	   * instead do not write an ID3v1 tag in the case that the data is not
-	   * ISO-8859-1.
-	   */
-	  virtual ByteVector render(const String &s) const;
-	};
-
-	//! The main class in the ID3v1 implementation
-
-	/*!
-	 * This is an implementation of the ID3v1 format.  ID3v1 is both the simplist
-	 * and most common of tag formats but is rather limited.  Because of its
-	 * pervasiveness and the way that applications have been written around the
-	 * fields that it provides, the generic TagLib::Tag API is a mirror of what is
-	 * provided by ID3v1.
-	 *
-	 * ID3v1 tags should generally only contain Latin1 information.  However because
-	 * many applications do not follow this rule there is now support for overriding
-	 * the ID3v1 string handling using the ID3v1::StringHandler class.  Please see
-	 * the documentation for that class for more information.
-	 *
-	 * \see StringHandler
-	 *
-	 * \note Most fields are truncated to a maximum of 28-30 bytes.  The
-	 * truncation happens automatically when the tag is rendered.
-	 */
-
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
-	{
-	public:
-	  /*!
-	   * Create an ID3v1 tag with default values.
-	   */
-	  Tag();
-
-	  /*!
-	   * Create an ID3v1 tag and parse the data in \a file starting at
-	   * \a tagOffset.
-	   */
-	  Tag(File *file, long tagOffset);
-
-	  /*!
-	   * Destroys this Tag instance.
-	   */
-	  virtual ~Tag();
-
-	  /*!
-	   * Renders the in memory values to a ByteVector suitable for writing to
-	   * the file.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Returns the string "TAG" suitable for usage in locating the tag in a
-	   * file.
-	   */
-	  static ByteVector fileIdentifier();
-
-	  // Reimplementations.
-
-	  virtual String title() const;
-	  virtual String artist() const;
-	  virtual String album() const;
-	  virtual String comment() const;
-	  virtual String genre() const;
-	  virtual uint year() const;
-	  virtual uint track() const;
-
-	  virtual void setTitle(const String &s);
-	  virtual void setArtist(const String &s);
-	  virtual void setAlbum(const String &s);
-	  virtual void setComment(const String &s);
-	  virtual void setGenre(const String &s);
-	  virtual void setYear(uint i);
-	  virtual void setTrack(uint i);
-
-	  /*!
-	   * Sets the string handler that decides how the ID3v1 data will be
-	   * converted to and from binary data.
-	   *
-	   * \see StringHandler
-	   */
-	  static void setStringHandler(const StringHandler *handler);
-
-	protected:
-	  /*!
-	   * Reads from the file specified in the constructor.
-	   */
-	  void read();
-	  /*!
-	   * Pareses the body of the tag in \a data.
-	   */
-	  void parse(const ByteVector &data);
-
-	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
-
-	  class TagPrivate;
-	  TagPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: id3v1tag.h ***/
-
-
-/*** Start of inlined file: apefooter.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEFOOTER_H
-#define TAGLIB_APEFOOTER_H
-
-namespace TagLib {
-
-  namespace APE {
-
-	//! An implementation of APE footers
-
-	/*!
-	 * This class implements APE footers (and headers). It attempts to follow, both
-	 * semantically and programatically, the structure specified in
-	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
-	 * headers specified there.
-	 */
-
-	class TAGLIB_EXPORT Footer
-	{
-	public:
-	  /*!
-	   * Constructs an empty APE footer.
-	   */
-	  Footer();
-
-	  /*!
-	   * Constructs an APE footer based on \a data.  parse() is called
-	   * immediately.
-	   */
-	  Footer(const ByteVector &data);
-
-	  /*!
-	   * Destroys the footer.
-	   */
-	  virtual ~Footer();
-
-	  /*!
-	   * Returns the version number.  (Note: This is the 1000 or 2000.)
-	   */
-	  uint version() const;
-
-	  /*!
-	   * Returns true if a header is present in the tag.
-	   */
-	  bool headerPresent() const;
-
-	  /*!
-	   * Returns true if a footer is present in the tag.
-	   */
-	  bool footerPresent() const;
-
-	  /*!
-	   * Returns true this is actually the header.
-	   */
-	  bool isHeader() const;
-
-	  /*!
-	   * Sets whether the header should be rendered or not
-	   */
-	  void setHeaderPresent(bool b) const;
-
-	  /*!
-	   * Returns the number of items in the tag.
-	   */
-	  uint itemCount() const;
-
-	  /*!
-	   * Set the item count to \a s.
-	   * \see itemCount()
-	   */
-	  void setItemCount(uint s);
-
-	  /*!
-	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
-	   * The size of the \e entire tag will be this plus the header size, if present.
-	   *
-	   * \see completeTagSize()
-	   */
-	  uint tagSize() const;
-
-	  /*!
-	   * Returns the tag size, including if present, the header
-	   * size.
-	   *
-	   * \see tagSize()
-	   */
-	  uint completeTagSize() const;
-
-	  /*!
-	   * Set the tag size to \a s.
-	   * \see tagSize()
-	   */
-	  void setTagSize(uint s);
-
-	  /*!
-	   * Returns the size of the footer.  Presently this is always 32 bytes.
-	   */
-	  static uint size();
-
-	  /*!
-	   * Returns the string used to identify an APE tag inside of a file.
-	   * Presently this is always "APETAGEX".
-	   */
-	  static ByteVector fileIdentifier();
-
-	  /*!
-	   * Sets the data that will be used as the footer.  32 bytes,
-	   * starting from \a data will be used.
-	   */
-	  void setData(const ByteVector &data);
-
-	  /*!
-	   * Renders the footer back to binary format.
-	   */
-	  ByteVector renderFooter() const;
-
-	  /*!
-	   * Renders the header corresponding to the footer. If headerPresent is
-	   * set to false, it returns an empty ByteVector.
-	   */
-	  ByteVector renderHeader() const;
-
-	protected:
-	  /*!
-	   * Called by setData() to parse the footer data.  It makes this information
-	   * available through the public API.
-	   */
-	  void parse(const ByteVector &data);
-
-	  /*!
-	   * Called by renderFooter and renderHeader
-	   */
-	  ByteVector render(bool isHeader) const;
-
-	private:
-	  Footer(const Footer &);
-	  Footer &operator=(const Footer &);
-
-	  class FooterPrivate;
-	  FooterPrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: apefooter.h ***/
-
-
-/*** Start of inlined file: apetag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APETAG_H
-#define TAGLIB_APETAG_H
-
-
-/*** Start of inlined file: apeitem.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEITEM_H
-#define TAGLIB_APEITEM_H
-
-
-/*** Start of inlined file: tstringlist.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_STRINGLIST_H
-#define TAGLIB_STRINGLIST_H
-
-
-/*** Start of inlined file: tbytevectorlist.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_BYTEVECTORLIST_H
-#define TAGLIB_BYTEVECTORLIST_H
-
-namespace TagLib {
-
-  //! A list of ByteVectors
-
-  /*!
-   * A List specialization with some handy features useful for ByteVectors.
-   */
-
-  class TAGLIB_EXPORT ByteVectorList : public List<ByteVector>
-  {
-  public:
-
-	/*!
-	 * Construct an empty ByteVectorList.
-	 */
-	ByteVectorList();
-
-	/*!
-	 * Destroys this ByteVectorList instance.
-	 */
-	virtual ~ByteVectorList();
-
-	/*!
-	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
-	 * implicitly shared, this method is lightweight and suitable for
-	 * pass-by-value usage.
-	 */
-	ByteVectorList(const ByteVectorList &l);
-
-	/*!
-	 * Convert the ByteVectorList to a ByteVector separated by \a separator.  By
-	 * default a space is used.
-	 */
-	ByteVector toByteVector(const ByteVector &separator = " ") const;
-
-	/*!
-	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
-	 * not include the pattern in the returned ByteVectors.
-	 */
-	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
-								int byteAlign = 1);
-	/*!
-	 * Splits the ByteVector \a v into several strings at \a pattern.  This will
-	 * not include the pattern in the returned ByteVectors.  \a max is the
-	 * maximum number of entries that will be separated.  If \a max for instance
-	 * is 2 then a maximum of 1 match will be found and the vector will be split
-	 * on that match.
-	 */
-	// BIC: merge with the function above
-	static ByteVectorList split(const ByteVector &v, const ByteVector &pattern,
-								int byteAlign, int max);
-  private:
-	class ByteVectorListPrivate;
-	ByteVectorListPrivate *d;
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: tbytevectorlist.h ***/
-
-#include <ostream>
-
-namespace TagLib {
-
-  //! A list of strings
-
-  /*!
-   * This is a spcialization of the List class with some members convention for
-   * string operations.
-   */
-
-  class TAGLIB_EXPORT StringList : public List<String>
-  {
-  public:
-
-	/*!
-	 * Constructs an empty StringList.
-	 */
-	StringList();
-
-	/*!
-	 * Make a shallow, implicitly shared, copy of \a l.  Because this is
-	 * implicitly shared, this method is lightweight and suitable for
-	 * pass-by-value usage.
-	 */
-	StringList(const StringList &l);
-
-	/*!
-	 * Constructs a StringList with \a s as a member.
-	 */
-	StringList(const String &s);
-
-	/*!
-	 * Makes a deep copy of the data in \a vl.
-	 *
-	 * \note This should only be used with the 8-bit codecs Latin1 and UTF8, when
-	 * used with other codecs it will simply print a warning and exit.
-	 */
-	StringList(const ByteVectorList &vl, String::Type t = String::Latin1);
-
-	/*!
-	 * Destroys this StringList instance.
-	 */
-	virtual ~StringList();
-
-	/*!
-	 * Concatenate the list of strings into one string separated by \a separator.
-	 */
-	String toString(const String &separator = " ") const;
-
-	/*!
-	 * Appends \a s to the end of the list and returns a reference to the
-	 * list.
-	 */
-	StringList &append(const String &s);
-
-	/*!
-	 * Appends all of the values in \a l to the end of the list and returns a
-	 * reference to the list.
-	 */
-	StringList &append(const StringList &l);
-
-	/*!
-	 * Splits the String \a s into several strings at \a pattern.  This will not include
-	 * the pattern in the returned strings.
-	 */
-	static StringList split(const String &s, const String &pattern);
-
-  private:
-	class StringListPrivate;
-	StringListPrivate *d;
-  };
-
-}
-
-/*!
- * \related TagLib::StringList
- * Send the StringList to an output stream.
- */
-std::ostream &operator<<(std::ostream &s, const TagLib::StringList &l);
-
-#endif
-
-/*** End of inlined file: tstringlist.h ***/
-
-namespace TagLib {
-
-  namespace APE {
-
-	//! An implementation of APE-items
-
-	/*!
-	 * This class provides the features of items in the APEv2 standard.
-	 */
-	class TAGLIB_EXPORT Item
-	{
-	public:
-	  /*!
-	   * Enum of types an Item can have. The value of 3 is reserved.
-	   */
-	  enum ItemTypes {
-		//! Item contains text information coded in UTF-8
-		Text = 0,
-		//! Item contains binary information
-		Binary = 1,
-		//! Item is a locator of external stored information
-		Locator = 2
+	  enum Type {
+		//! A type not enumerated below
+		Other              = 0x00,
+		//! 32x32 PNG image that should be used as the file icon
+		FileIcon           = 0x01,
+		//! File icon of a different size or format
+		OtherFileIcon      = 0x02,
+		//! Front cover image of the album
+		FrontCover         = 0x03,
+		//! Back cover image of the album
+		BackCover          = 0x04,
+		//! Inside leaflet page of the album
+		LeafletPage        = 0x05,
+		//! Image from the album itself
+		Media              = 0x06,
+		//! Picture of the lead artist or soloist
+		LeadArtist         = 0x07,
+		//! Picture of the artist or performer
+		Artist             = 0x08,
+		//! Picture of the conductor
+		Conductor          = 0x09,
+		//! Picture of the band or orchestra
+		Band               = 0x0A,
+		//! Picture of the composer
+		Composer           = 0x0B,
+		//! Picture of the lyricist or text writer
+		Lyricist           = 0x0C,
+		//! Picture of the recording location or studio
+		RecordingLocation  = 0x0D,
+		//! Picture of the artists during recording
+		DuringRecording    = 0x0E,
+		//! Picture of the artists during performance
+		DuringPerformance  = 0x0F,
+		//! Picture from a movie or video related to the track
+		MovieScreenCapture = 0x10,
+		//! Picture of a large, coloured fish
+		ColouredFish       = 0x11,
+		//! Illustration related to the track
+		Illustration       = 0x12,
+		//! Logo of the band or performer
+		BandLogo           = 0x13,
+		//! Logo of the publisher (record company)
+		PublisherLogo      = 0x14
 	  };
-	  /*!
-	   * Constructs an empty item.
-	   */
-	  Item();
 
 	  /*!
-	   * Constructs an item with \a key and \a value.
+	   * Constructs an empty picture frame.  The description, content and text
+	   * encoding should be set manually.
 	   */
-	  // BIC: Remove this, StringList has a constructor from a single string
-	  Item(const String &key, const String &value);
+	  AttachedPictureFrame();
 
 	  /*!
-	   * Constructs an item with \a key and \a values.
+	   * Constructs an AttachedPicture frame based on \a data.
 	   */
-	  Item(const String &key, const StringList &values);
+	  explicit AttachedPictureFrame(const ByteVector &data);
 
 	  /*!
-	   * Construct an item as a copy of \a item.
+	   * Destroys the AttahcedPictureFrame instance.
 	   */
-	  Item(const Item &item);
+	  virtual ~AttachedPictureFrame();
 
 	  /*!
-	   * Destroys the item.
+	   * Returns a string containing the description and mime-type
 	   */
-	  virtual ~Item();
+	  virtual String toString() const;
 
 	  /*!
-	   * Copies the contents of \a item into this item.
-	   */
-	  Item &operator=(const Item &item);
-
-	  /*!
-	   * Returns the key.
-	   */
-	  String key() const;
-
-	  /*!
-	   * Returns the binary value.
+	   * Returns the text encoding used for the description.
 	   *
-	   * \deprecated This will be removed in the next binary incompatible version
-	   * as it is not kept in sync with the things that are set using setValue()
-	   * and friends.
+	   * \see setTextEncoding()
+	   * \see description()
 	   */
-	  ByteVector value() const;
+	  String::Type textEncoding() const;
 
 	  /*!
-	   * Sets the key for the item to \a key.
-	   */
-	  void setKey(const String &key);
-
-	  /*!
-	   * Sets the value of the item to \a value and clears any previous contents.
+	   * Set the text encoding used for the description.
 	   *
-	   * \see toString()
+	   * \see description()
 	   */
-	  void setValue(const String &value);
+	  void setTextEncoding(String::Type t);
 
 	  /*!
-	   * Sets the value of the item to the list of values in \a value and clears
-	   * any previous contents.
+	   * Returns the mime type of the image.  This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   */
+	  String mimeType() const;
+
+	  /*!
+	   * Sets the mime type of the image.  This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   */
+	  void setMimeType(const String &m);
+
+	  /*!
+	   * Returns the type of the image.
 	   *
-	   * \see toStringList()
+	   * \see Type
+	   * \see setType()
 	   */
-	  void setValues(const StringList &values);
+	  Type type() const;
 
 	  /*!
-	   * Appends \a value to create (or extend) the current list of values.
+	   * Sets the type for the image.
 	   *
-	   * \see toString()
+	   * \see Type
+	   * \see type()
 	   */
-	  void appendValue(const String &value);
+	  void setType(Type t);
 
 	  /*!
-	   * Appends \a values to extend the current list of values.
+	   * Returns a text description of the image.
 	   *
-	   * \see toStringList()
+	   * \see setDescription()
+	   * \see textEncoding()
+	   * \see setTextEncoding()
 	   */
-	  void appendValues(const StringList &values);
+
+	  String description() const;
 
 	  /*!
-	   * Returns the size of the full item.
+	   * Sets a textual description of the image to \a desc.
+	   *
+	   * \see description()
+	   * \see textEncoding()
+	   * \see setTextEncoding()
 	   */
-	  int size() const;
+
+	  void setDescription(const String &desc);
 
 	  /*!
-	   * Returns the value as a single string. In case of multiple strings,
-	   * the first is returned.
+	   * Returns the image data as a ByteVector.
+	   *
+	   * \note ByteVector has a data() method that returns a const char * which
+	   * should make it easy to export this data to external programs.
+	   *
+	   * \see setPicture()
+	   * \see mimeType()
+	   */
+	  ByteVector picture() const;
+
+	  /*!
+	   * Sets the image data to \a p.  \a p should be of the type specified in
+	   * this frame's mime-type specification.
+	   *
+	   * \see picture()
+	   * \see mimeType()
+	   * \see setMimeType()
+	   */
+	  void setPicture(const ByteVector &p);
+
+	protected:
+	  virtual void parseFields(const ByteVector &data);
+	  virtual ByteVector renderFields() const;
+	  class AttachedPictureFramePrivate;
+	  AttachedPictureFramePrivate *d;
+
+	private:
+	  AttachedPictureFrame(const AttachedPictureFrame &);
+	  AttachedPictureFrame &operator=(const AttachedPictureFrame &);
+	  AttachedPictureFrame(const ByteVector &data, Header *h);
+
+	};
+
+	//! support for ID3v2.2 PIC frames
+	class TAGLIB_EXPORT AttachedPictureFrameV22 : public AttachedPictureFrame
+	{
+	protected:
+	  virtual void parseFields(const ByteVector &data);
+	private:
+	  AttachedPictureFrameV22(const ByteVector &data, Header *h);
+	  friend class FrameFactory;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: attachedpictureframe.h ***/
+
+namespace TagLib
+{
+  namespace ASF
+  {
+
+	//! An ASF attached picture interface implementation
+
+	/*!
+	 * This is an implementation of ASF attached pictures interface.  Pictures may be
+	 * included in attributes, one per WM/Picture attribute (but there may be multiple WM/Picture
+	 * attribute in a single tag).  These pictures are usually in either JPEG or
+	 * PNG format.
+	 * \see Attribute::toPicture()
+	 * \see Attribute::Attribute(const Picture& picture)
+	 */
+	class TAGLIB_EXPORT Picture {
+	public:
+
+	  /*!
+	   * This describes the function or content of the picture.
+	   */
+	  enum Type {
+		//! A type not enumerated below
+		Other              = 0x00,
+		//! 32x32 PNG image that should be used as the file icon
+		FileIcon           = 0x01,
+		//! File icon of a different size or format
+		OtherFileIcon      = 0x02,
+		//! Front cover image of the album
+		FrontCover         = 0x03,
+		//! Back cover image of the album
+		BackCover          = 0x04,
+		//! Inside leaflet page of the album
+		LeafletPage        = 0x05,
+		//! Image from the album itself
+		Media              = 0x06,
+		//! Picture of the lead artist or soloist
+		LeadArtist         = 0x07,
+		//! Picture of the artist or performer
+		Artist             = 0x08,
+		//! Picture of the conductor
+		Conductor          = 0x09,
+		//! Picture of the band or orchestra
+		Band               = 0x0A,
+		//! Picture of the composer
+		Composer           = 0x0B,
+		//! Picture of the lyricist or text writer
+		Lyricist           = 0x0C,
+		//! Picture of the recording location or studio
+		RecordingLocation  = 0x0D,
+		//! Picture of the artists during recording
+		DuringRecording    = 0x0E,
+		//! Picture of the artists during performance
+		DuringPerformance  = 0x0F,
+		//! Picture from a movie or video related to the track
+		MovieScreenCapture = 0x10,
+		//! Picture of a large, coloured fish
+		ColouredFish       = 0x11,
+		//! Illustration related to the track
+		Illustration       = 0x12,
+		//! Logo of the band or performer
+		BandLogo           = 0x13,
+		//! Logo of the publisher (record company)
+		PublisherLogo      = 0x14
+	  };
+
+	  /*!
+	   * Constructs an empty picture.
+	   */
+	  Picture();
+
+	  /*!
+	   * Construct an picture as a copy of \a other.
+	   */
+	  Picture(const Picture& other);
+
+	  /*!
+	   * Destroys the picture.
+	   */
+	  virtual ~Picture();
+
+	  /*!
+	   * Copies the contents of \a other into this picture.
+	   */
+	  Picture& operator=(const Picture& other);
+
+	  /*!
+	   * Returns true if Picture stores valid picture
+	   */
+	  bool isValid() const;
+
+	  /*!
+	   * Returns the mime type of the image. This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   * \see setMimeType(const String &)
+	   * \see picture()
+	   * \see setPicture(const ByteArray&)
+	   */
+	  String mimeType() const;
+
+	  /*!
+	   * Sets the mime type of the image.  This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   * \see setMimeType(const String &)
+	   * \see picture()
+	   * \see setPicture(const ByteArray&)
+	   */
+	  void setMimeType(const String &value);
+
+	  /*!
+	   * Returns the type of the image.
+	   *
+	   * \see Type
+	   * \see setType()
+	   */
+	  Type type() const;
+
+	  /*!
+	   * Sets the type for the image.
+	   *
+	   * \see Type
+	   * \see type()
+	   */
+	  void setType(const ASF::Picture::Type& t);
+
+	  /*!
+	   * Returns a text description of the image.
+	   *
+	   * \see setDescription()
+	   */
+	  String description() const;
+
+	  /*!
+	   * Sets a textual description of the image to \a desc.
+	   *
+	   * \see description()
+	   */
+	  void setDescription(const String &desc);
+
+	  /*!
+	   * Returns the image data as a ByteVector.
+	   *
+	   * \note ByteVector has a data() method that returns a const char * which
+	   * should make it easy to export this data to external programs.
+	   *
+	   * \see setPicture()
+	   * \see mimeType()
+	   */
+	  ByteVector picture() const;
+
+	  /*!
+	   * Sets the image data to \a p.  \a p should be of the type specified in
+	   * this frame's mime-type specification.
+	   *
+	   * \see picture()
+	   * \see mimeType()
+	   * \see setMimeType()
+	   */
+	  void setPicture(const ByteVector &p);
+
+	  /*!
+	   * Returns picture as binary raw data \a value
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Returns picture as binary raw data \a value
+	   */
+	  int dataSize() const;
+
+#ifndef DO_NOT_DOCUMENT
+	  /* THIS IS PRIVATE, DON'T TOUCH IT! */
+	  void parse(const ByteVector& );
+	  static Picture fromInvalid();
+	  friend class Attribute;
+#endif
+	  private:
+		class PicturePrivate;
+		PicturePrivate *d;
+	  };
+  }
+}
+
+#endif // ASFPICTURE_H
+
+/*** End of inlined file: asfpicture.h ***/
+
+namespace TagLib
+{
+
+  namespace ASF
+  {
+
+	class File;
+	class Picture;
+
+	class TAGLIB_EXPORT Attribute
+	{
+	public:
+
+	  /*!
+	   * Enum of types an Attribute can have.
+	   */
+	  enum AttributeTypes {
+		UnicodeType = 0,
+		BytesType   = 1,
+		BoolType    = 2,
+		DWordType   = 3,
+		QWordType   = 4,
+		WordType    = 5,
+		GuidType    = 6
+	  };
+
+	  /*!
+	   * Constructs an empty attribute.
+	   */
+	  Attribute();
+
+	  /*!
+	   * Constructs an attribute with \a key and a UnicodeType \a value.
+	   */
+	  Attribute(const String &value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a BytesType \a value.
+	   */
+	  Attribute(const ByteVector &value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a Picture \a value.
+	   *
+	   * This attribute is compatible with the ID3 frame, APIC. The ID3 specification for the APIC frame stipulates that,
+	   * while there may be any number of APIC frames associated with a file,
+	   * only one may be of type 1 and only one may be of type 2.
+	   *
+	   * The specification also states that the description of the picture can be no longer than 64 characters, but can be empty.
+	   * WM/Picture attributes added with TagLib::ASF are not automatically validated to conform to ID3 specifications.
+	   * You must add code in your application to perform validations if you want to maintain complete compatibility with ID3.
+	   */
+	  Attribute(const Picture &value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a DWordType \a value.
+	   */
+	  Attribute(unsigned int value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a QWordType \a value.
+	   */
+	  Attribute(unsigned long long value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a WordType \a value.
+	   */
+	  Attribute(unsigned short value);
+
+	  /*!
+	   * Constructs an attribute with \a key and a BoolType \a value.
+	   */
+	  Attribute(bool value);
+
+	  /*!
+	   * Construct an attribute as a copy of \a other.
+	   */
+	  Attribute(const Attribute &item);
+
+	  /*!
+	   * Copies the contents of \a other into this item.
+	   */
+	  ASF::Attribute &operator=(const Attribute &other);
+
+	  /*!
+	   * Destroys the attribute.
+	   */
+	  virtual ~Attribute();
+
+	  /*!
+	   * Returns type of the value.
+	   */
+	  AttributeTypes type() const;
+
+	  /*!
+	   * Returns the BoolType \a value.
+	   */
+	  unsigned short toBool() const;
+
+	  /*!
+	   * Returns the WordType \a value.
+	   */
+	  unsigned short toUShort() const;
+
+	  /*!
+	   * Returns the DWordType \a value.
+	   */
+	  unsigned int toUInt() const;
+
+	  /*!
+	   * Returns the QWordType \a value.
+	   */
+	  unsigned long long toULongLong() const;
+
+	  /*!
+	   * Returns the UnicodeType \a value.
 	   */
 	  String toString() const;
 
 	  /*!
-	   * \deprecated
-	   * \see values
+	   * Returns the BytesType \a value.
 	   */
-	  StringList toStringList() const;
+	  ByteVector toByteVector() const;
 
 	  /*!
-	   * Returns the list of values.
+	   * Returns the Picture \a value.
 	   */
-	  StringList values() const;
+	  Picture toPicture() const;
 
 	  /*!
-	   * Render the item to a ByteVector.
+	   * Returns the language number, or 0 is no stream number was set.
 	   */
-	  ByteVector render() const;
+	  int language() const;
 
 	  /*!
-	   * Parse the item from the ByteVector \a data.
+	   * Sets the language number.
 	   */
-	  void parse(const ByteVector& data);
+	  void setLanguage(int value);
 
 	  /*!
-	   * Set the item to read-only.
+	   * Returns the stream number, or 0 is no stream number was set.
 	   */
-	  void setReadOnly(bool readOnly);
+	  int stream() const;
 
 	  /*!
-	   * Return true if the item is read-only.
+	   * Sets the stream number.
 	   */
-	  bool isReadOnly() const;
+	  void setStream(int value);
 
-	  /*!
-	   * Sets the type of the item to \a type.
-	   *
-	   * \see ItemTypes
-	   */
-	  void setType(ItemTypes type);
+#ifndef DO_NOT_DOCUMENT
+	  /* THIS IS PRIVATE, DON'T TOUCH IT! */
+	  String parse(ASF::File &file, int kind = 0);
+#endif
 
-	  /*!
-	   * Returns the type of the item.
-	   */
-	  ItemTypes type() const;
-
-	  /*!
-	   * Returns if the item has any real content.
-	   */
-	  bool isEmpty() const;
+	  //! Returns the size of the stored data
+	  int dataSize() const;
 
 	private:
-	  class ItemPrivate;
-	  ItemPrivate *d;
+	  friend class File;
+
+	  ByteVector render(const String &name, int kind = 0) const;
+
+	  class AttributePrivate;
+	  AttributePrivate *d;
 	};
   }
 
@@ -4277,216 +6588,261 @@ namespace TagLib {
 
 #endif
 
-/*** End of inlined file: apeitem.h ***/
+/*** End of inlined file: asfattribute.h ***/
 
 namespace TagLib {
 
-  class File;
+  namespace ASF {
 
-  //! An implementation of the APE tagging format
+	typedef List<Attribute> AttributeList;
+	typedef Map<String, AttributeList> AttributeListMap;
 
-  namespace APE {
+	class TAGLIB_EXPORT Tag : public TagLib::Tag {
 
-	class Footer;
+	  friend class File;
 
-	/*!
-	 * A mapping between a list of item names, or keys, and the associated item.
-	 *
-	 * \see APE::Tag::itemListMap()
-	 */
-	typedef Map<const String, Item> ItemListMap;
-
-	//! An APE tag implementation
-
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
-	{
 	public:
-	  /*!
-	   * Create an APE tag with default values.
-	   */
+
 	  Tag();
 
-	  /*!
-	   * Create an APE tag and parse the data in \a file with APE footer at
-	   * \a tagOffset.
-	   */
-	  Tag(TagLib::File *file, long footerLocation);
-
-	  /*!
-	   * Destroys this Tag instance.
-	   */
 	  virtual ~Tag();
 
 	  /*!
-	   * Renders the in memory values to a ByteVector suitable for writing to
-	   * the file.
+	   * Returns the track name.
 	   */
-	  ByteVector render() const;
+	  virtual String title() const;
 
 	  /*!
-	   * Returns the string "APETAGEX" suitable for usage in locating the tag in a
-	   * file.
+	   * Returns the artist name.
 	   */
-	  static ByteVector fileIdentifier();
-
-	  // Reimplementations.
-
-	  virtual String title() const;
 	  virtual String artist() const;
+
+	  /*!
+	   * Returns the album name; if no album name is present in the tag
+	   * String::null will be returned.
+	   */
 	  virtual String album() const;
+
+	  /*!
+	   * Returns the track comment.
+	   */
 	  virtual String comment() const;
+
+	  /*!
+	   * Returns the genre name; if no genre is present in the tag String::null
+	   * will be returned.
+	   */
 	  virtual String genre() const;
+
+	  /*!
+	   * Returns the rating.
+	   */
+	  virtual String rating() const;
+
+	  /*!
+	   * Returns the genre name; if no genre is present in the tag String::null
+	   * will be returned.
+	   */
+	  virtual String copyright() const;
+
+	  /*!
+	   * Returns the year; if there is no year set, this will return 0.
+	   */
 	  virtual uint year() const;
+
+	  /*!
+	   * Returns the track number; if there is no track number set, this will
+	   * return 0.
+	   */
 	  virtual uint track() const;
 
+	  /*!
+	   * Sets the title to \a s.
+	   */
 	  virtual void setTitle(const String &s);
+
+	  /*!
+	   * Sets the artist to \a s.
+	   */
 	  virtual void setArtist(const String &s);
+
+	  /*!
+	   * Sets the album to \a s.  If \a s is String::null then this value will be
+	   * cleared.
+	   */
 	  virtual void setAlbum(const String &s);
+
+	  /*!
+	   * Sets the comment to \a s.
+	   */
 	  virtual void setComment(const String &s);
+
+	  /*!
+	   * Sets the rating to \a s.
+	   */
+	  virtual void setRating(const String &s);
+
+	  /*!
+	   * Sets the copyright to \a s.
+	   */
+	  virtual void setCopyright(const String &s);
+
+	  /*!
+	   * Sets the genre to \a s.
+	   */
 	  virtual void setGenre(const String &s);
+
+	  /*!
+	   * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
+	   */
 	  virtual void setYear(uint i);
+
+	  /*!
+	   * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
+	   */
 	  virtual void setTrack(uint i);
 
 	  /*!
-	   * Returns a pointer to the tag's footer.
+	   * Returns true if the tag does not contain any data.  This should be
+	   * reimplemented in subclasses that provide more than the basic tagging
+	   * abilities in this class.
 	   */
-	  Footer *footer() const;
+	  virtual bool isEmpty() const;
 
 	  /*!
-	   * Returns a reference to the item list map.  This is an ItemListMap of
+	   * Returns a reference to the item list map.  This is an AttributeListMap of
 	   * all of the items in the tag.
 	   *
 	   * This is the most powerfull structure for accessing the items of the tag.
-	   *
-	   * APE tags are case-insensitive, all keys in this map have been converted
-	   * to upper case.
-	   *
-	   * \warning You should not modify this data structure directly, instead
-	   * use setItem() and removeItem().
 	   */
-	  const ItemListMap &itemListMap() const;
+	  AttributeListMap &attributeListMap();
 
 	  /*!
-	   * Removes the \a key item from the tag
+	   * Removes the \a key attribute from the tag
 	   */
-	  void removeItem(const String &key);
+	  void removeItem(const String &name);
 
 	  /*!
-	   * Adds to the item specified by \a key the data \a value.  If \a replace
-	   * is true, then all of the other values on the same key will be removed
-	   * first.
+	   * Sets the \a key attribute to the value of \a attribute. If an attribute
+	   * with the \a key is already present, it will be replaced.
 	   */
-	  void addValue(const String &key, const String &value, bool replace = true);
+	  void setAttribute(const String &name, const Attribute &attribute);
 
 	  /*!
-	   * Sets the \a key item to the value of \a item. If an item with the \a key is already
-	   * present, it will be replaced.
+	   * Sets the \a key attribute to the value of \a attribute. If an attribute
+	   * with the \a key is already present, it will be added to the list.
 	   */
-	  void setItem(const String &key, const Item &item);
-
-	  /*!
-	   * Returns true if the tag does not contain any data.
-	   */
-	  bool isEmpty() const;
-
-	protected:
-
-	  /*!
-	   * Reads from the file specified in the constructor.
-	   */
-	  void read();
-
-	  /*!
-	   * Parses the body of the tag in \a data.
-	   */
-	  void parse(const ByteVector &data);
+	  void addAttribute(const String &name, const Attribute &attribute);
 
 	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
 
 	  class TagPrivate;
 	  TagPrivate *d;
 	};
   }
 }
-
 #endif
 
-/*** End of inlined file: apetag.h ***/
-
-
-/*** Start of inlined file: tdebug.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_DEBUG_H
-#define TAGLIB_DEBUG_H
+/*** End of inlined file: asftag.h ***/
 
 namespace TagLib {
 
-  class String;
-  class ByteVector;
+  //! An implementation of ASF (WMA) metadata
+  namespace ASF {
 
-#ifndef DO_NOT_DOCUMENT
-#ifndef NDEBUG
+	/*!
+	 * This implements and provides an interface for ASF files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to ASF files.
+	 */
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
 
-  /*!
-   * A simple function that prints debugging output to cerr if debugging is
-   * not disabled.
-   *
-   * \warning Do not use this outside of TagLib, it could lead to undefined
-   * symbols in your build if TagLib is built with NDEBUG defined and your
-   * application is not.
-   *
-   * \internal
-   */
-  void debug(const String &s);
+	  /*!
+	   * Contructs an ASF file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note In the current implementation, both \a readProperties and
+	   * \a propertiesStyle are ignored.
+	   */
+	  File(FileName file, bool readProperties = true, Properties::ReadStyle propertiesStyle = Properties::Average);
 
-  /*!
-   * For debugging binary data.
-   *
-   * \warning Do not use this outside of TagLib, it could lead to undefined
-   * symbols in your build if TagLib is built with NDEBUG defined and your
-   * application is not.
-   *
-   * \internal
-   */
-  void debugData(const ByteVector &v);
+	  /*!
+	   * Contructs an ASF file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note In the current implementation, both \a readProperties and
+	   * \a propertiesStyle are ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true, Properties::ReadStyle propertiesStyle = Properties::Average);
 
-#else
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
 
-  // Define these to an empty statement if debugging is disabled.
+	  /*!
+	   * Returns a pointer to the ASF tag of the file.
+	   *
+	   * ASF::Tag implements the tag interface, so this serves as the
+	   * reimplementation of TagLib::File::tag().
+	   *
+	   * \note The Tag <b>is still</b> owned by the ASF::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  virtual Tag *tag() const;
 
-#define debug(x)
-#define debugData(x)
+	  /*!
+	   * Returns the ASF audio properties for this file.
+	   */
+	  virtual Properties *audioProperties() const;
 
-#endif
-#endif
+	  /*!
+	   * Save the file.
+	   *
+	   * This returns true if the save was successful.
+	   */
+	  virtual bool save();
+
+	private:
+
+	  int readBYTE(bool *ok = 0);
+	  int readWORD(bool *ok = 0);
+	  unsigned int readDWORD(bool *ok = 0);
+	  long long readQWORD(bool *ok = 0);
+	  static ByteVector renderString(const String &str, bool includeLength = false);
+	  String readString(int len);
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+
+	  friend class Attribute;
+	  friend class Picture;
+
+	  class BaseObject;
+	  class UnknownObject;
+	  class FilePropertiesObject;
+	  class StreamPropertiesObject;
+	  class ContentDescriptionObject;
+	  class ExtendedContentDescriptionObject;
+	  class HeaderExtensionObject;
+	  class MetadataObject;
+	  class MetadataLibraryObject;
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+
 }
 
 #endif
 
-/*** End of inlined file: tdebug.h ***/
-
-#include <bitset>
+/*** End of inlined file: asffile.h ***/
 
 
 /*** Start of inlined file: mpegfile.h ***/
@@ -4514,420 +6870,6 @@ namespace TagLib {
 #define TAGLIB_MPEGFILE_H
 
 
-/*** Start of inlined file: tfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FILE_H
-#define TAGLIB_FILE_H
-
-
-/*** Start of inlined file: tiostream.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_IOSTREAM_H
-#define TAGLIB_IOSTREAM_H
-
-namespace TagLib {
-
-#ifdef _WIN32
-  class TAGLIB_EXPORT FileName
-  {
-  public:
-	FileName(const wchar_t *name) : m_wname(name) {}
-	FileName(const char *name) : m_name(name) {}
-	operator const wchar_t *() const { return m_wname.c_str(); }
-	operator const char *() const { return m_name.c_str(); }
-  private:
-	std::string m_name;
-	std::wstring m_wname;
-  };
-#else
-  typedef const char *FileName;
-#endif
-
-  //! An abstract class that provides operations on a sequence of bytes
-
-  class TAGLIB_EXPORT IOStream
-  {
-  public:
-	/*!
-	 * Position in the file used for seeking.
-	 */
-	enum Position {
-	  //! Seek from the beginning of the file.
-	  Beginning,
-	  //! Seek from the current position in the file.
-	  Current,
-	  //! Seek from the end of the file.
-	  End
-	};
-
-	IOStream();
-
-	/*!
-	 * Destroys this IOStream instance.
-	 */
-	virtual ~IOStream();
-
-	/*!
-	 * Returns the stream name in the local file system encoding.
-	 */
-	virtual FileName name() const = 0;
-
-	/*!
-	 * Reads a block of size \a length at the current get pointer.
-	 */
-	virtual ByteVector readBlock(ulong length) = 0;
-
-	/*!
-	 * Attempts to write the block \a data at the current get pointer.  If the
-	 * file is currently only opened read only -- i.e. readOnly() returns true --
-	 * this attempts to reopen the file in read/write mode.
-	 *
-	 * \note This should be used instead of using the streaming output operator
-	 * for a ByteVector.  And even this function is significantly slower than
-	 * doing output with a char[].
-	 */
-	virtual void writeBlock(const ByteVector &data) = 0;
-
-	/*!
-	 * Insert \a data at position \a start in the file overwriting \a replace
-	 * bytes of the original content.
-	 *
-	 * \note This method is slow since it requires rewriting all of the file
-	 * after the insertion point.
-	 */
-	virtual void insert(const ByteVector &data, ulong start = 0, ulong replace = 0) = 0;
-
-	/*!
-	 * Removes a block of the file starting a \a start and continuing for
-	 * \a length bytes.
-	 *
-	 * \note This method is slow since it involves rewriting all of the file
-	 * after the removed portion.
-	 */
-	virtual void removeBlock(ulong start = 0, ulong length = 0) = 0;
-
-	/*!
-	 * Returns true if the file is read only (or if the file can not be opened).
-	 */
-	virtual bool readOnly() const = 0;
-
-	/*!
-	 * Since the file can currently only be opened as an argument to the
-	 * constructor (sort-of by design), this returns if that open succeeded.
-	 */
-	virtual bool isOpen() const = 0;
-
-	/*!
-	 * Move the I/O pointer to \a offset in the stream from position \a p.  This
-	 * defaults to seeking from the beginning of the stream.
-	 *
-	 * \see Position
-	 */
-	virtual void seek(long offset, Position p = Beginning) = 0;
-
-	/*!
-	 * Reset the end-of-stream and error flags on the stream.
-	 */
-	virtual void clear();
-
-	/*!
-	 * Returns the current offset within the stream.
-	 */
-	virtual long tell() const = 0;
-
-	/*!
-	 * Returns the length of the stream.
-	 */
-	virtual long length() = 0;
-
-	/*!
-	 * Truncates the stream to a \a length.
-	 */
-	virtual void truncate(long length) = 0;
-
-  private:
-	IOStream(const IOStream &);
-	IOStream &operator=(const IOStream &);
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: tiostream.h ***/
-
-namespace TagLib {
-
-  class String;
-  class Tag;
-  class AudioProperties;
-
-  //! A file class with some useful methods for tag manipulation
-
-  /*!
-   * This class is a basic file class with some methods that are particularly
-   * useful for tag editors.  It has methods to take advantage of
-   * ByteVector and a binary search method for finding patterns in a file.
-   */
-
-  class TAGLIB_EXPORT File
-  {
-  public:
-	/*!
-	 * Position in the file used for seeking.
-	 */
-	enum Position {
-	  //! Seek from the beginning of the file.
-	  Beginning,
-	  //! Seek from the current position in the file.
-	  Current,
-	  //! Seek from the end of the file.
-	  End
-	};
-
-	/*!
-	 * Destroys this File instance.
-	 */
-	virtual ~File();
-
-	/*!
-	 * Returns the file name in the local file system encoding.
-	 */
-	FileName name() const;
-
-	/*!
-	 * Returns a pointer to this file's tag.  This should be reimplemented in
-	 * the concrete subclasses.
-	 */
-	virtual Tag *tag() const = 0;
-
-	/*!
-	 * Returns a pointer to this file's audio properties.  This should be
-	 * reimplemented in the concrete subclasses.  If no audio properties were
-	 * read then this will return a null pointer.
-	 */
-	virtual AudioProperties *audioProperties() const = 0;
-
-	/*!
-	 * Save the file and its associated tags.  This should be reimplemented in
-	 * the concrete subclasses.  Returns true if the save succeeds.
-	 *
-	 * \warning On UNIX multiple processes are able to write to the same file at
-	 * the same time.  This can result in serious file corruption.  If you are
-	 * developing a program that makes use of TagLib from multiple processes you
-	 * must insure that you are only doing writes to a particular file from one
-	 * of them.
-	 */
-	virtual bool save() = 0;
-
-	/*!
-	 * Reads a block of size \a length at the current get pointer.
-	 */
-	ByteVector readBlock(ulong length);
-
-	/*!
-	 * Attempts to write the block \a data at the current get pointer.  If the
-	 * file is currently only opened read only -- i.e. readOnly() returns true --
-	 * this attempts to reopen the file in read/write mode.
-	 *
-	 * \note This should be used instead of using the streaming output operator
-	 * for a ByteVector.  And even this function is significantly slower than
-	 * doing output with a char[].
-	 */
-	void writeBlock(const ByteVector &data);
-
-	/*!
-	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
-	 * not be found.  If \a before is set, the search will only continue until the
-	 * pattern \a before is found.  This is useful for tagging purposes to search
-	 * for a tag before the synch frame.
-	 *
-	 * Searching starts at \a fromOffset, which defaults to the beginning of the
-	 * file.
-	 *
-	 * \note This has the practial limitation that \a pattern can not be longer
-	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
-	 */
-	long find(const ByteVector &pattern,
-			  long fromOffset = 0,
-			  const ByteVector &before = ByteVector::null);
-
-	/*!
-	 * Returns the offset in the file that \a pattern occurs at or -1 if it can
-	 * not be found.  If \a before is set, the search will only continue until the
-	 * pattern \a before is found.  This is useful for tagging purposes to search
-	 * for a tag before the synch frame.
-	 *
-	 * Searching starts at \a fromOffset and proceeds from the that point to the
-	 * beginning of the file and defaults to the end of the file.
-	 *
-	 * \note This has the practial limitation that \a pattern can not be longer
-	 * than the buffer size used by readBlock().  Currently this is 1024 bytes.
-	 */
-	long rfind(const ByteVector &pattern,
-			   long fromOffset = 0,
-			   const ByteVector &before = ByteVector::null);
-
-	/*!
-	 * Insert \a data at position \a start in the file overwriting \a replace
-	 * bytes of the original content.
-	 *
-	 * \note This method is slow since it requires rewriting all of the file
-	 * after the insertion point.
-	 */
-	void insert(const ByteVector &data, ulong start = 0, ulong replace = 0);
-
-	/*!
-	 * Removes a block of the file starting a \a start and continuing for
-	 * \a length bytes.
-	 *
-	 * \note This method is slow since it involves rewriting all of the file
-	 * after the removed portion.
-	 */
-	void removeBlock(ulong start = 0, ulong length = 0);
-
-	/*!
-	 * Returns true if the file is read only (or if the file can not be opened).
-	 */
-	bool readOnly() const;
-
-	/*!
-	 * Since the file can currently only be opened as an argument to the
-	 * constructor (sort-of by design), this returns if that open succeeded.
-	 */
-	bool isOpen() const;
-
-	/*!
-	 * Returns true if the file is open and readble.
-	 */
-	bool isValid() const;
-
-	/*!
-	 * Move the I/O pointer to \a offset in the file from position \a p.  This
-	 * defaults to seeking from the beginning of the file.
-	 *
-	 * \see Position
-	 */
-	void seek(long offset, Position p = Beginning);
-
-	/*!
-	 * Reset the end-of-file and error flags on the file.
-	 */
-	void clear();
-
-	/*!
-	 * Returns the current offset within the file.
-	 */
-	long tell() const;
-
-	/*!
-	 * Returns the length of the file.
-	 */
-	long length();
-
-	/*!
-	 * Returns true if \a file can be opened for reading.  If the file does not
-	 * exist, this will return false.
-	 *
-	 * \deprecated
-	 */
-	static bool isReadable(const char *file);
-
-	/*!
-	 * Returns true if \a file can be opened for writing.
-	 *
-	 * \deprecated
-	 */
-	static bool isWritable(const char *name);
-
-  protected:
-	/*!
-	 * Construct a File object and opens the \a file.  \a file should be a
-	 * be a C-string in the local file system encoding.
-	 *
-	 * \note Constructor is protected since this class should only be
-	 * instantiated through subclasses.
-	 */
-	File(FileName file);
-
-	/*!
-	 * Construct a File object and use the \a stream instance.
-	 *
-	 * \note Constructor is protected since this class should only be
-	 * instantiated through subclasses.
-	 */
-	File(IOStream *stream);
-
-	/*!
-	 * Marks the file as valid or invalid.
-	 *
-	 * \see isValid()
-	 */
-	void setValid(bool valid);
-
-	/*!
-	 * Truncates the file to a \a length.
-	 */
-	void truncate(long length);
-
-	/*!
-	 * Returns the buffer size that is used for internal buffering.
-	 */
-	static uint bufferSize();
-
-  private:
-	File(const File &);
-	File &operator=(const File &);
-
-	class FilePrivate;
-	FilePrivate *d;
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: tfile.h ***/
-
-
 /*** Start of inlined file: mpegproperties.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -4951,114 +6893,6 @@ namespace TagLib {
 
 #ifndef TAGLIB_MPEGPROPERTIES_H
 #define TAGLIB_MPEGPROPERTIES_H
-
-
-/*** Start of inlined file: audioproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_AUDIOPROPERTIES_H
-#define TAGLIB_AUDIOPROPERTIES_H
-
-namespace TagLib {
-
-  //! A simple, abstract interface to common audio properties
-
-  /*!
-   * The values here are common to most audio formats.  For more specific, codec
-   * dependant values, please see see the subclasses APIs.  This is meant to
-   * compliment the TagLib::File and TagLib::Tag APIs in providing a simple
-   * interface that is sufficient for most applications.
-   */
-
-  class TAGLIB_EXPORT AudioProperties
-  {
-  public:
-
-	/*!
-	 * Reading audio properties from a file can sometimes be very time consuming
-	 * and for the most accurate results can often involve reading the entire
-	 * file.  Because in many situations speed is critical or the accuracy of the
-	 * values is not particularly important this allows the level of desired
-	 * accuracy to be set.
-	 */
-	enum ReadStyle {
-	  //! Read as little of the file as possible
-	  Fast,
-	  //! Read more of the file and make better values guesses
-	  Average,
-	  //! Read as much of the file as needed to report accurate values
-	  Accurate
-	};
-
-	/*!
-	 * Destroys this AudioProperties instance.
-	 */
-	virtual ~AudioProperties();
-
-	/*!
-	 * Returns the length of the file in seconds.
-	 */
-	virtual int length() const = 0;
-
-	/*!
-	 * Returns the most appropriate bit rate for the file in kb/s.  For constant
-	 * bitrate formats this is simply the bitrate of the file.  For variable
-	 * bitrate formats this is either the average or nominal bitrate.
-	 */
-	virtual int bitrate() const = 0;
-
-	/*!
-	 * Returns the sample rate in Hz.
-	 */
-	virtual int sampleRate() const = 0;
-
-	/*!
-	 * Returns the number of audio channels.
-	 */
-	virtual int channels() const = 0;
-
-  protected:
-
-	/*!
-	 * Construct an audio properties instance.  This is protected as this class
-	 * should not be instantiated directly, but should be instantiated via its
-	 * subclasses and can be fetched from the FileRef or File APIs.
-	 *
-	 * \see ReadStyle
-	 */
-	AudioProperties(ReadStyle style);
-
-  private:
-	AudioProperties(const AudioProperties &);
-	AudioProperties &operator=(const AudioProperties &);
-
-	class AudioPropertiesPrivate;
-	AudioPropertiesPrivate *d;
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: audioproperties.h ***/
 
 
 /*** Start of inlined file: mpegheader.h ***/
@@ -5586,6 +7420,6250 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: mpegfile.h ***/
+
+
+/*** Start of inlined file: vorbisfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_VORBISFILE_H
+#define TAGLIB_VORBISFILE_H
+
+
+/*** Start of inlined file: oggfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_OGGFILE_H
+#define TAGLIB_OGGFILE_H
+
+namespace TagLib {
+
+  //! A namespace for the classes used by Ogg-based metadata files
+
+  namespace Ogg {
+
+	class PageHeader;
+
+	//! An implementation of TagLib::File with some helpers for Ogg based formats
+
+	/*!
+	 * This is an implementation of Ogg file page and packet rendering and is of
+	 * use to Ogg based formats.  While the API is small this handles the
+	 * non-trivial details of breaking up an Ogg stream into packets and makes
+	 * these available (via subclassing) to the codec meta data implementations.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  virtual ~File();
+
+	  /*!
+	   * Returns the packet contents for the i-th packet (starting from zero)
+	   * in the Ogg bitstream.
+	   *
+	   * \warning The requires reading at least the packet header for every page
+	   * up to the requested page.
+	   */
+	  ByteVector packet(uint i);
+
+	  /*!
+	   * Sets the packet with index \a i to the value \a p.
+	   */
+	  void setPacket(uint i, const ByteVector &p);
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the first page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *firstPageHeader();
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the last page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *lastPageHeader();
+
+	  virtual bool save();
+
+	protected:
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(FileName file);
+
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(IOStream *stream);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  /*!
+	   * Reads the next page and updates the internal "current page" pointer.
+	   */
+	  bool nextPage();
+	  void writePageGroup(const List<int> &group);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: oggfile.h ***/
+
+
+/*** Start of inlined file: xiphcomment.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_VORBISCOMMENT_H
+#define TAGLIB_VORBISCOMMENT_H
+
+namespace TagLib {
+
+  namespace Ogg {
+
+	/*!
+	 * A mapping between a list of field names, or keys, and a list of values
+	 * associated with that field.
+	 *
+	 * \see XiphComment::fieldListMap()
+	 */
+	typedef Map<String, StringList> FieldListMap;
+
+	//! Ogg Vorbis comment implementation
+
+	/*!
+	 * This class is an implementation of the Ogg Vorbis comment specification,
+	 * to be found in section 5 of the Ogg Vorbis specification.  Because this
+	 * format is also used in other (currently unsupported) Xiph.org formats, it
+	 * has been made part of a generic implementation rather than being limited
+	 * to strictly Vorbis.
+	 *
+	 * Vorbis comments are a simple vector of keys and values, called fields.
+	 * Multiple values for a given key are supported.
+	 *
+	 * \see fieldListMap()
+	 */
+
+	class TAGLIB_EXPORT XiphComment : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Constructs an empty Vorbis comment.
+	   */
+	  XiphComment();
+
+	  /*!
+	   * Constructs a Vorbis comment from \a data.
+	   */
+	  XiphComment(const ByteVector &data);
+
+	  /*!
+	   * Destroys this instance of the XiphComment.
+	   */
+	  virtual ~XiphComment();
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  virtual bool isEmpty() const;
+
+	  /*!
+	   * Returns the number of fields present in the comment.
+	   */
+	  uint fieldCount() const;
+
+	  /*!
+	   * Returns a reference to the map of field lists.  Because Xiph comments
+	   * support multiple fields with the same key, a pure Map would not work.
+	   * As such this is a Map of string lists, keyed on the comment field name.
+	   *
+	   * The standard set of Xiph/Vorbis fields (which may or may not be
+	   * contained in any specific comment) is:
+	   *
+	   * <ul>
+	   *   <li>TITLE</li>
+	   *   <li>VERSION</li>
+	   *   <li>ALBUM</li>
+	   *   <li>ARTIST</li>
+	   *   <li>PERFORMER</li>
+	   *   <li>COPYRIGHT</li>
+	   *   <li>ORGANIZATION</li>
+	   *   <li>DESCRIPTION</li>
+	   *   <li>GENRE</li>
+	   *   <li>DATE</li>
+	   *   <li>LOCATION</li>
+	   *   <li>CONTACT</li>
+	   *   <li>ISRC</li>
+	   * </ul>
+	   *
+	   * For a more detailed description of these fields, please see the Ogg
+	   * Vorbis specification, section 5.2.2.1.
+	   *
+	   * \note The Ogg Vorbis comment specification does allow these key values
+	   * to be either upper or lower case.  However, it is conventional for them
+	   * to be upper case.  As such, TagLib, when parsing a Xiph/Vorbis comment,
+	   * converts all fields to uppercase.  When you are using this data
+	   * structure, you will need to specify the field name in upper case.
+	   *
+	   * \warning You should not modify this data structure directly, instead
+	   * use addField() and removeField().
+	   */
+	  const FieldListMap &fieldListMap() const;
+
+	  /*!
+	   * Returns the vendor ID of the Ogg Vorbis encoder.  libvorbis 1.0 as the
+	   * most common case always returns "Xiph.Org libVorbis I 20020717".
+	   */
+	  String vendorID() const;
+
+	  /*!
+	   * Add the field specified by \a key with the data \a value.  If \a replace
+	   * is true, then all of the other fields with the same key will be removed
+	   * first.
+	   *
+	   * If the field value is empty, the field will be removed.
+	   */
+	  void addField(const String &key, const String &value, bool replace = true);
+
+	  /*!
+	   * Remove the field specified by \a key with the data \a value.  If
+	   * \a value is null, all of the fields with the given key will be removed.
+	   */
+	  void removeField(const String &key, const String &value = String::null);
+
+	  /*!
+	   * Returns true if the field is contained within the comment.
+	   *
+	   * \note This is safer than checking for membership in the FieldListMap.
+	   */
+	  bool contains(const String &key) const;
+
+	  /*!
+	   * Renders the comment to a ByteVector suitable for inserting into a file.
+	   */
+	  ByteVector render() const; // BIC: remove and merge with below
+
+	  /*!
+	   * Renders the comment to a ByteVector suitable for inserting into a file.
+	   *
+	   * If \a addFramingBit is true the standard Vorbis comment framing bit will
+	   * be appended.  However some formats (notably FLAC) do not work with this
+	   * in place.
+	   */
+	  ByteVector render(bool addFramingBit) const;
+
+	protected:
+	  /*!
+	   * Reads the tag from the file specified in the constructor and fills the
+	   * FieldListMap.
+	   */
+	  void parse(const ByteVector &data);
+
+	private:
+	  XiphComment(const XiphComment &);
+	  XiphComment &operator=(const XiphComment &);
+
+	  class XiphCommentPrivate;
+	  XiphCommentPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: xiphcomment.h ***/
+
+
+/*** Start of inlined file: vorbisproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_VORBISPROPERTIES_H
+#define TAGLIB_VORBISPROPERTIES_H
+
+namespace TagLib {
+
+/*
+ * This is just to make this appear to be in the Ogg namespace in the
+ * documentation.  The typedef below will make this work with the current code.
+ * In the next BIC version of TagLib this will be really moved into the Ogg
+ * namespace.
+ */
+
+#ifdef DOXYGEN
+  namespace Ogg {
+#endif
+
+  namespace Vorbis {
+
+	class File;
+
+	//! An implementation of audio property reading for Ogg Vorbis
+
+	/*!
+	 * This reads the data from an Ogg Vorbis stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of Vorbis::Properties with the data read from the
+	   * Vorbis::File \a file.
+	   */
+	  Properties(File *file, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this VorbisProperties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns the Vorbis version, currently "0" (as specified by the spec).
+	   */
+	  int vorbisVersion() const;
+
+	  /*!
+	   * Returns the maximum bitrate as read from the Vorbis identification
+	   * header.
+	   */
+	  int bitrateMaximum() const;
+
+	  /*!
+	   * Returns the nominal bitrate as read from the Vorbis identification
+	   * header.
+	   */
+	  int bitrateNominal() const;
+
+	  /*!
+	   * Returns the minimum bitrate as read from the Vorbis identification
+	   * header.
+	   */
+	  int bitrateMinimum() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+
+/*
+ * To keep compatibility with the current version put Vorbis in the Ogg namespace
+ * only in the docs and provide a typedef to make it work.  In the next BIC
+ * version this will be removed and it will only exist in the Ogg namespace.
+ */
+
+#ifdef DOXYGEN
+  }
+#else
+  namespace Ogg { namespace Vorbis { typedef TagLib::AudioProperties AudioProperties; } }
+#endif
+
+}
+
+#endif
+
+/*** End of inlined file: vorbisproperties.h ***/
+
+namespace TagLib {
+
+/*
+ * This is just to make this appear to be in the Ogg namespace in the
+ * documentation.  The typedef below will make this work with the current code.
+ * In the next BIC version of TagLib this will be really moved into the Ogg
+ * namespace.
+ */
+
+#ifdef DOXYGEN
+  namespace Ogg {
+#endif
+
+  //! A namespace containing classes for Vorbis metadata
+
+  namespace Vorbis {
+
+	//! An implementation of Ogg::File with Vorbis specific methods
+
+	/*!
+	 * This is the central class in the Ogg Vorbis metadata processing collection
+	 * of classes.  It's built upon Ogg::File which handles processing of the Ogg
+	 * logical bitstream and breaking it down into pages which are handled by
+	 * the codec implementations, in this case Vorbis specifically.
+	 */
+
+	class TAGLIB_EXPORT File : public Ogg::File
+	{
+	public:
+	  /*!
+	   * Contructs a Vorbis file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs a Vorbis file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the XiphComment for this file.  XiphComment implements the tag
+	   * interface, so this serves as the reimplementation of
+	   * TagLib::File::tag().
+	   */
+	  virtual Ogg::XiphComment *tag() const;
+
+	  /*!
+	   * Returns the Vorbis::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  virtual bool save();
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+
+/*
+ * To keep compatibility with the current version put Vorbis in the Ogg namespace
+ * only in the docs and provide a typedef to make it work.  In the next BIC
+ * version this will be removed and it will only exist in the Ogg namespace.
+ */
+
+#ifdef DOXYGEN
+  }
+#else
+  namespace Ogg { namespace Vorbis { typedef TagLib::Vorbis::File File; } }
+#endif
+
+}
+
+#endif
+
+/*** End of inlined file: vorbisfile.h ***/
+
+
+/*** Start of inlined file: flacfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FLACFILE_H
+#define TAGLIB_FLACFILE_H
+
+
+/*** Start of inlined file: flacpicture.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FLACPICTURE_H
+#define TAGLIB_FLACPICTURE_H
+
+
+/*** Start of inlined file: flacmetadatablock.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FLACMETADATABLOCK_H
+#define TAGLIB_FLACMETADATABLOCK_H
+
+namespace TagLib {
+
+  namespace FLAC {
+
+	class TAGLIB_EXPORT MetadataBlock
+	{
+	public:
+	  MetadataBlock();
+	  virtual ~MetadataBlock();
+
+	  enum BlockType {
+		StreamInfo = 0,
+		Padding,
+		Application,
+		SeekTable,
+		VorbisComment,
+		CueSheet,
+		Picture
+	  };
+
+	  /*!
+	   * Returns the FLAC metadata block type.
+	   */
+	  virtual int code() const = 0;
+
+	  /*!
+	   * Render the content of the block.
+	   */
+	  virtual ByteVector render() const = 0;
+
+	private:
+	  MetadataBlock(const MetadataBlock &item);
+	  MetadataBlock &operator=(const MetadataBlock &item);
+
+	  class MetadataBlockPrivate;
+	  MetadataBlockPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: flacmetadatablock.h ***/
+
+namespace TagLib {
+
+  namespace FLAC {
+
+	class TAGLIB_EXPORT Picture : public MetadataBlock
+	{
+	public:
+
+	  /*!
+	   * This describes the function or content of the picture.
+	   */
+	  enum Type {
+		//! A type not enumerated below
+		Other              = 0x00,
+		//! 32x32 PNG image that should be used as the file icon
+		FileIcon           = 0x01,
+		//! File icon of a different size or format
+		OtherFileIcon      = 0x02,
+		//! Front cover image of the album
+		FrontCover         = 0x03,
+		//! Back cover image of the album
+		BackCover          = 0x04,
+		//! Inside leaflet page of the album
+		LeafletPage        = 0x05,
+		//! Image from the album itself
+		Media              = 0x06,
+		//! Picture of the lead artist or soloist
+		LeadArtist         = 0x07,
+		//! Picture of the artist or performer
+		Artist             = 0x08,
+		//! Picture of the conductor
+		Conductor          = 0x09,
+		//! Picture of the band or orchestra
+		Band               = 0x0A,
+		//! Picture of the composer
+		Composer           = 0x0B,
+		//! Picture of the lyricist or text writer
+		Lyricist           = 0x0C,
+		//! Picture of the recording location or studio
+		RecordingLocation  = 0x0D,
+		//! Picture of the artists during recording
+		DuringRecording    = 0x0E,
+		//! Picture of the artists during performance
+		DuringPerformance  = 0x0F,
+		//! Picture from a movie or video related to the track
+		MovieScreenCapture = 0x10,
+		//! Picture of a large, coloured fish
+		ColouredFish       = 0x11,
+		//! Illustration related to the track
+		Illustration       = 0x12,
+		//! Logo of the band or performer
+		BandLogo           = 0x13,
+		//! Logo of the publisher (record company)
+		PublisherLogo      = 0x14
+	  };
+
+	  Picture();
+	  Picture(const ByteVector &data);
+	  ~Picture();
+
+	  /*!
+	   * Returns the type of the image.
+	   */
+	  Type type() const;
+
+	  /*!
+	   * Sets the type of the image.
+	   */
+	  void setType(Type type);
+
+	  /*!
+	   * Returns the mime type of the image.  This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   */
+	  String mimeType() const;
+
+	  /*!
+	   * Sets the mime type of the image.  This should in most cases be
+	   * "image/png" or "image/jpeg".
+	   */
+	  void setMimeType(const String &m);
+
+	  /*!
+	   * Returns a text description of the image.
+	   */
+
+	  String description() const;
+
+	  /*!
+	   * Sets a textual description of the image to \a desc.
+	   */
+
+	  void setDescription(const String &desc);
+
+	  /*!
+	   * Returns the width of the image.
+	   */
+	  int width() const;
+
+	  /*!
+	   * Sets the width of the image.
+	   */
+	  void setWidth(int w);
+
+	  /*!
+	   * Returns the height of the image.
+	   */
+	  int height() const;
+
+	  /*!
+	   * Sets the height of the image.
+	   */
+	  void setHeight(int h);
+
+	  /*!
+	   * Returns the color depth (in bits-per-pixel) of the image.
+	   */
+	  int colorDepth() const;
+
+	  /*!
+	   * Sets the color depth (in bits-per-pixel) of the image.
+	   */
+	  void setColorDepth(int depth);
+
+	  /*!
+	   * Returns the number of colors used on the image..
+	   */
+	  int numColors() const;
+
+	  /*!
+	   * Sets the number of colors used on the image (for indexed images).
+	   */
+	  void setNumColors(int numColors);
+
+	  /*!
+	   * Returns the image data.
+	   */
+	  ByteVector data() const;
+
+	  /*!
+	   * Sets the image data.
+	   */
+	  void setData(const ByteVector &data);
+
+	  /*!
+	   * Returns the FLAC metadata block type.
+	   */
+	  int code() const;
+
+	  /*!
+	   * Render the content to the FLAC picture block format.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Parse the picture data in the FLAC picture block format.
+	   */
+	  bool parse(const ByteVector &rawData);
+
+	private:
+	  Picture(const Picture &item);
+	  Picture &operator=(const Picture &item);
+
+	  class PicturePrivate;
+	  PicturePrivate *d;
+	};
+
+	typedef List<Picture> PictureList;
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: flacpicture.h ***/
+
+
+/*** Start of inlined file: flacproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FLACPROPERTIES_H
+#define TAGLIB_FLACPROPERTIES_H
+
+namespace TagLib {
+
+  namespace FLAC {
+
+	class File;
+
+	//! An implementation of audio property reading for FLAC
+
+	/*!
+	 * This reads the data from an FLAC stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of FLAC::Properties with the data read from the
+	   * ByteVector \a data.
+	   */
+	   // BIC: switch to const reference
+	  Properties(ByteVector data, long streamLength, ReadStyle style = Average);
+
+	  /*!
+	   * Create an instance of FLAC::Properties with the data read from the
+	   * FLAC::File \a file.
+	   */
+	   // BIC: remove
+	  Properties(File *file, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this FLAC::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns the sample width as read from the FLAC identification
+	   * header.
+	   */
+	  int sampleWidth() const;
+
+	  /*!
+	   * Return the number of sample frames
+	   */
+	  unsigned long long sampleFrames() const;
+
+	  /*!
+	   * Returns the MD5 signature of the uncompressed audio stream as read
+	   * from the stream info header header.
+	   */
+	  ByteVector signature() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: flacproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace ID3v2 { class FrameFactory; class Tag; }
+  namespace ID3v1 { class Tag; }
+  namespace Ogg { class XiphComment; }
+
+  //! An implementation of FLAC metadata
+
+  /*!
+   * This is implementation of FLAC metadata for non-Ogg FLAC files.  At some
+   * point when Ogg / FLAC is more common there will be a similar implementation
+   * under the Ogg hiearchy.
+   *
+   * This supports ID3v1, ID3v2 and Xiph style comments as well as reading stream
+   * properties from the file.
+   */
+
+  namespace FLAC {
+
+	//! An implementation of TagLib::File with FLAC specific methods
+
+	/*!
+	 * This implements and provides an interface for FLAC files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to FLAC files.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \deprecated This constructor will be dropped in favor of the one below
+	   * in a future version.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * If this file contains and ID3v2 tag the frames will be created using
+	   * \a frameFactory.
+	   */
+	  // BIC: merge with the above constructor
+	  File(FileName file, ID3v2::FrameFactory *frameFactory,
+		   bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * If this file contains and ID3v2 tag the frames will be created using
+	   * \a frameFactory.
+	   */
+	  // BIC: merge with the above constructor
+	  File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
+		   bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.  This will be a union of XiphComment,
+	   * ID3v1 and ID3v2 tags.
+	   *
+	   * \see ID3v2Tag()
+	   * \see ID3v1Tag()
+	   * \see XiphComment()
+	   */
+	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Returns the FLAC::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Save the file.  This will primarily save the XiphComment, but
+	   * will also keep any old ID3-tags up to date. If the file
+	   * has no XiphComment, one will be constructed from the ID3-tags.
+	   *
+	   * This returns true if the save was successful.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns a pointer to the ID3v2 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v2 tag.  If \a create is true it will create
+	   * an ID3v2 tag if one does not exist.
+	   *
+	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v2::Tag *ID3v2Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the ID3v1 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v1 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist.
+	   *
+	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v1::Tag *ID3v1Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the XiphComment for the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid XiphComment.  If \a create is true it will create
+	   * a XiphComment if one does not exist.
+	   *
+	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  Ogg::XiphComment *xiphComment(bool create = false);
+
+	  /*!
+	   * Set the ID3v2::FrameFactory to something other than the default.  This
+	   * can be used to specify the way that ID3v2 frames will be interpreted
+	   * when
+	   *
+	   * \see ID3v2FrameFactory
+	   */
+	  void setID3v2FrameFactory(const ID3v2::FrameFactory *factory);
+
+	  /*!
+	   * Returns the block of data used by FLAC::Properties for parsing the
+	   * stream properties.
+	   *
+	   * \deprecated This method will not be public in a future release.
+	   */
+	  ByteVector streamInfoData(); // BIC: remove
+
+	  /*!
+	   * Returns the length of the audio-stream, used by FLAC::Properties for
+	   * calculating the bitrate.
+	   *
+	   * \deprecated This method will not be public in a future release.
+	   */
+	  long streamLength();  // BIC: remove
+
+	  /*!
+	   * Returns a list of pictures attached to the FLAC file.
+	   */
+	  List<Picture *> pictureList();
+
+	  /*!
+	   * Removes an attached picture. If \a del is true the picture's memory
+	   * will be freed; if it is false, it must be deleted by the user.
+	   */
+	  void removePicture(Picture *picture, bool del = true);
+
+	  /*!
+	   * Remove all attached images.
+	   */
+	  void removePictures();
+
+	  /*!
+	   * Add a new picture to the file. The file takes ownership of the
+	   * picture and will handle freeing its memory.
+	   *
+	   * \note The file will be saved only after calling save().
+	   */
+	  void addPicture(Picture *picture);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  long findID3v2();
+	  long findID3v1();
+	  ByteVector xiphCommentData() const;
+	  long findPaddingBreak(long nextPageOffset, long targetOffset, bool *isLast);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: flacfile.h ***/
+
+
+/*** Start of inlined file: oggflacfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_OGGFLACFILE_H
+#define TAGLIB_OGGFLACFILE_H
+
+
+/*** Start of inlined file: oggfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_OGGFILE_H
+#define TAGLIB_OGGFILE_H
+
+namespace TagLib {
+
+  //! A namespace for the classes used by Ogg-based metadata files
+
+  namespace Ogg {
+
+	class PageHeader;
+
+	//! An implementation of TagLib::File with some helpers for Ogg based formats
+
+	/*!
+	 * This is an implementation of Ogg file page and packet rendering and is of
+	 * use to Ogg based formats.  While the API is small this handles the
+	 * non-trivial details of breaking up an Ogg stream into packets and makes
+	 * these available (via subclassing) to the codec meta data implementations.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  virtual ~File();
+
+	  /*!
+	   * Returns the packet contents for the i-th packet (starting from zero)
+	   * in the Ogg bitstream.
+	   *
+	   * \warning The requires reading at least the packet header for every page
+	   * up to the requested page.
+	   */
+	  ByteVector packet(uint i);
+
+	  /*!
+	   * Sets the packet with index \a i to the value \a p.
+	   */
+	  void setPacket(uint i, const ByteVector &p);
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the first page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *firstPageHeader();
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the last page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *lastPageHeader();
+
+	  virtual bool save();
+
+	protected:
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(FileName file);
+
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(IOStream *stream);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  /*!
+	   * Reads the next page and updates the internal "current page" pointer.
+	   */
+	  bool nextPage();
+	  void writePageGroup(const List<int> &group);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: oggfile.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace Ogg {
+
+  //! An implementation of Ogg FLAC metadata
+
+  /*!
+   * This is implementation of FLAC metadata for Ogg FLAC files.  For "pure"
+   * FLAC files look under the FLAC hiearchy.
+   *
+   * Unlike "pure" FLAC-files, Ogg FLAC only supports Xiph-comments,
+   * while the audio-properties are the same.
+   */
+  namespace FLAC {
+
+	using TagLib::FLAC::Properties;
+
+	//! An implementation of TagLib::File with Ogg/FLAC specific methods
+
+	/*!
+	 * This implements and provides an interface for Ogg/FLAC files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to Ogg FLAC files.
+	 */
+
+	class TAGLIB_EXPORT File : public Ogg::File
+	{
+	public:
+	  /*!
+	   * Contructs an Ogg/FLAC file from \a file.  If \a readProperties is true
+	   * the file's audio properties will also be read using \a propertiesStyle.
+	   * If false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an Ogg/FLAC file from \a file.  If \a readProperties is true
+	   * the file's audio properties will also be read using \a propertiesStyle.
+	   * If false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.  This will always be a XiphComment.
+	   */
+	  virtual XiphComment *tag() const;
+
+	  /*!
+	   * Returns the FLAC::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Save the file.  This will primarily save and update the XiphComment.
+	   * Returns true if the save is successful.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns the length of the audio-stream, used by FLAC::Properties for
+	   * calculating the bitrate.
+	   */
+	  long streamLength();
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  ByteVector streamInfoData();
+	  ByteVector xiphCommentData();
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  } // namespace FLAC
+  } // namespace Ogg
+} // namespace TagLib
+
+#endif
+
+/*** End of inlined file: oggflacfile.h ***/
+
+
+/*** Start of inlined file: mpcfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MPCFILE_H
+#define TAGLIB_MPCFILE_H
+
+
+/*** Start of inlined file: mpcproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MPCPROPERTIES_H
+#define TAGLIB_MPCPROPERTIES_H
+
+namespace TagLib {
+
+  namespace MPC {
+
+	class File;
+
+	static const uint HeaderSize = 8*7;
+
+	//! An implementation of audio property reading for MPC
+
+	/*!
+	 * This reads the data from an MPC stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of MPC::Properties with the data read from the
+	   * ByteVector \a data.
+	   */
+	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this MPC::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns the version of the bitstream (SV4-SV7)
+	   */
+	  int mpcVersion() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: mpcproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace ID3v1 { class Tag; }
+  namespace APE { class Tag; }
+
+  //! An implementation of MPC metadata
+
+  /*!
+   * This is implementation of MPC metadata.
+   *
+   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
+   * properties from the file. ID3v2 tags are invalid in MPC-files, but will be skipped
+   * and ignored.
+   */
+
+  namespace MPC {
+
+	//! An implementation of TagLib::File with MPC specific methods
+
+	/*!
+	 * This implements and provides an interface for MPC files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to MPC files.
+	 * The only invalid tag combination supported is an ID3v1 tag after an APE tag.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * This set of flags is used for various operations and is suitable for
+	   * being OR-ed together.
+	   */
+	  enum TagTypes {
+		//! Empty set.  Matches no tag types.
+		NoTags  = 0x0000,
+		//! Matches ID3v1 tags.
+		ID3v1   = 0x0001,
+		//! Matches ID3v2 tags.
+		ID3v2   = 0x0002,
+		//! Matches APE tags.
+		APE     = 0x0004,
+		//! Matches all tag types.
+		AllTags = 0xffff
+	  };
+
+	  /*!
+	   * Contructs an MPC file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an MPC file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
+	   * or a combination of the two.
+	   */
+	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Returns the MPC::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Saves the file.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns a pointer to the ID3v1 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v1 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
+	   * new ID3v1 tag will be placed after it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v1::Tag *ID3v1Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the APE tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid APE tag.  If \a create is true it will create
+	   * a APE tag if one does not exist. If there is already an ID3v1 tag, thes
+	   * new APE tag will be placed before it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  APE::Tag *APETag(bool create = false);
+
+	  /*!
+	   * This will remove the tags that match the OR-ed together TagTypes from the
+	   * file.  By default it removes all tags.
+	   *
+	   * \warning This will also invalidate pointers to the tags
+	   * as their memory will be freed.
+	   *
+	   * \note In order to make the removal permanent save() still needs to be called.
+	   */
+	  void strip(int tags = AllTags);
+
+	  /*!
+	   * \deprecated
+	   * \see strip
+	   */
+	  void remove(int tags = AllTags);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  long findAPE();
+	  long findID3v1();
+	  long findID3v2();
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: mpcfile.h ***/
+
+
+/*** Start of inlined file: mp4file.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MP4FILE_H
+#define TAGLIB_MP4FILE_H
+
+
+/*** Start of inlined file: mp4properties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MP4PROPERTIES_H
+#define TAGLIB_MP4PROPERTIES_H
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class Atoms;
+	class File;
+
+	//! An implementation of MP4 audio properties
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  Properties(File *file, Atoms *atoms, ReadStyle style = Average);
+	  virtual ~Properties();
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+	  virtual int bitsPerSample() const;
+	  bool isEncrypted() const;
+
+	private:
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: mp4properties.h ***/
+
+
+/*** Start of inlined file: mp4tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MP4TAG_H
+#define TAGLIB_MP4TAG_H
+
+
+/*** Start of inlined file: mp4atom.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+// This file is not part of the public API!
+
+#ifndef DO_NOT_DOCUMENT
+
+#ifndef TAGLIB_MP4ATOM_H
+#define TAGLIB_MP4ATOM_H
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class Atom;
+	typedef TagLib::List<Atom *> AtomList;
+
+	enum AtomDataType
+	{
+	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
+	  TypeUTF8      = 1,  // without any count or null terminator
+	  TypeUTF16     = 2,  // also known as UTF-16BE
+	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
+	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
+	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
+	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
+	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
+	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
+	  TypeGIF       = 12, // (deprecated) a GIF image
+	  TypeJPEG      = 13, // a JPEG image
+	  TypePNG       = 14, // a PNG image
+	  TypeURL       = 15, // absolute, in UTF-8 characters
+	  TypeDuration  = 16, // in milliseconds, 32-bit integer
+	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
+	  TypeGenred    = 18, // a list of enumerated values
+	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
+	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
+	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
+	  TypeBMP       = 27, // Windows bitmap image
+	  TypeUndefined = 255 // undefined
+	};
+
+	struct AtomData {
+	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
+	  AtomDataType type;
+	  int locale;
+	  ByteVector data;
+	};
+
+	typedef TagLib::List<AtomData> AtomDataList;
+
+	class Atom
+	{
+	public:
+		Atom(File *file);
+		~Atom();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
+		AtomList findall(const char *name, bool recursive = false);
+		long offset;
+		long length;
+		TagLib::ByteVector name;
+		AtomList children;
+	private:
+		static const int numContainers = 11;
+		static const char *containers[11];
+	};
+
+	//! Root-level atoms
+	class Atoms
+	{
+	public:
+		Atoms(File *file);
+		~Atoms();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList atoms;
+	};
+
+  }
+
+}
+
+#endif
+
+#endif
+
+/*** End of inlined file: mp4atom.h ***/
+
+
+/*** Start of inlined file: mp4item.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MP4ITEM_H
+#define TAGLIB_MP4ITEM_H
+
+
+/*** Start of inlined file: mp4coverart.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MP4COVERART_H
+#define TAGLIB_MP4COVERART_H
+
+
+/*** Start of inlined file: mp4atom.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+// This file is not part of the public API!
+
+#ifndef DO_NOT_DOCUMENT
+
+#ifndef TAGLIB_MP4ATOM_H
+#define TAGLIB_MP4ATOM_H
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class Atom;
+	typedef TagLib::List<Atom *> AtomList;
+
+	enum AtomDataType
+	{
+	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
+	  TypeUTF8      = 1,  // without any count or null terminator
+	  TypeUTF16     = 2,  // also known as UTF-16BE
+	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
+	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
+	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
+	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
+	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
+	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
+	  TypeGIF       = 12, // (deprecated) a GIF image
+	  TypeJPEG      = 13, // a JPEG image
+	  TypePNG       = 14, // a PNG image
+	  TypeURL       = 15, // absolute, in UTF-8 characters
+	  TypeDuration  = 16, // in milliseconds, 32-bit integer
+	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
+	  TypeGenred    = 18, // a list of enumerated values
+	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
+	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
+	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
+	  TypeBMP       = 27, // Windows bitmap image
+	  TypeUndefined = 255 // undefined
+	};
+
+	struct AtomData {
+	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
+	  AtomDataType type;
+	  int locale;
+	  ByteVector data;
+	};
+
+	typedef TagLib::List<AtomData> AtomDataList;
+
+	class Atom
+	{
+	public:
+		Atom(File *file);
+		~Atom();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
+		AtomList findall(const char *name, bool recursive = false);
+		long offset;
+		long length;
+		TagLib::ByteVector name;
+		AtomList children;
+	private:
+		static const int numContainers = 11;
+		static const char *containers[11];
+	};
+
+	//! Root-level atoms
+	class Atoms
+	{
+	public:
+		Atoms(File *file);
+		~Atoms();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList atoms;
+	};
+
+  }
+
+}
+
+#endif
+
+#endif
+
+/*** End of inlined file: mp4atom.h ***/
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class TAGLIB_EXPORT CoverArt
+	{
+	public:
+	  /*!
+	   * This describes the image type.
+	   */
+	  enum Format {
+		JPEG = TypeJPEG,
+		PNG  = TypePNG,
+		BMP  = TypeBMP,
+		GIF  = TypeGIF
+	  };
+
+	  CoverArt(Format format, const ByteVector &data);
+	  ~CoverArt();
+
+	  CoverArt(const CoverArt &item);
+	  CoverArt &operator=(const CoverArt &item);
+
+	  //! Format of the image
+	  Format format() const;
+
+	  //! The image data
+	  ByteVector data() const;
+
+	private:
+	  class CoverArtPrivate;
+	  CoverArtPrivate *d;
+	};
+
+	typedef List<CoverArt> CoverArtList;
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: mp4coverart.h ***/
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class TAGLIB_EXPORT Item
+	{
+	public:
+	  struct IntPair {
+		int first, second;
+	  };
+
+	  Item();
+	  Item(const Item &item);
+	  Item &operator=(const Item &item);
+	  ~Item();
+
+	  Item(int value);
+	  Item(uchar value);
+	  Item(uint value);
+	  Item(long long value);
+	  Item(bool value);
+	  Item(int first, int second);
+	  Item(const StringList &value);
+	  Item(const ByteVectorList &value);
+	  Item(const CoverArtList &value);
+
+	  void setAtomDataType(AtomDataType type);
+	  AtomDataType atomDataType() const;
+
+	  int toInt() const;
+	  uchar toByte() const;
+	  uint toUInt() const;
+	  long long toLongLong() const;
+	  bool toBool() const;
+	  IntPair toIntPair() const;
+	  StringList toStringList() const;
+	  ByteVectorList toByteVectorList() const;
+	  CoverArtList toCoverArtList() const;
+
+	  bool isValid() const;
+
+	private:
+	  class ItemPrivate;
+	  ItemPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: mp4item.h ***/
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	typedef TagLib::Map<String, Item> ItemListMap;
+
+	class TAGLIB_EXPORT Tag: public TagLib::Tag
+	{
+	public:
+		Tag();
+		Tag(TagLib::File *file, Atoms *atoms);
+		~Tag();
+		bool save();
+
+		String title() const;
+		String artist() const;
+		String album() const;
+		String comment() const;
+		String genre() const;
+		uint year() const;
+		uint track() const;
+
+		void setTitle(const String &value);
+		void setArtist(const String &value);
+		void setAlbum(const String &value);
+		void setComment(const String &value);
+		void setGenre(const String &value);
+		void setYear(uint value);
+		void setTrack(uint value);
+
+		ItemListMap &itemListMap();
+
+	private:
+		AtomDataList parseData2(Atom *atom, TagLib::File *file, int expectedFlags = -1, bool freeForm = false);
+		TagLib::ByteVectorList parseData(Atom *atom, TagLib::File *file, int expectedFlags = -1, bool freeForm = false);
+		void parseText(Atom *atom, TagLib::File *file, int expectedFlags = 1);
+		void parseFreeForm(Atom *atom, TagLib::File *file);
+		void parseInt(Atom *atom, TagLib::File *file);
+		void parseByte(Atom *atom, TagLib::File *file);
+		void parseUInt(Atom *atom, TagLib::File *file);
+		void parseLongLong(Atom *atom, TagLib::File *file);
+		void parseGnre(Atom *atom, TagLib::File *file);
+		void parseIntPair(Atom *atom, TagLib::File *file);
+		void parseBool(Atom *atom, TagLib::File *file);
+		void parseCovr(Atom *atom, TagLib::File *file);
+
+		TagLib::ByteVector padIlst(const ByteVector &data, int length = -1);
+		TagLib::ByteVector renderAtom(const ByteVector &name, const TagLib::ByteVector &data);
+		TagLib::ByteVector renderData(const ByteVector &name, int flags, const TagLib::ByteVectorList &data);
+		TagLib::ByteVector renderText(const ByteVector &name, Item &item, int flags = TypeUTF8);
+		TagLib::ByteVector renderFreeForm(const String &name, Item &item);
+		TagLib::ByteVector renderBool(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderInt(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderByte(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderUInt(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderLongLong(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderIntPair(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderIntPairNoTrailing(const ByteVector &name, Item &item);
+		TagLib::ByteVector renderCovr(const ByteVector &name, Item &item);
+
+		void updateParents(AtomList &path, long delta, int ignore = 0);
+		void updateOffsets(long delta, long offset);
+
+		void saveNew(TagLib::ByteVector &data);
+		void saveExisting(TagLib::ByteVector &data, AtomList &path);
+
+		class TagPrivate;
+		TagPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: mp4tag.h ***/
+
+namespace TagLib {
+
+  //! An implementation of MP4 (AAC, ALAC, ...) metadata
+  namespace MP4 {
+
+	class Atoms;
+
+	/*!
+	 * This implements and provides an interface for MP4 files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to MP4 files.
+	 */
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * Contructs a MP4 file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note In the current implementation, both \a readProperties and
+	   * \a propertiesStyle are ignored.
+	   */
+	  File(FileName file, bool readProperties = true, Properties::ReadStyle audioPropertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs a MP4 file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note In the current implementation, both \a readProperties and
+	   * \a propertiesStyle are ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true, Properties::ReadStyle audioPropertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns a pointer to the MP4 tag of the file.
+	   *
+	   * MP4::Tag implements the tag interface, so this serves as the
+	   * reimplementation of TagLib::File::tag().
+	   *
+	   * \note The Tag <b>is still</b> owned by the MP4::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  Tag *tag() const;
+
+	  /*!
+	   * Returns the MP4 audio properties for this file.
+	   */
+	  Properties *audioProperties() const;
+
+	  /*!
+	   * Save the file.
+	   *
+	   * This returns true if the save was successful.
+	   */
+	  bool save();
+
+	private:
+
+	  void read(bool readProperties, Properties::ReadStyle audioPropertiesStyle);
+	  bool checkValid(const MP4::AtomList &list);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: mp4file.h ***/
+
+
+/*** Start of inlined file: wavpackfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_WVFILE_H
+#define TAGLIB_WVFILE_H
+
+
+/*** Start of inlined file: wavpackproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_WVPROPERTIES_H
+#define TAGLIB_WVPROPERTIES_H
+
+namespace TagLib {
+
+  namespace WavPack {
+
+	class File;
+
+	static const uint HeaderSize = 32;
+
+	//! An implementation of audio property reading for WavPack
+
+	/*!
+	 * This reads the data from an WavPack stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of WavPack::Properties with the data read from the
+	   * ByteVector \a data.
+	   *
+	   * \deprecated This constructor will be dropped in favor of the one below
+	   * in a future version.
+	   */
+	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
+
+	  /*!
+	   * Create an instance of WavPack::Properties.
+	   */
+	  // BIC: merge with the above constructor
+	  Properties(File *file, long streamLength, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this WavPack::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns number of bits per sample.
+	   */
+	  int bitsPerSample() const;
+
+	  /*!
+	   * Returns WavPack version.
+	   */
+	  int version() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+	  unsigned int seekFinalIndex();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: wavpackproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace ID3v1 { class Tag; }
+  namespace APE { class Tag; }
+
+  //! An implementation of WavPack metadata
+
+  /*!
+   * This is implementation of WavPack metadata.
+   *
+   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
+   * properties from the file.
+   */
+
+  namespace WavPack {
+
+	//! An implementation of TagLib::File with WavPack specific methods
+
+	/*!
+	 * This implements and provides an interface for WavPack files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to WavPack files.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * This set of flags is used for various operations and is suitable for
+	   * being OR-ed together.
+	   */
+	  enum TagTypes {
+		//! Empty set.  Matches no tag types.
+		NoTags  = 0x0000,
+		//! Matches ID3v1 tags.
+		ID3v1   = 0x0001,
+		//! Matches APE tags.
+		APE     = 0x0002,
+		//! Matches all tag types.
+		AllTags = 0xffff
+	  };
+
+	  /*!
+	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
+	   * or a combination of the two.
+	   */
+	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Returns the MPC::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Saves the file.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns a pointer to the ID3v1 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v1 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
+	   * new ID3v1 tag will be placed after it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v1::Tag *ID3v1Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the APE tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid APE tag.  If \a create is true it will create
+	   * a APE tag if one does not exist.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  APE::Tag *APETag(bool create = false);
+
+	  /*!
+	   * This will remove the tags that match the OR-ed together TagTypes from the
+	   * file.  By default it removes all tags.
+	   *
+	   * \note This will also invalidate pointers to the tags
+	   * as their memory will be freed.
+	   * \note In order to make the removal permanent save() still needs to be called
+	   */
+	  void strip(int tags = AllTags);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  long findID3v1();
+	  long findAPE();
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: wavpackfile.h ***/
+
+
+/*** Start of inlined file: speexfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_SPEEXFILE_H
+#define TAGLIB_SPEEXFILE_H
+
+
+/*** Start of inlined file: oggfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_OGGFILE_H
+#define TAGLIB_OGGFILE_H
+
+namespace TagLib {
+
+  //! A namespace for the classes used by Ogg-based metadata files
+
+  namespace Ogg {
+
+	class PageHeader;
+
+	//! An implementation of TagLib::File with some helpers for Ogg based formats
+
+	/*!
+	 * This is an implementation of Ogg file page and packet rendering and is of
+	 * use to Ogg based formats.  While the API is small this handles the
+	 * non-trivial details of breaking up an Ogg stream into packets and makes
+	 * these available (via subclassing) to the codec meta data implementations.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  virtual ~File();
+
+	  /*!
+	   * Returns the packet contents for the i-th packet (starting from zero)
+	   * in the Ogg bitstream.
+	   *
+	   * \warning The requires reading at least the packet header for every page
+	   * up to the requested page.
+	   */
+	  ByteVector packet(uint i);
+
+	  /*!
+	   * Sets the packet with index \a i to the value \a p.
+	   */
+	  void setPacket(uint i, const ByteVector &p);
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the first page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *firstPageHeader();
+
+	  /*!
+	   * Returns a pointer to the PageHeader for the last page in the stream or
+	   * null if the page could not be found.
+	   */
+	  const PageHeader *lastPageHeader();
+
+	  virtual bool save();
+
+	protected:
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(FileName file);
+
+	  /*!
+	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   *
+	   * \note This constructor is protected since Ogg::File shouldn't be
+	   * instantiated directly but rather should be used through the codec
+	   * specific subclasses.
+	   */
+	  File(IOStream *stream);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  /*!
+	   * Reads the next page and updates the internal "current page" pointer.
+	   */
+	  bool nextPage();
+	  void writePageGroup(const List<int> &group);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: oggfile.h ***/
+
+
+/*** Start of inlined file: speexproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_SPEEXPROPERTIES_H
+#define TAGLIB_SPEEXPROPERTIES_H
+
+namespace TagLib {
+
+  namespace Ogg {
+
+	namespace Speex {
+
+	  class File;
+
+	  //! An implementation of audio property reading for Ogg Speex
+
+	  /*!
+	   * This reads the data from an Ogg Speex stream found in the AudioProperties
+	   * API.
+	   */
+
+	  class TAGLIB_EXPORT Properties : public AudioProperties
+	  {
+	  public:
+		/*!
+		 * Create an instance of Speex::Properties with the data read from the
+		 * Speex::File \a file.
+		 */
+		Properties(File *file, ReadStyle style = Average);
+
+		/*!
+		 * Destroys this Speex::Properties instance.
+		 */
+		virtual ~Properties();
+
+		// Reimplementations.
+
+		virtual int length() const;
+		virtual int bitrate() const;
+		virtual int sampleRate() const;
+		virtual int channels() const;
+
+		/*!
+		 * Returns the Speex version, currently "0" (as specified by the spec).
+		 */
+		int speexVersion() const;
+
+	  private:
+		Properties(const Properties &);
+		Properties &operator=(const Properties &);
+
+		void read();
+
+		class PropertiesPrivate;
+		PropertiesPrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: speexproperties.h ***/
+
+namespace TagLib {
+
+  namespace Ogg {
+
+	//! A namespace containing classes for Speex metadata
+
+	namespace Speex {
+
+	  //! An implementation of Ogg::File with Speex specific methods
+
+	  /*!
+	   * This is the central class in the Ogg Speex metadata processing collection
+	   * of classes.  It's built upon Ogg::File which handles processing of the Ogg
+	   * logical bitstream and breaking it down into pages which are handled by
+	   * the codec implementations, in this case Speex specifically.
+	   */
+
+	  class TAGLIB_EXPORT File : public Ogg::File
+	  {
+	  public:
+		/*!
+		 * Contructs a Speex file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Contructs a Speex file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stream, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		/*!
+		 * Returns the XiphComment for this file.  XiphComment implements the tag
+		 * interface, so this serves as the reimplementation of
+		 * TagLib::File::tag().
+		 */
+		virtual Ogg::XiphComment *tag() const;
+
+		/*!
+		 * Returns the Speex::Properties for this file.  If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		virtual Properties *audioProperties() const;
+
+		virtual bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+
+		class FilePrivate;
+		FilePrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: speexfile.h ***/
+
+
+/*** Start of inlined file: trueaudiofile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TRUEAUDIOFILE_H
+#define TAGLIB_TRUEAUDIOFILE_H
+
+
+/*** Start of inlined file: trueaudioproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TRUEAUDIOPROPERTIES_H
+#define TAGLIB_TRUEAUDIOPROPERTIES_H
+
+namespace TagLib {
+
+  namespace TrueAudio {
+
+	class File;
+
+	static const uint HeaderSize = 18;
+
+	//! An implementation of audio property reading for TrueAudio
+
+	/*!
+	 * This reads the data from an TrueAudio stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of TrueAudio::Properties with the data read from the
+	   * ByteVector \a data.
+	   */
+	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this TrueAudio::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns number of bits per sample.
+	   */
+	  int bitsPerSample() const;
+
+	  /*!
+	   * Returns the total number of sample frames
+	   */
+	  uint sampleFrames() const;
+
+	  /*!
+	   * Returns the major version number.
+	   */
+	  int ttaVersion() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: trueaudioproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace ID3v2 { class Tag; class FrameFactory; }
+  namespace ID3v1 { class Tag; }
+
+  //! An implementation of TrueAudio metadata
+
+  /*!
+   * This is implementation of TrueAudio metadata.
+   *
+   * This supports ID3v1 and ID3v2 tags as well as reading stream
+   * properties from the file.
+   */
+
+  namespace TrueAudio {
+
+	//! An implementation of TagLib::File with TrueAudio specific methods
+
+	/*!
+	 * This implements and provides an interface for TrueAudio files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to TrueAudio files.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * This set of flags is used for various operations and is suitable for
+	   * being OR-ed together.
+	   */
+	  enum TagTypes {
+		//! Empty set.  Matches no tag types.
+		NoTags  = 0x0000,
+		//! Matches ID3v1 tags.
+		ID3v1   = 0x0001,
+		//! Matches ID3v2 tags.
+		ID3v2   = 0x0002,
+		//! Matches all tag types.
+		AllTags = 0xffff
+	  };
+
+	  /*!
+	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored. The frames will be created using
+	   * \a frameFactory.
+	   */
+	  File(FileName file, ID3v2::FrameFactory *frameFactory,
+		   bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored. The frames will be created using
+	   * \a frameFactory.
+	   */
+	  File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
+		   bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.
+	   */
+	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Returns the TrueAudio::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Set the ID3v2::FrameFactory to something other than the default.
+	   *
+	   * \see ID3v2FrameFactory
+	   */
+	  void setID3v2FrameFactory(const ID3v2::FrameFactory *factory);
+
+	  /*!
+	   * Saves the file.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns a pointer to the ID3v2 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v2 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
+	   * new ID3v1 tag will be placed after it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the TrueAudio::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v1::Tag *ID3v1Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the ID3v1 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v1 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
+	   * new ID3v1 tag will be placed after it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the TrueAudio::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v2::Tag *ID3v2Tag(bool create = false);
+
+	  /*!
+	   * This will remove the tags that match the OR-ed together TagTypes from the
+	   * file.  By default it removes all tags.
+	   *
+	   * \note This will also invalidate pointers to the tags
+	   * as their memory will be freed.
+	   * \note In order to make the removal permanent save() still needs to be called
+	   */
+	  void strip(int tags = AllTags);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  long findID3v1();
+	  long findID3v2();
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: trueaudiofile.h ***/
+
+
+/*** Start of inlined file: aifffile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_AIFFFILE_H
+#define TAGLIB_AIFFFILE_H
+
+
+/*** Start of inlined file: rifffile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_RIFFFILE_H
+#define TAGLIB_RIFFFILE_H
+
+namespace TagLib {
+
+  //! An implementation of TagLib::File with RIFF specific methods
+
+  namespace RIFF {
+
+	//! An RIFF file class with some useful methods specific to RIFF
+
+	/*!
+	 * This implements the generic TagLib::File API and additionally provides
+	 * access to properties that are distinct to RIFF files, notably access
+	 * to the different ID3 tags.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	protected:
+
+	  enum Endianness { BigEndian, LittleEndian };
+
+	  File(FileName file, Endianness endianness);
+	  File(IOStream *stream, Endianness endianness);
+
+	  /*!
+	   * \return The size of the main RIFF chunk.
+	   */
+	  uint riffSize() const;
+
+	  /*!
+	   * \return The number of chunks in the file.
+	   */
+	  uint chunkCount() const;
+
+	  /*!
+	   * \return The offset within the file for the selected chunk number.
+	   */
+	  uint chunkOffset(uint i) const;
+
+	  /*!
+	   * \return The size of the chunk data.
+	   */
+	  uint chunkDataSize(uint i) const;
+
+	  /*!
+	   * \return The size of the padding after the chunk (can be either 0 or 1).
+	   */
+	  uint chunkPadding(uint i) const;
+
+	  /*!
+	   * \return The name of the specified chunk, for instance, "COMM" or "ID3 "
+	   */
+	  ByteVector chunkName(uint i) const;
+
+	  /*!
+	   * Reads the chunk data from the file and returns it.
+	   *
+	   * \note This \e will move the read pointer for the file.
+	   */
+	  ByteVector chunkData(uint i);
+
+	  /*!
+	   * Sets the data for the chunk \a name to \a data.  If a chunk with the
+	   * given name already exists it will be overwritten, otherwise it will be
+	   * created after the existing chunks.
+	   *
+	   * \warning This will update the file immediately.
+	   */
+	  void setChunkData(const ByteVector &name, const ByteVector &data);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read();
+	  void writeChunk(const ByteVector &name, const ByteVector &data,
+					  ulong offset, ulong replace = 0,
+					  uint leadingPadding = 0);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: rifffile.h ***/
+
+
+/*** Start of inlined file: id3v2tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ID3V2TAG_H
+#define TAGLIB_ID3V2TAG_H
+
+
+/*** Start of inlined file: id3v2framefactory.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ID3V2FRAMEFACTORY_H
+#define TAGLIB_ID3V2FRAMEFACTORY_H
+
+namespace TagLib {
+
+  namespace ID3v2 {
+
+	class TextIdentificationFrame;
+
+	//! A factory for creating ID3v2 frames during parsing
+
+	/*!
+	 * This factory abstracts away the frame creation process and instantiates
+	 * the appropriate ID3v2::Frame subclasses based on the contents of the
+	 * data.
+	 *
+	 * Reimplementing this factory is the key to adding support for frame types
+	 * not directly supported by TagLib to your application.  To do so you would
+	 * subclass this factory reimplement createFrame().  Then by setting your
+	 * factory to be the default factory in ID3v2::Tag constructor or with
+	 * MPEG::File::setID3v2FrameFactory() you can implement behavior that will
+	 * allow for new ID3v2::Frame subclasses (also provided by you) to be used.
+	 *
+	 * This implements both <i>abstract factory</i> and <i>singleton</i> patterns
+	 * of which more information is available on the web and in software design
+	 * textbooks (Notably <i>Design Patters</i>).
+	 *
+	 * \note You do not need to use this factory to create new frames to add to
+	 * an ID3v2::Tag.  You can instantiate frame subclasses directly (with new)
+	 * and add them to a tag using ID3v2::Tag::addFrame()
+	 *
+	 * \see ID3v2::Tag::addFrame()
+	 */
+
+	class TAGLIB_EXPORT FrameFactory
+	{
+	public:
+	  static FrameFactory *instance();
+	  /*!
+	   * Create a frame based on \a data.  \a synchSafeInts should only be set
+	   * false if we are parsing an old tag (v2.3 or older) that does not support
+	   * synchsafe ints.
+	   *
+	   * \deprecated Please use the method below that accepts a ID3v2::Header
+	   * instance in new code.
+	   */
+	  Frame *createFrame(const ByteVector &data, bool synchSafeInts) const;
+
+	  /*!
+	   * Create a frame based on \a data.  \a version should indicate the ID3v2
+	   * version of the tag.  As ID3v2.4 is the most current version of the
+	   * standard 4 is the default.
+	   *
+	   * \deprecated Please use the method below that accepts a ID3v2::Header
+	   * instance in new code.
+	   */
+	  Frame *createFrame(const ByteVector &data, uint version = 4) const;
+
+	  /*!
+	   * Create a frame based on \a data.  \a tagHeader should be a valid
+	   * ID3v2::Header instance.
+	   */
+	  // BIC: make virtual
+	  Frame *createFrame(const ByteVector &data, Header *tagHeader) const;
+
+	  /*!
+	   * Returns the default text encoding for text frames.  If setTextEncoding()
+	   * has not been explicitly called this will only be used for new text
+	   * frames.  However, if this value has been set explicitly all frames will be
+	   * converted to this type (unless it's explitly set differently for the
+	   * individual frame) when being rendered.
+	   *
+	   * \see setDefaultTextEncoding()
+	   */
+	  String::Type defaultTextEncoding() const;
+
+	  /*!
+	   * Set the default text encoding for all text frames that are created to
+	   * \a encoding.  If no value is set the frames with either default to the
+	   * encoding type that was parsed and new frames default to Latin1.
+	   *
+	   * Valid string types for ID3v2 tags are Latin1, UTF8, UTF16 and UTF16BE.
+	   *
+	   * \see defaultTextEncoding()
+	   */
+	  void setDefaultTextEncoding(String::Type encoding);
+
+	protected:
+	  /*!
+	   * Constructs a frame factory.  Because this is a singleton this method is
+	   * protected, but may be used for subclasses.
+	   */
+	  FrameFactory();
+
+	  /*!
+	   * Destroys the frame factory.  In most cases this will never be called (as
+	   * is typical of singletons).
+	   */
+	  virtual ~FrameFactory();
+
+	  /*!
+	   * This method checks for compliance to the current ID3v2 standard (2.4)
+	   * and does nothing in the common case.  However if a frame is found that
+	   * is not compatible with the current standard, this method either updates
+	   * the frame or indicates that it should be discarded.
+	   *
+	   * This method with return true (with or without changes to the frame) if
+	   * this frame should be kept or false if it should be discarded.
+	   *
+	   * See the id3v2.4.0-changes.txt document for further information.
+	   */
+	  virtual bool updateFrame(Frame::Header *header) const;
+
+	private:
+	  FrameFactory(const FrameFactory &);
+	  FrameFactory &operator=(const FrameFactory &);
+
+	  /*!
+	   * This method is used internally to convert a frame from ID \a from to ID
+	   * \a to.  If the frame matches the \a from pattern and converts the frame
+	   * ID in the \a header or simply does nothing if the frame ID does not match.
+	   */
+	  void convertFrame(const char *from, const char *to,
+						Frame::Header *header) const;
+
+	  void updateGenre(TextIdentificationFrame *frame) const;
+
+	  static FrameFactory *factory;
+
+	  class FrameFactoryPrivate;
+	  FrameFactoryPrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: id3v2framefactory.h ***/
+
+namespace TagLib {
+
+  class File;
+
+  //! An ID3v2 implementation
+
+  /*!
+   * This is a relatively complete and flexible framework for working with ID3v2
+   * tags.
+   *
+   * \see ID3v2::Tag
+   */
+
+  namespace ID3v2 {
+
+	class Header;
+	class ExtendedHeader;
+	class Footer;
+
+	typedef List<Frame *> FrameList;
+	typedef Map<ByteVector, FrameList> FrameListMap;
+
+	//! The main class in the ID3v2 implementation
+
+	/*!
+	 * This is the main class in the ID3v2 implementation.  It serves two
+	 * functions.  This first, as is obvious from the public API, is to provide a
+	 * container for the other ID3v2 related classes.  In addition, through the
+	 * read() and parse() protected methods, it provides the most basic level of
+	 * parsing.  In these methods the ID3v2 tag is extracted from the file and
+	 * split into data components.
+	 *
+	 * ID3v2 tags have several parts, TagLib attempts to provide an interface
+	 * for them all.  header(), footer() and extendedHeader() corespond to those
+	 * data structures in the ID3v2 standard and the APIs for the classes that
+	 * they return attempt to reflect this.
+	 *
+	 * Also ID3v2 tags are built up from a list of frames, which are in turn
+	 * have a header and a list of fields.  TagLib provides two ways of accessing
+	 * the list of frames that are in a given ID3v2 tag.  The first is simply
+	 * via the frameList() method.  This is just a list of pointers to the frames.
+	 * The second is a map from the frame type -- i.e. "COMM" for comments -- and
+	 * a list of frames of that type.  (In some cases ID3v2 allows for multiple
+	 * frames of the same type, hence this being a map to a list rather than just
+	 * a map to an individual frame.)
+	 *
+	 * More information on the structure of frames can be found in the ID3v2::Frame
+	 * class.
+	 *
+	 * read() and parse() pass binary data to the other ID3v2 class structures,
+	 * they do not handle parsing of flags or fields, for instace.  Those are
+	 * handled by similar functions within those classes.
+	 *
+	 * \note All pointers to data structures within the tag will become invalid
+	 * when the tag is destroyed.
+	 *
+	 * \warning Dealing with the nasty details of ID3v2 is not for the faint of
+	 * heart and should not be done without much meditation on the spec.  It's
+	 * rather long, but if you're planning on messing with this class and others
+	 * that deal with the details of ID3v2 (rather than the nice, safe, abstract
+	 * TagLib::Tag and friends), it's worth your time to familiarize yourself
+	 * with said spec (which is distrubuted with the TagLib sources).  TagLib
+	 * tries to do most of the work, but with a little luck, you can still
+	 * convince it to generate invalid ID3v2 tags.  The APIs for ID3v2 assume a
+	 * working knowledge of ID3v2 structure.  You're been warned.
+	 */
+
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Constructs an empty ID3v2 tag.
+	   *
+	   * \note You must create at least one frame for this tag to be valid.
+	   */
+	  Tag();
+
+	  /*!
+	   * Constructs an ID3v2 tag read from \a file starting at \a tagOffset.
+	   * \a factory specifies which FrameFactory will be used for the
+	   * construction of new frames.
+	   *
+	   * \note You should be able to ignore the \a factory parameter in almost
+	   * all situations.  You would want to specify your own FrameFactory
+	   * subclass in the case that you are extending TagLib to support additional
+	   * frame types, which would be incorperated into your factory.
+	   *
+	   * \see FrameFactory
+	   */
+	  Tag(File *file, long tagOffset,
+		  const FrameFactory *factory = FrameFactory::instance());
+
+	  /*!
+	   * Destroys this Tag instance.
+	   */
+	  virtual ~Tag();
+
+	  // Reimplementations.
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  virtual bool isEmpty() const;
+
+	  /*!
+	   * Returns a pointer to the tag's header.
+	   */
+	  Header *header() const;
+
+	  /*!
+	   * Returns a pointer to the tag's extended header or null if there is no
+	   * extended header.
+	   */
+	  ExtendedHeader *extendedHeader() const;
+
+	  /*!
+	   * Returns a pointer to the tag's footer or null if there is no footer.
+	   *
+	   * \deprecated I don't see any reason to keep this around since there's
+	   * nothing useful to be retrieved from the footer, but well, again, I'm
+	   * prone to change my mind, so this gets to stay around until near a
+	   * release.
+	   */
+	  Footer *footer() const;
+
+	  /*!
+	   * Returns a reference to the frame list map.  This is an FrameListMap of
+	   * all of the frames in the tag.
+	   *
+	   * This is the most convenient structure for accessing the tag's frames.
+	   * Many frame types allow multiple instances of the same frame type so this
+	   * is a map of lists.  In most cases however there will only be a single
+	   * frame of a certain type.
+	   *
+	   * Let's say for instance that you wanted to access the frame for total
+	   * beats per minute -- the TBPM frame.
+	   *
+	   * \code
+	   * TagLib::MPEG::File f("foo.mp3");
+	   *
+	   * // Check to make sure that it has an ID3v2 tag
+	   *
+	   * if(f.ID3v2Tag()) {
+	   *
+	   *   // Get the list of frames for a specific frame type
+	   *
+	   *   TagLib::ID3v2::FrameList l = f.ID3v2Tag()->frameListMap()["TBPM"];
+	   *
+	   *   if(!l.isEmpty())
+	   *     std::cout << l.front()->toString() << std::endl;
+	   * }
+	   *
+	   * \endcode
+	   *
+	   * \warning You should not modify this data structure directly, instead
+	   * use addFrame() and removeFrame().
+	   *
+	   * \see frameList()
+	   */
+	  const FrameListMap &frameListMap() const;
+
+	  /*!
+	   * Returns a reference to the frame list.  This is an FrameList of all of
+	   * the frames in the tag in the order that they were parsed.
+	   *
+	   * This can be useful if for example you want iterate over the tag's frames
+	   * in the order that they occur in the tag.
+	   *
+	   * \warning You should not modify this data structure directly, instead
+	   * use addFrame() and removeFrame().
+	   */
+	  const FrameList &frameList() const;
+
+	  /*!
+	   * Returns the frame list for frames with the id \a frameID or an empty
+	   * list if there are no frames of that type.  This is just a convenience
+	   * and is equivalent to:
+	   *
+	   * \code
+	   * frameListMap()[frameID];
+	   * \endcode
+	   *
+	   * \see frameListMap()
+	   */
+	  const FrameList &frameList(const ByteVector &frameID) const;
+
+	  /*!
+	   * Add a frame to the tag.  At this point the tag takes ownership of
+	   * the frame and will handle freeing its memory.
+	   *
+	   * \note Using this method will invalidate any pointers on the list
+	   * returned by frameList()
+	   */
+	  void addFrame(Frame *frame);
+
+	  /*!
+	   * Remove a frame from the tag.  If \a del is true the frame's memory
+	   * will be freed; if it is false, it must be deleted by the user.
+	   *
+	   * \note Using this method will invalidate any pointers on the list
+	   * returned by frameList()
+	   */
+	  void removeFrame(Frame *frame, bool del = true);
+
+	  /*!
+	   * Remove all frames of type \a id from the tag and free their memory.
+	   *
+	   * \note Using this method will invalidate any pointers on the list
+	   * returned by frameList()
+	   */
+	  void removeFrames(const ByteVector &id);
+
+	  /*!
+	   * Render the tag back to binary data, suitable to be written to disk.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Render the tag back to binary data, suitable to be written to disk.
+	   *
+	   * The \a version parameter specifies the version of the rendered
+	   * ID3v2 tag. It can be either 4 or 3.
+	   */
+	  // BIC: combine with the above method
+	  ByteVector render(int version) const;
+
+	protected:
+	  /*!
+	   * Reads data from the file specified in the constructor.  It does basic
+	   * parsing of the data in the largest chunks.  It partitions the tag into
+	   * the Header, the body of the tag  (which contains the ExtendedHeader and
+	   * frames) and Footer.
+	   */
+	  void read();
+
+	  /*!
+	   * This is called by read to parse the body of the tag.  It determines if an
+	   * extended header exists and adds frames to the FrameListMap.
+	   */
+	  void parse(const ByteVector &data);
+
+	  /*!
+	   * Sets the value of the text frame with the Frame ID \a id to \a value.
+	   * If the frame does not exist, it is created.
+	   */
+	  void setTextFrame(const ByteVector &id, const String &value);
+
+	  void downgradeFrames(FrameList *existingFrames, FrameList *newFrames) const;
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: id3v2tag.h ***/
+
+
+/*** Start of inlined file: aiffproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_AIFFPROPERTIES_H
+#define TAGLIB_AIFFPROPERTIES_H
+
+namespace TagLib {
+
+  namespace RIFF {
+
+	namespace AIFF {
+
+	  class File;
+
+	  //! An implementation of audio property reading for AIFF
+
+	  /*!
+	   * This reads the data from an AIFF stream found in the AudioProperties
+	   * API.
+	   */
+
+	  class TAGLIB_EXPORT Properties : public AudioProperties
+	  {
+	  public:
+		/*!
+		 * Create an instance of AIFF::Properties with the data read from the
+		 * ByteVector \a data.
+		 */
+		Properties(const ByteVector &data, ReadStyle style);
+
+		/*!
+		 * Destroys this AIFF::Properties instance.
+		 */
+		virtual ~Properties();
+
+		// Reimplementations.
+
+		virtual int length() const;
+		virtual int bitrate() const;
+		virtual int sampleRate() const;
+		virtual int channels() const;
+
+		int sampleWidth() const;
+		uint sampleFrames() const;
+
+	  private:
+		Properties(const Properties &);
+		Properties &operator=(const Properties &);
+
+		void read(const ByteVector &data);
+
+		class PropertiesPrivate;
+		PropertiesPrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: aiffproperties.h ***/
+
+namespace TagLib {
+
+  namespace RIFF {
+
+	//! An implementation of AIFF metadata
+
+	/*!
+	 * This is implementation of AIFF metadata.
+	 *
+	 * This supports an ID3v2 tag as well as reading stream from the ID3 RIFF
+	 * chunk as well as properties from the file.
+	 */
+
+	namespace AIFF {
+
+	  //! An implementation of TagLib::File with AIFF specific methods
+
+	  /*!
+	   * This implements and provides an interface for AIFF files to the
+	   * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	   * the abstract TagLib::File API as well as providing some additional
+	   * information specific to AIFF files.
+	   */
+
+	  class TAGLIB_EXPORT File : public TagLib::RIFF::File
+	  {
+	  public:
+		/*!
+		 * Contructs an AIFF file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Contructs an AIFF file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stream, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		/*!
+		 * Returns the Tag for this file.
+		 */
+		virtual ID3v2::Tag *tag() const;
+
+		/*!
+		 * Returns the AIFF::Properties for this file.  If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		virtual Properties *audioProperties() const;
+
+		/*!
+		 * Saves the file.
+		 */
+		virtual bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+
+		class FilePrivate;
+		FilePrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: aifffile.h ***/
+
+
+/*** Start of inlined file: wavfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_WAVFILE_H
+#define TAGLIB_WAVFILE_H
+
+
+/*** Start of inlined file: wavproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_WAVPROPERTIES_H
+#define TAGLIB_WAVPROPERTIES_H
+
+namespace TagLib {
+
+  class ByteVector;
+
+  namespace RIFF {
+
+	namespace WAV {
+
+	  class File;
+
+	  //! An implementation of audio property reading for WAV
+
+	  /*!
+	   * This reads the data from an WAV stream found in the AudioProperties
+	   * API.
+	   */
+
+	  class TAGLIB_EXPORT Properties : public AudioProperties
+	  {
+	  public:
+		/*!
+		 * Create an instance of WAV::Properties with the data read from the
+		 * ByteVector \a data.
+		 */
+		Properties(const ByteVector &data, ReadStyle style);
+
+		/*!
+		 * Create an instance of WAV::Properties with the data read from the
+		 * ByteVector \a data and the length calculated using \a streamLength.
+		 */
+		Properties(const ByteVector &data, uint streamLength, ReadStyle style);
+
+		/*!
+		 * Destroys this WAV::Properties instance.
+		 */
+		virtual ~Properties();
+
+		// Reimplementations.
+
+		virtual int length() const;
+		virtual int bitrate() const;
+		virtual int sampleRate() const;
+		virtual int channels() const;
+
+		int sampleWidth() const;
+		uint sampleFrames() const;
+
+	  private:
+		Properties(const Properties &);
+		Properties &operator=(const Properties &);
+
+		void read(const ByteVector &data);
+
+		class PropertiesPrivate;
+		PropertiesPrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: wavproperties.h ***/
+
+namespace TagLib {
+
+  namespace RIFF {
+
+	//! An implementation of WAV metadata
+
+	/*!
+	 * This is implementation of WAV metadata.
+	 *
+	 * This supports an ID3v2 tag as well as reading stream from the ID3 RIFF
+	 * chunk as well as properties from the file.
+	 */
+
+	namespace WAV {
+
+	  //! An implementation of TagLib::File with WAV specific methods
+
+	  /*!
+	   * This implements and provides an interface for WAV files to the
+	   * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	   * the abstract TagLib::File API as well as providing some additional
+	   * information specific to WAV files.
+	   */
+
+	  class TAGLIB_EXPORT File : public TagLib::RIFF::File
+	  {
+	  public:
+		/*!
+		 * Contructs an WAV file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Contructs an WAV file from \a file.  If \a readProperties is true the
+		 * file's audio properties will also be read using \a propertiesStyle.  If
+		 * false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stream, bool readProperties = true,
+			 Properties::ReadStyle propertiesStyle = Properties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		/*!
+		 * Returns the Tag for this file.
+		 */
+		virtual ID3v2::Tag *tag() const;
+
+		/*!
+		 * Returns the WAV::Properties for this file.  If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		virtual Properties *audioProperties() const;
+
+		/*!
+		 * Saves the file.
+		 */
+		virtual bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+
+		class FilePrivate;
+		FilePrivate *d;
+	  };
+	}
+  }
+}
+
+#endif
+
+/*** End of inlined file: wavfile.h ***/
+
+
+/*** Start of inlined file: apefile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEFILE_H
+#define TAGLIB_APEFILE_H
+
+
+/*** Start of inlined file: apeproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEPROPERTIES_H
+#define TAGLIB_APEPROPERTIES_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	class File;
+
+	//! An implementation of audio property reading for APE
+
+	/*!
+	 * This reads the data from an APE stream found in the AudioProperties
+	 * API.
+	 */
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  /*!
+	   * Create an instance of APE::Properties with the data read from the
+	   * ByteVector \a data.
+	   */
+	  Properties(File *f, ReadStyle style = Average);
+
+	  /*!
+	   * Destroys this APE::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+
+	  /*!
+	   * Returns number of bits per sample.
+	   */
+	  int bitsPerSample() const;
+
+	  /*!
+	   * Returns APE version.
+	   */
+	  int version() const;
+
+	private:
+	  Properties(const Properties &);
+	  Properties &operator=(const Properties &);
+
+	  void read();
+
+	  long findDescriptor();
+	  long findID3v2();
+
+	  void analyzeCurrent();
+	  void analyzeOld();
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: apeproperties.h ***/
+
+namespace TagLib {
+
+  class Tag;
+
+  namespace ID3v1 { class Tag; }
+  namespace APE { class Tag; }
+
+  //! An implementation of APE metadata
+
+  /*!
+   * This is implementation of APE metadata.
+   *
+   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
+   * properties from the file.
+   */
+
+  namespace APE {
+
+	//! An implementation of TagLib::File with APE specific methods
+
+	/*!
+	 * This implements and provides an interface APE WavPack files to the
+	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
+	 * the abstract TagLib::File API as well as providing some additional
+	 * information specific to APE files.
+	 */
+
+	class TAGLIB_EXPORT File : public TagLib::File
+	{
+	public:
+	  /*!
+	   * This set of flags is used for various operations and is suitable for
+	   * being OR-ed together.
+	   */
+	  enum TagTypes {
+		//! Empty set.  Matches no tag types.
+		NoTags  = 0x0000,
+		//! Matches ID3v1 tags.
+		ID3v1   = 0x0001,
+		//! Matches APE tags.
+		APE     = 0x0002,
+		//! Matches all tag types.
+		AllTags = 0xffff
+	  };
+
+	  /*!
+	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
+	   * file's audio properties will also be read using \a propertiesStyle.  If
+	   * false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   Properties::ReadStyle propertiesStyle = Properties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  /*!
+	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
+	   * or a combination of the two.
+	   */
+	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Returns the APE::Properties for this file.  If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  virtual Properties *audioProperties() const;
+
+	  /*!
+	   * Saves the file.
+	   *
+	   * \note According to the official Monkey's Audio SDK, an APE file
+	   * can only have either ID3V1 or APE tags, so a parameter is used here.
+	   */
+	  virtual bool save();
+
+	  /*!
+	   * Returns a pointer to the ID3v1 tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid ID3v1 tag.  If \a create is true it will create
+	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
+	   * new ID3v1 tag will be placed after it.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  ID3v1::Tag *ID3v1Tag(bool create = false);
+
+	  /*!
+	   * Returns a pointer to the APE tag of the file.
+	   *
+	   * If \a create is false (the default) this will return a null pointer
+	   * if there is no valid APE tag.  If \a create is true it will create
+	   * a APE tag if one does not exist.
+	   *
+	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
+	   * deleted by the user.  It will be deleted when the file (object) is
+	   * destroyed.
+	   */
+	  APE::Tag *APETag(bool create = false);
+
+	  /*!
+	   * This will remove the tags that match the OR-ed together TagTypes from the
+	   * file.  By default it removes all tags.
+	   *
+	   * \note This will also invalidate pointers to the tags
+	   * as their memory will be freed.
+	   * \note In order to make the removal permanent save() still needs to be called
+	   */
+	  void strip(int tags = AllTags);
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
+	  void scan();
+	  long findID3v1();
+	  long findAPE();
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: apefile.h ***/
+
+
+/*** Start of inlined file: modfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MODFILE_H
+#define TAGLIB_MODFILE_H
+
+
+/*** Start of inlined file: modfilebase.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MODFILEBASE_H
+#define TAGLIB_MODFILEBASE_H
+
+#include <algorithm>
+
+namespace TagLib {
+
+  namespace Mod {
+
+	class TAGLIB_EXPORT FileBase : public TagLib::File
+	{
+	protected:
+	  FileBase(FileName file);
+	  FileBase(IOStream *stream);
+
+	  void writeString(const String &s, ulong size, char padding = 0);
+	  void writeByte(uchar byte);
+	  void writeU16L(ushort number);
+	  void writeU32L(ulong number);
+	  void writeU16B(ushort number);
+	  void writeU32B(ulong number);
+
+	  bool readString(String &s, ulong size);
+	  bool readByte(uchar &byte);
+	  bool readU16L(ushort &number);
+	  bool readU32L(ulong &number);
+	  bool readU16B(ushort &number);
+	  bool readU32B(ulong &number);
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: modfilebase.h ***/
+
+
+/*** Start of inlined file: modtag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MODTAG_H
+#define TAGLIB_MODTAG_H
+
+namespace TagLib {
+
+  namespace Mod {
+
+	/*!
+	 * Tags for module files (Mod, S3M, IT, XM).
+	 *
+	 * Note that only the \a title is supported as such by most
+	 * module file formats.  Except for XM files the \a trackerName
+	 * is derived from the file format or the flavour of the file
+	 * format.  For XM files it is stored in the file.
+	 *
+	 * The \a comment tag is not strictly supported by module files,
+	 * but it is common practice to abuse instrument/sample/pattern
+	 * names as multiline comments.  TagLib does so as well.
+	 */
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  Tag();
+	  virtual ~Tag();
+
+	  /*!
+	   * Returns the track name; if no track name is present in the tag
+	   * String::null will be returned.
+	   */
+	  String title() const;
+
+	  /*!
+	   * Not supported by module files.  Therefore always returns String::null.
+	   */
+	  String artist() const;
+
+	  /*!
+	   * Not supported by module files.  Therefore always returns String::null.
+	   */
+	  String album() const;
+
+	  /*!
+	   * Returns the track comment derived from the instrument/sample/pattern
+	   * names; if no comment is present in the tag String::null will be
+	   * returned.
+	   */
+	  String comment() const;
+
+	  /*!
+	   * Not supported by module files.  Therefore always returns String::null.
+	   */
+	  String genre() const;
+
+	  /*!
+	   * Not supported by module files.  Therefore always returns 0.
+	   */
+	  uint year() const;
+
+	  /*!
+	   * Not supported by module files.  Therefore always returns 0.
+	   */
+	  uint track() const;
+
+	  /*!
+	   * Returns the name of the tracker used to create/edit the module file.
+	   * Only XM files store this tag to the file as such, for other formats
+	   * (Mod, S3M, IT) this is derived from the file type or the flavour of
+	   * the file type.  Therefore only XM files might have an empty
+	   * (String::null) tracker name.
+	   */
+	  String trackerName() const;
+
+	  /*!
+	   * Sets the title to \a title.  If \a title is String::null then this
+	   * value will be cleared.
+	   *
+	   * The length limits per file type are (1 characetr = 1 byte):
+	   * Mod 20 characters, S3M 27 characters, IT 25 characters and XM 20
+	   * characters.
+	   */
+	  void setTitle(const String &title);
+
+	  /*!
+	   * Not supported by module files and therefore ignored.
+	   */
+	  void setArtist(const String &artist);
+
+	  /*!
+	   * Not supported by module files and therefore ignored.
+	   */
+	  void setAlbum(const String &album);
+
+	  /*!
+	   * Sets the comment to \a comment.  If \a comment is String::null then
+	   * this value will be cleared.
+	   *
+	   * Note that module file formats don't actually support a comment tag.
+	   * Instead the names of instruments/patterns/samples are abused as
+	   * a multiline comment. Because of this the number of lines in a
+	   * module file is fixed to the number of instruments/patterns/samples.
+	   *
+	   * Also note that the instrument/pattern/sample name length is limited
+	   * an thus the line length in comments are limited. Too big comments
+	   * will be truncated.
+	   *
+	   * The line length limits per file type are (1 characetr = 1 byte):
+	   * Mod 22 characters, S3M 27 characters, IT 25 characters and XM 22
+	   * characters.
+	   */
+	  void setComment(const String &comment);
+
+	  /*!
+	   * Not supported by module files and therefore ignored.
+	   */
+	  void setGenre(const String &genre);
+
+	  /*!
+	   * Not supported by module files and therefore ignored.
+	   */
+	  void setYear(uint year);
+
+	  /*!
+	   * Not supported by module files and therefore ignored.
+	   */
+	  void setTrack(uint track);
+
+	  /*!
+	   * Sets the tracker name to \a trackerName.  If \a trackerName is
+	   * String::null then this value will be cleared.
+	   *
+	   * Note that only XM files support this tag.  Setting the
+	   * tracker name for other module file formats will be ignored.
+	   *
+	   * The length of this tag is limited to 20 characters (1 character
+	   * = 1 byte).
+	   */
+	  void setTrackerName(const String &trackerName);
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: modtag.h ***/
+
+
+/*** Start of inlined file: modproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_MODPROPERTIES_H
+#define TAGLIB_MODPROPERTIES_H
+
+namespace TagLib {
+
+  namespace Mod {
+
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+	  Properties(AudioProperties::ReadStyle propertiesStyle);
+	  virtual ~Properties();
+
+	  int length() const;
+	  int bitrate() const;
+	  int sampleRate() const;
+	  int channels() const;
+
+	  uint instrumentCount() const;
+	  uchar lengthInPatterns() const;
+
+	  void setChannels(int channels);
+
+	  void setInstrumentCount(uint sampleCount);
+	  void setLengthInPatterns(uchar lengthInPatterns);
+
+	private:
+	  friend class File;
+
+	  Properties(const Properties&);
+	  Properties &operator=(const Properties&);
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: modproperties.h ***/
+
+namespace TagLib {
+
+  namespace Mod {
+
+	class TAGLIB_EXPORT File : public TagLib::Mod::FileBase
+	{
+	public:
+	  /*!
+	   * Contructs a Protracker file from \a file. If \a readProperties
+	   * is true the file's audio properties will also be read using
+	   * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+	   */
+	  File(FileName file, bool readProperties = true,
+		   AudioProperties::ReadStyle propertiesStyle =
+		   AudioProperties::Average);
+
+	  /*!
+	   * Contructs a Protracker file from \a stream. If \a readProperties
+	   * is true the file's audio properties will also be read using
+	   * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+	   */
+	  File(IOStream *stream, bool readProperties = true,
+		   AudioProperties::ReadStyle propertiesStyle =
+		   AudioProperties::Average);
+
+	  /*!
+	   * Destroys this instance of the File.
+	   */
+	  virtual ~File();
+
+	  Mod::Tag *tag() const;
+
+	  /*!
+	   * Returns the Mod::Properties for this file. If no audio properties
+	   * were read then this will return a null pointer.
+	   */
+	  Mod::Properties *audioProperties() const;
+
+	  /*!
+	   * Save the file.
+	   * This is the same as calling save(AllTags);
+	   *
+	   * \note Saving Protracker tags is not supported.
+	   */
+	  bool save();
+
+	private:
+	  File(const File &);
+	  File &operator=(const File &);
+
+	  void read(bool readProperties);
+
+	  class FilePrivate;
+	  FilePrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: modfile.h ***/
+
+
+/*** Start of inlined file: s3mfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_S3MFILE_H
+#define TAGLIB_S3MFILE_H
+
+
+/*** Start of inlined file: s3mproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_S3MPROPERTIES_H
+#define TAGLIB_S3MPROPERTIES_H
+
+namespace TagLib {
+  namespace S3M {
+	class TAGLIB_EXPORT Properties : public AudioProperties {
+	  friend class File;
+	public:
+	  /*! Flag bits. */
+	  enum {
+		ST2Vibrato           =   1,
+		ST2Tempo             =   2,
+		AmigaSlides          =   4,
+		Vol0MixOptimizations =   8,
+		AmigaLimits          =  16,
+		EnableFilter         =  32,
+		CustomData           = 128
+	  };
+
+	  Properties(AudioProperties::ReadStyle propertiesStyle);
+	  virtual ~Properties();
+
+	  int length()     const;
+	  int bitrate()    const;
+	  int sampleRate() const;
+	  int channels()   const;
+
+	  ushort lengthInPatterns()  const;
+	  bool   stereo()            const;
+	  ushort sampleCount()       const;
+	  ushort patternCount()      const;
+	  ushort flags()             const;
+	  ushort trackerVersion()    const;
+	  ushort fileFormatVersion() const;
+	  uchar  globalVolume()      const;
+	  uchar  masterVolume()      const;
+	  uchar  tempo()             const;
+	  uchar  bpmSpeed()          const;
+
+	  void setChannels(int channels);
+
+	  void setLengthInPatterns (ushort lengthInPatterns);
+	  void setStereo           (bool stereo);
+	  void setSampleCount      (ushort sampleCount);
+	  void setPatternCount     (ushort patternCount);
+	  void setFlags            (ushort flags);
+	  void setTrackerVersion   (ushort trackerVersion);
+	  void setFileFormatVersion(ushort fileFormatVersion);
+	  void setGlobalVolume     (uchar globalVolume);
+	  void setMasterVolume     (uchar masterVolume);
+	  void setTempo            (uchar tempo);
+	  void setBpmSpeed         (uchar bpmSpeed);
+
+	private:
+	  Properties(const Properties&);
+	  Properties &operator=(const Properties&);
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: s3mproperties.h ***/
+
+namespace TagLib {
+
+  namespace S3M {
+
+	class TAGLIB_EXPORT File : public Mod::FileBase {
+	  public:
+		/*!
+		 * Contructs a ScreamTracker III file from \a file. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Contructs a ScreamTracker III file from \a stream. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stream, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		Mod::Tag *tag() const;
+
+		/*!
+		 * Returns the S3M::Properties for this file. If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		S3M::Properties *audioProperties() const;
+
+		/*!
+		 * Save the file.
+		 * This is the same as calling save(AllTags);
+		 *
+		 * \note Saving ScreamTracker III tags is not supported.
+		 */
+		bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties);
+
+		class FilePrivate;
+		FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: s3mfile.h ***/
+
+
+/*** Start of inlined file: itfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ITFILE_H
+#define TAGLIB_ITFILE_H
+
+
+/*** Start of inlined file: itproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ITPROPERTIES_H
+#define TAGLIB_ITPROPERTIES_H
+
+namespace TagLib {
+  namespace IT {
+	class TAGLIB_EXPORT Properties : public AudioProperties {
+	  friend class File;
+	public:
+	  /*! Flag bits. */
+	  enum {
+		Stereo                  =   1,
+		Vol0MixOptimizations    =   2,
+		UseInstruments          =   4,
+		LinearSlides            =   8,
+		OldEffects              =  16,
+		LinkEffects             =  32,
+		UseMidiPitchController  =  64,
+		RequestEmbeddedMidiConf = 128
+	  };
+
+	  /*! Special bits. */
+	  enum {
+		MessageAttached  = 1,
+		MidiConfEmbedded = 8
+	  };
+
+	  Properties(AudioProperties::ReadStyle propertiesStyle);
+	  virtual ~Properties();
+
+	  int length()     const;
+	  int bitrate()    const;
+	  int sampleRate() const;
+	  int channels()   const;
+
+	  ushort lengthInPatterns()  const;
+	  bool   stereo()            const;
+	  ushort instrumentCount()   const;
+	  ushort sampleCount()       const;
+	  ushort patternCount()      const;
+	  ushort version()           const;
+	  ushort compatibleVersion() const;
+	  ushort flags()             const;
+	  ushort special()           const;
+	  uchar  globalVolume()      const;
+	  uchar  mixVolume()         const;
+	  uchar  tempo()             const;
+	  uchar  bpmSpeed()          const;
+	  uchar  panningSeparation() const;
+	  uchar  pitchWheelDepth()   const;
+
+	  void setChannels(int channels);
+	  void setLengthInPatterns(ushort lengthInPatterns);
+	  void setInstrumentCount(ushort instrumentCount);
+	  void setSampleCount (ushort sampleCount);
+	  void setPatternCount(ushort patternCount);
+	  void setVersion     (ushort version);
+	  void setCompatibleVersion(ushort compatibleVersion);
+	  void setFlags       (ushort flags);
+	  void setSpecial     (ushort special);
+	  void setGlobalVolume(uchar globalVolume);
+	  void setMixVolume   (uchar mixVolume);
+	  void setTempo       (uchar tempo);
+	  void setBpmSpeed    (uchar bpmSpeed);
+	  void setPanningSeparation(uchar panningSeparation);
+	  void setPitchWheelDepth  (uchar pitchWheelDepth);
+
+	private:
+	  Properties(const Properties&);
+	  Properties &operator=(const Properties&);
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: itproperties.h ***/
+
+namespace TagLib {
+
+  namespace IT {
+
+	class TAGLIB_EXPORT File : public Mod::FileBase {
+	  public:
+		/*!
+		 * Contructs a Impulse Tracker file from \a file. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Contructs a Impulse Tracker file from \a stream. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stram, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		Mod::Tag *tag() const;
+
+		/*!
+		 * Returns the IT::Properties for this file. If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		IT::Properties *audioProperties() const;
+
+		/*!
+		 * Save the file.
+		 * This is the same as calling save(AllTags);
+		 *
+		 * \note Saving Impulse Tracker tags is not supported.
+		 */
+		bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties);
+
+		class FilePrivate;
+		FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: itfile.h ***/
+
+
+/*** Start of inlined file: xmfile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_XMFILE_H
+#define TAGLIB_XMFILE_H
+
+
+/*** Start of inlined file: xmproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef TAGLIB_XMPROPERTIES_H
+#define TAGLIB_XMPROPERTIES_H
+
+namespace TagLib {
+  namespace XM {
+	class Properties : public AudioProperties {
+	  friend class File;
+	public:
+	  /*! Flag bits. */
+	  enum {
+		LinearFreqTable = 1 // otherwise its the amiga freq. table
+	  };
+
+	  Properties(AudioProperties::ReadStyle propertiesStyle);
+	  virtual ~Properties();
+
+	  int length()     const;
+	  int bitrate()    const;
+	  int sampleRate() const;
+	  int channels()   const;
+
+	  ushort lengthInPatterns() const;
+	  ushort version()          const;
+	  ushort restartPosition()  const;
+	  ushort patternCount()     const;
+	  ushort instrumentCount()  const;
+	  uint   sampleCount()      const;
+	  ushort flags()            const;
+	  ushort tempo()            const;
+	  ushort bpmSpeed()         const;
+
+	  void setChannels(int channels);
+
+	  void setLengthInPatterns(ushort lengthInPatterns);
+	  void setVersion(ushort version);
+	  void setRestartPosition(ushort restartPosition);
+	  void setPatternCount(ushort patternCount);
+	  void setInstrumentCount(ushort instrumentCount);
+	  void setSampleCount(uint sampleCount);
+	  void setFlags(ushort flags);
+	  void setTempo(ushort tempo);
+	  void setBpmSpeed(ushort bpmSpeed);
+
+	private:
+	  Properties(const Properties&);
+	  Properties &operator=(const Properties&);
+
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: xmproperties.h ***/
+
+namespace TagLib {
+
+  namespace XM {
+
+	class TAGLIB_EXPORT File : public Mod::FileBase {
+	  public:
+		/*!
+		 * Contructs a Extended Module file from \a file. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(FileName file, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Contructs a Extended Module file from \a stream. If \a readProperties
+		 * is true the file's audio properties will also be read using
+		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
+		 */
+		File(IOStream *stream, bool readProperties = true,
+			 AudioProperties::ReadStyle propertiesStyle =
+			 AudioProperties::Average);
+
+		/*!
+		 * Destroys this instance of the File.
+		 */
+		virtual ~File();
+
+		Mod::Tag *tag() const;
+
+		/*!
+		 * Returns the XM::Properties for this file. If no audio properties
+		 * were read then this will return a null pointer.
+		 */
+		XM::Properties *audioProperties() const;
+
+		/*!
+		 * Save the file.
+		 * This is the same as calling save(AllTags);
+		 *
+		 * \note Saving Extended Module tags is not supported.
+		 */
+		bool save();
+
+	  private:
+		File(const File &);
+		File &operator=(const File &);
+
+		void read(bool readProperties);
+
+		class FilePrivate;
+		FilePrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: xmfile.h ***/
+
+using namespace TagLib;
+
+class FileRef::FileRefPrivate : public RefCounter
+{
+public:
+  FileRefPrivate(File *f) : RefCounter(), file(f) {}
+  ~FileRefPrivate() {
+	delete file;
+  }
+
+  File *file;
+  static List<const FileTypeResolver *> fileTypeResolvers;
+};
+
+List<const FileRef::FileTypeResolver *> FileRef::FileRefPrivate::fileTypeResolvers;
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+FileRef::FileRef()
+{
+  d = new FileRefPrivate(0);
+}
+
+FileRef::FileRef(FileName fileName, bool readAudioProperties,
+				 AudioProperties::ReadStyle audioPropertiesStyle)
+{
+  d = new FileRefPrivate(create(fileName, readAudioProperties, audioPropertiesStyle));
+}
+
+FileRef::FileRef(File *file)
+{
+  d = new FileRefPrivate(file);
+}
+
+FileRef::FileRef(const FileRef &ref) : d(ref.d)
+{
+  d->ref();
+}
+
+FileRef::~FileRef()
+{
+  if(d->deref())
+	delete d;
+}
+
+Tag *FileRef::tag() const
+{
+  if(isNull()) {
+	debug("FileRef::tag() - Called without a valid file.");
+	return 0;
+  }
+  return d->file->tag();
+}
+
+AudioProperties *FileRef::audioProperties() const
+{
+  if(isNull()) {
+	debug("FileRef::audioProperties() - Called without a valid file.");
+	return 0;
+  }
+  return d->file->audioProperties();
+}
+
+File *FileRef::file() const
+{
+  return d->file;
+}
+
+bool FileRef::save()
+{
+  if(isNull()) {
+	debug("FileRef::save() - Called without a valid file.");
+	return false;
+  }
+  return d->file->save();
+}
+
+const FileRef::FileTypeResolver *FileRef::addFileTypeResolver(const FileRef::FileTypeResolver *resolver) // static
+{
+  FileRefPrivate::fileTypeResolvers.prepend(resolver);
+  return resolver;
+}
+
+StringList FileRef::defaultFileExtensions()
+{
+  StringList l;
+
+  l.append("ogg");
+  l.append("flac");
+  l.append("oga");
+  l.append("mp3");
+  l.append("mpc");
+  l.append("wv");
+  l.append("spx");
+  l.append("tta");
+  l.append("m4a");
+  l.append("m4r");
+  l.append("m4b");
+  l.append("m4p");
+  l.append("3g2");
+  l.append("mp4");
+  l.append("wma");
+  l.append("asf");
+  l.append("aif");
+  l.append("aiff");
+  l.append("wav");
+  l.append("ape");
+  l.append("mod");
+  l.append("module"); // alias for "mod"
+  l.append("nst"); // alias for "mod"
+  l.append("wow"); // alias for "mod"
+  l.append("s3m");
+  l.append("it");
+  l.append("xm");
+
+  return l;
+}
+
+bool FileRef::isNull() const
+{
+  return !d->file || !d->file->isValid();
+}
+
+FileRef &FileRef::operator=(const FileRef &ref)
+{
+  if(&ref == this)
+	return *this;
+
+  if(d->deref())
+	delete d;
+
+  d = ref.d;
+  d->ref();
+
+  return *this;
+}
+
+bool FileRef::operator==(const FileRef &ref) const
+{
+  return ref.d->file == d->file;
+}
+
+bool FileRef::operator!=(const FileRef &ref) const
+{
+  return ref.d->file != d->file;
+}
+
+File *FileRef::create(FileName fileName, bool readAudioProperties,
+					  AudioProperties::ReadStyle audioPropertiesStyle) // static
+{
+
+  List<const FileTypeResolver *>::ConstIterator it = FileRefPrivate::fileTypeResolvers.begin();
+
+  for(; it != FileRefPrivate::fileTypeResolvers.end(); ++it) {
+	File *file = (*it)->createFile(fileName, readAudioProperties, audioPropertiesStyle);
+	if(file)
+	  return file;
+  }
+
+  // Ok, this is really dumb for now, but it works for testing.
+
+  String s;
+
+#ifdef _WIN32
+  s = (wcslen((const wchar_t *) fileName) > 0) ? String((const wchar_t *) fileName) : String((const char *) fileName);
+#else
+  s = fileName;
+#endif
+
+  // If this list is updated, the method defaultFileExtensions() should also be
+  // updated.  However at some point that list should be created at the same time
+  // that a default file type resolver is created.
+
+  int pos = s.rfind(".");
+  if(pos != -1) {
+	String ext = s.substr(pos + 1).upper();
+	if(ext == "MP3")
+	  return new MPEG::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "OGG")
+	  return new Ogg::Vorbis::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "OGA") {
+	  /* .oga can be any audio in the Ogg container. First try FLAC, then Vorbis. */
+	  File *file = new Ogg::FLAC::File(fileName, readAudioProperties, audioPropertiesStyle);
+	  if (file->isValid())
+		return file;
+	  delete file;
+	  return new Ogg::Vorbis::File(fileName, readAudioProperties, audioPropertiesStyle);
+	}
+	if(ext == "FLAC")
+	  return new FLAC::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "MPC")
+	  return new MPC::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "WV")
+	  return new WavPack::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "SPX")
+	  return new Ogg::Speex::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "TTA")
+	  return new TrueAudio::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "M4A" || ext == "M4R" || ext == "M4B" || ext == "M4P" || ext == "MP4" || ext == "3G2")
+	  return new MP4::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "WMA" || ext == "ASF")
+	  return new ASF::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "AIF" || ext == "AIFF")
+	  return new RIFF::AIFF::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "WAV")
+	  return new RIFF::WAV::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "APE")
+	  return new APE::File(fileName, readAudioProperties, audioPropertiesStyle);
+	// module, nst and wow are possible but uncommon extensions
+	if(ext == "MOD" || ext == "MODULE" || ext == "NST" || ext == "WOW")
+	  return new Mod::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "S3M")
+	  return new S3M::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "IT")
+	  return new IT::File(fileName, readAudioProperties, audioPropertiesStyle);
+	if(ext == "XM")
+	  return new XM::File(fileName, readAudioProperties, audioPropertiesStyle);
+  }
+
+  return 0;
+}
+
+/*** End of inlined file: fileref.cpp ***/
+
+
+/*** Start of inlined file: audioproperties.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+class AudioProperties::AudioPropertiesPrivate
+{
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public methods
+////////////////////////////////////////////////////////////////////////////////
+
+AudioProperties::~AudioProperties()
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected methods
+////////////////////////////////////////////////////////////////////////////////
+
+AudioProperties::AudioProperties(ReadStyle)
+{
+
+}
+
+/*** End of inlined file: audioproperties.cpp ***/
+
+
+/*** Start of inlined file: mpegfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: id3v1tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ID3V1TAG_H
+#define TAGLIB_ID3V1TAG_H
+
+namespace TagLib {
+
+  class File;
+
+  //! An ID3v1 implementation
+
+  namespace ID3v1 {
+
+	//! A abstraction for the string to data encoding in ID3v1 tags.
+
+	/*!
+	 * ID3v1 should in theory always contain ISO-8859-1 (Latin1) data.  In
+	 * practice it does not.  TagLib by default only supports ISO-8859-1 data
+	 * in ID3v1 tags.
+	 *
+	 * However by subclassing this class and reimplementing parse() and render()
+	 * and setting your reimplementation as the default with
+	 * ID3v1::Tag::setStringHandler() you can define how you would like these
+	 * transformations to be done.
+	 *
+	 * \warning It is advisable <b>not</b> to write non-ISO-8859-1 data to ID3v1
+	 * tags.  Please consider disabling the writing of ID3v1 tags in the case
+	 * that the data is not ISO-8859-1.
+	 *
+	 * \see ID3v1::Tag::setStringHandler()
+	 */
+
+	class TAGLIB_EXPORT StringHandler
+	{
+	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
+	public:
+	  // BIC: Add virtual destructor.
+	  StringHandler();
+
+	  /*!
+	   * Decode a string from \a data.  The default implementation assumes that
+	   * \a data is an ISO-8859-1 (Latin1) character array.
+	   */
+	  virtual String parse(const ByteVector &data) const;
+
+	  /*!
+	   * Encode a ByteVector with the data from \a s.  The default implementation
+	   * assumes that \a s is an ISO-8859-1 (Latin1) string.  If the string is
+	   * does not conform to ISO-8859-1, no value is written.
+	   *
+	   * \warning It is recommended that you <b>not</b> override this method, but
+	   * instead do not write an ID3v1 tag in the case that the data is not
+	   * ISO-8859-1.
+	   */
+	  virtual ByteVector render(const String &s) const;
+	};
+
+	//! The main class in the ID3v1 implementation
+
+	/*!
+	 * This is an implementation of the ID3v1 format.  ID3v1 is both the simplist
+	 * and most common of tag formats but is rather limited.  Because of its
+	 * pervasiveness and the way that applications have been written around the
+	 * fields that it provides, the generic TagLib::Tag API is a mirror of what is
+	 * provided by ID3v1.
+	 *
+	 * ID3v1 tags should generally only contain Latin1 information.  However because
+	 * many applications do not follow this rule there is now support for overriding
+	 * the ID3v1 string handling using the ID3v1::StringHandler class.  Please see
+	 * the documentation for that class for more information.
+	 *
+	 * \see StringHandler
+	 *
+	 * \note Most fields are truncated to a maximum of 28-30 bytes.  The
+	 * truncation happens automatically when the tag is rendered.
+	 */
+
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Create an ID3v1 tag with default values.
+	   */
+	  Tag();
+
+	  /*!
+	   * Create an ID3v1 tag and parse the data in \a file starting at
+	   * \a tagOffset.
+	   */
+	  Tag(File *file, long tagOffset);
+
+	  /*!
+	   * Destroys this Tag instance.
+	   */
+	  virtual ~Tag();
+
+	  /*!
+	   * Renders the in memory values to a ByteVector suitable for writing to
+	   * the file.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Returns the string "TAG" suitable for usage in locating the tag in a
+	   * file.
+	   */
+	  static ByteVector fileIdentifier();
+
+	  // Reimplementations.
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  /*!
+	   * Sets the string handler that decides how the ID3v1 data will be
+	   * converted to and from binary data.
+	   *
+	   * \see StringHandler
+	   */
+	  static void setStringHandler(const StringHandler *handler);
+
+	protected:
+	  /*!
+	   * Reads from the file specified in the constructor.
+	   */
+	  void read();
+	  /*!
+	   * Pareses the body of the tag in \a data.
+	   */
+	  void parse(const ByteVector &data);
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: id3v1tag.h ***/
+
+
+/*** Start of inlined file: apefooter.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEFOOTER_H
+#define TAGLIB_APEFOOTER_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	//! An implementation of APE footers
+
+	/*!
+	 * This class implements APE footers (and headers). It attempts to follow, both
+	 * semantically and programatically, the structure specified in
+	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
+	 * headers specified there.
+	 */
+
+	class TAGLIB_EXPORT Footer
+	{
+	public:
+	  /*!
+	   * Constructs an empty APE footer.
+	   */
+	  Footer();
+
+	  /*!
+	   * Constructs an APE footer based on \a data.  parse() is called
+	   * immediately.
+	   */
+	  Footer(const ByteVector &data);
+
+	  /*!
+	   * Destroys the footer.
+	   */
+	  virtual ~Footer();
+
+	  /*!
+	   * Returns the version number.  (Note: This is the 1000 or 2000.)
+	   */
+	  uint version() const;
+
+	  /*!
+	   * Returns true if a header is present in the tag.
+	   */
+	  bool headerPresent() const;
+
+	  /*!
+	   * Returns true if a footer is present in the tag.
+	   */
+	  bool footerPresent() const;
+
+	  /*!
+	   * Returns true this is actually the header.
+	   */
+	  bool isHeader() const;
+
+	  /*!
+	   * Sets whether the header should be rendered or not
+	   */
+	  void setHeaderPresent(bool b) const;
+
+	  /*!
+	   * Returns the number of items in the tag.
+	   */
+	  uint itemCount() const;
+
+	  /*!
+	   * Set the item count to \a s.
+	   * \see itemCount()
+	   */
+	  void setItemCount(uint s);
+
+	  /*!
+	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
+	   * The size of the \e entire tag will be this plus the header size, if present.
+	   *
+	   * \see completeTagSize()
+	   */
+	  uint tagSize() const;
+
+	  /*!
+	   * Returns the tag size, including if present, the header
+	   * size.
+	   *
+	   * \see tagSize()
+	   */
+	  uint completeTagSize() const;
+
+	  /*!
+	   * Set the tag size to \a s.
+	   * \see tagSize()
+	   */
+	  void setTagSize(uint s);
+
+	  /*!
+	   * Returns the size of the footer.  Presently this is always 32 bytes.
+	   */
+	  static uint size();
+
+	  /*!
+	   * Returns the string used to identify an APE tag inside of a file.
+	   * Presently this is always "APETAGEX".
+	   */
+	  static ByteVector fileIdentifier();
+
+	  /*!
+	   * Sets the data that will be used as the footer.  32 bytes,
+	   * starting from \a data will be used.
+	   */
+	  void setData(const ByteVector &data);
+
+	  /*!
+	   * Renders the footer back to binary format.
+	   */
+	  ByteVector renderFooter() const;
+
+	  /*!
+	   * Renders the header corresponding to the footer. If headerPresent is
+	   * set to false, it returns an empty ByteVector.
+	   */
+	  ByteVector renderHeader() const;
+
+	protected:
+	  /*!
+	   * Called by setData() to parse the footer data.  It makes this information
+	   * available through the public API.
+	   */
+	  void parse(const ByteVector &data);
+
+	  /*!
+	   * Called by renderFooter and renderHeader
+	   */
+	  ByteVector render(bool isHeader) const;
+
+	private:
+	  Footer(const Footer &);
+	  Footer &operator=(const Footer &);
+
+	  class FooterPrivate;
+	  FooterPrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: apefooter.h ***/
+
+
+/*** Start of inlined file: apetag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APETAG_H
+#define TAGLIB_APETAG_H
+
+
+/*** Start of inlined file: apeitem.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEITEM_H
+#define TAGLIB_APEITEM_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	//! An implementation of APE-items
+
+	/*!
+	 * This class provides the features of items in the APEv2 standard.
+	 */
+	class TAGLIB_EXPORT Item
+	{
+	public:
+	  /*!
+	   * Enum of types an Item can have. The value of 3 is reserved.
+	   */
+	  enum ItemTypes {
+		//! Item contains text information coded in UTF-8
+		Text = 0,
+		//! Item contains binary information
+		Binary = 1,
+		//! Item is a locator of external stored information
+		Locator = 2
+	  };
+	  /*!
+	   * Constructs an empty item.
+	   */
+	  Item();
+
+	  /*!
+	   * Constructs an item with \a key and \a value.
+	   */
+	  // BIC: Remove this, StringList has a constructor from a single string
+	  Item(const String &key, const String &value);
+
+	  /*!
+	   * Constructs an item with \a key and \a values.
+	   */
+	  Item(const String &key, const StringList &values);
+
+	  /*!
+	   * Construct an item as a copy of \a item.
+	   */
+	  Item(const Item &item);
+
+	  /*!
+	   * Destroys the item.
+	   */
+	  virtual ~Item();
+
+	  /*!
+	   * Copies the contents of \a item into this item.
+	   */
+	  Item &operator=(const Item &item);
+
+	  /*!
+	   * Returns the key.
+	   */
+	  String key() const;
+
+	  /*!
+	   * Returns the binary value.
+	   *
+	   * \deprecated This will be removed in the next binary incompatible version
+	   * as it is not kept in sync with the things that are set using setValue()
+	   * and friends.
+	   */
+	  ByteVector value() const;
+
+	  /*!
+	   * Sets the key for the item to \a key.
+	   */
+	  void setKey(const String &key);
+
+	  /*!
+	   * Sets the value of the item to \a value and clears any previous contents.
+	   *
+	   * \see toString()
+	   */
+	  void setValue(const String &value);
+
+	  /*!
+	   * Sets the value of the item to the list of values in \a value and clears
+	   * any previous contents.
+	   *
+	   * \see toStringList()
+	   */
+	  void setValues(const StringList &values);
+
+	  /*!
+	   * Appends \a value to create (or extend) the current list of values.
+	   *
+	   * \see toString()
+	   */
+	  void appendValue(const String &value);
+
+	  /*!
+	   * Appends \a values to extend the current list of values.
+	   *
+	   * \see toStringList()
+	   */
+	  void appendValues(const StringList &values);
+
+	  /*!
+	   * Returns the size of the full item.
+	   */
+	  int size() const;
+
+	  /*!
+	   * Returns the value as a single string. In case of multiple strings,
+	   * the first is returned.
+	   */
+	  String toString() const;
+
+	  /*!
+	   * \deprecated
+	   * \see values
+	   */
+	  StringList toStringList() const;
+
+	  /*!
+	   * Returns the list of values.
+	   */
+	  StringList values() const;
+
+	  /*!
+	   * Render the item to a ByteVector.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Parse the item from the ByteVector \a data.
+	   */
+	  void parse(const ByteVector& data);
+
+	  /*!
+	   * Set the item to read-only.
+	   */
+	  void setReadOnly(bool readOnly);
+
+	  /*!
+	   * Return true if the item is read-only.
+	   */
+	  bool isReadOnly() const;
+
+	  /*!
+	   * Sets the type of the item to \a type.
+	   *
+	   * \see ItemTypes
+	   */
+	  void setType(ItemTypes type);
+
+	  /*!
+	   * Returns the type of the item.
+	   */
+	  ItemTypes type() const;
+
+	  /*!
+	   * Returns if the item has any real content.
+	   */
+	  bool isEmpty() const;
+
+	private:
+	  class ItemPrivate;
+	  ItemPrivate *d;
+	};
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: apeitem.h ***/
+
+namespace TagLib {
+
+  class File;
+
+  //! An implementation of the APE tagging format
+
+  namespace APE {
+
+	class Footer;
+
+	/*!
+	 * A mapping between a list of item names, or keys, and the associated item.
+	 *
+	 * \see APE::Tag::itemListMap()
+	 */
+	typedef Map<const String, Item> ItemListMap;
+
+	//! An APE tag implementation
+
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Create an APE tag with default values.
+	   */
+	  Tag();
+
+	  /*!
+	   * Create an APE tag and parse the data in \a file with APE footer at
+	   * \a tagOffset.
+	   */
+	  Tag(TagLib::File *file, long footerLocation);
+
+	  /*!
+	   * Destroys this Tag instance.
+	   */
+	  virtual ~Tag();
+
+	  /*!
+	   * Renders the in memory values to a ByteVector suitable for writing to
+	   * the file.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Returns the string "APETAGEX" suitable for usage in locating the tag in a
+	   * file.
+	   */
+	  static ByteVector fileIdentifier();
+
+	  // Reimplementations.
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  /*!
+	   * Returns a pointer to the tag's footer.
+	   */
+	  Footer *footer() const;
+
+	  /*!
+	   * Returns a reference to the item list map.  This is an ItemListMap of
+	   * all of the items in the tag.
+	   *
+	   * This is the most powerfull structure for accessing the items of the tag.
+	   *
+	   * APE tags are case-insensitive, all keys in this map have been converted
+	   * to upper case.
+	   *
+	   * \warning You should not modify this data structure directly, instead
+	   * use setItem() and removeItem().
+	   */
+	  const ItemListMap &itemListMap() const;
+
+	  /*!
+	   * Removes the \a key item from the tag
+	   */
+	  void removeItem(const String &key);
+
+	  /*!
+	   * Adds to the item specified by \a key the data \a value.  If \a replace
+	   * is true, then all of the other values on the same key will be removed
+	   * first.
+	   */
+	  void addValue(const String &key, const String &value, bool replace = true);
+
+	  /*!
+	   * Sets the \a key item to the value of \a item. If an item with the \a key is already
+	   * present, it will be replaced.
+	   */
+	  void setItem(const String &key, const Item &item);
+
+	  /*!
+	   * Returns true if the tag does not contain any data.
+	   */
+	  bool isEmpty() const;
+
+	protected:
+
+	  /*!
+	   * Reads from the file specified in the constructor.
+	   */
+	  void read();
+
+	  /*!
+	   * Parses the body of the tag in \a data.
+	   */
+	  void parse(const ByteVector &data);
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: apetag.h ***/
+
+#include <bitset>
 
 using namespace TagLib;
 
@@ -7503,232 +15581,6 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: id3v2synchdata.h ***/
-
-
-/*** Start of inlined file: attachedpictureframe.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ATTACHEDPICTUREFRAME_H
-#define TAGLIB_ATTACHEDPICTUREFRAME_H
-
-namespace TagLib {
-
-  namespace ID3v2 {
-
-	//! An ID3v2 attached picture frame implementation
-
-	/*!
-	 * This is an implementation of ID3v2 attached pictures.  Pictures may be
-	 * included in tags, one per APIC frame (but there may be multiple APIC
-	 * frames in a single tag).  These pictures are usually in either JPEG or
-	 * PNG format.
-	 */
-
-	class TAGLIB_EXPORT AttachedPictureFrame : public Frame
-	{
-	  friend class FrameFactory;
-
-	public:
-
-	  /*!
-	   * This describes the function or content of the picture.
-	   */
-	  enum Type {
-		//! A type not enumerated below
-		Other              = 0x00,
-		//! 32x32 PNG image that should be used as the file icon
-		FileIcon           = 0x01,
-		//! File icon of a different size or format
-		OtherFileIcon      = 0x02,
-		//! Front cover image of the album
-		FrontCover         = 0x03,
-		//! Back cover image of the album
-		BackCover          = 0x04,
-		//! Inside leaflet page of the album
-		LeafletPage        = 0x05,
-		//! Image from the album itself
-		Media              = 0x06,
-		//! Picture of the lead artist or soloist
-		LeadArtist         = 0x07,
-		//! Picture of the artist or performer
-		Artist             = 0x08,
-		//! Picture of the conductor
-		Conductor          = 0x09,
-		//! Picture of the band or orchestra
-		Band               = 0x0A,
-		//! Picture of the composer
-		Composer           = 0x0B,
-		//! Picture of the lyricist or text writer
-		Lyricist           = 0x0C,
-		//! Picture of the recording location or studio
-		RecordingLocation  = 0x0D,
-		//! Picture of the artists during recording
-		DuringRecording    = 0x0E,
-		//! Picture of the artists during performance
-		DuringPerformance  = 0x0F,
-		//! Picture from a movie or video related to the track
-		MovieScreenCapture = 0x10,
-		//! Picture of a large, coloured fish
-		ColouredFish       = 0x11,
-		//! Illustration related to the track
-		Illustration       = 0x12,
-		//! Logo of the band or performer
-		BandLogo           = 0x13,
-		//! Logo of the publisher (record company)
-		PublisherLogo      = 0x14
-	  };
-
-	  /*!
-	   * Constructs an empty picture frame.  The description, content and text
-	   * encoding should be set manually.
-	   */
-	  AttachedPictureFrame();
-
-	  /*!
-	   * Constructs an AttachedPicture frame based on \a data.
-	   */
-	  explicit AttachedPictureFrame(const ByteVector &data);
-
-	  /*!
-	   * Destroys the AttahcedPictureFrame instance.
-	   */
-	  virtual ~AttachedPictureFrame();
-
-	  /*!
-	   * Returns a string containing the description and mime-type
-	   */
-	  virtual String toString() const;
-
-	  /*!
-	   * Returns the text encoding used for the description.
-	   *
-	   * \see setTextEncoding()
-	   * \see description()
-	   */
-	  String::Type textEncoding() const;
-
-	  /*!
-	   * Set the text encoding used for the description.
-	   *
-	   * \see description()
-	   */
-	  void setTextEncoding(String::Type t);
-
-	  /*!
-	   * Returns the mime type of the image.  This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   */
-	  String mimeType() const;
-
-	  /*!
-	   * Sets the mime type of the image.  This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   */
-	  void setMimeType(const String &m);
-
-	  /*!
-	   * Returns the type of the image.
-	   *
-	   * \see Type
-	   * \see setType()
-	   */
-	  Type type() const;
-
-	  /*!
-	   * Sets the type for the image.
-	   *
-	   * \see Type
-	   * \see type()
-	   */
-	  void setType(Type t);
-
-	  /*!
-	   * Returns a text description of the image.
-	   *
-	   * \see setDescription()
-	   * \see textEncoding()
-	   * \see setTextEncoding()
-	   */
-
-	  String description() const;
-
-	  /*!
-	   * Sets a textual description of the image to \a desc.
-	   *
-	   * \see description()
-	   * \see textEncoding()
-	   * \see setTextEncoding()
-	   */
-
-	  void setDescription(const String &desc);
-
-	  /*!
-	   * Returns the image data as a ByteVector.
-	   *
-	   * \note ByteVector has a data() method that returns a const char * which
-	   * should make it easy to export this data to external programs.
-	   *
-	   * \see setPicture()
-	   * \see mimeType()
-	   */
-	  ByteVector picture() const;
-
-	  /*!
-	   * Sets the image data to \a p.  \a p should be of the type specified in
-	   * this frame's mime-type specification.
-	   *
-	   * \see picture()
-	   * \see mimeType()
-	   * \see setMimeType()
-	   */
-	  void setPicture(const ByteVector &p);
-
-	protected:
-	  virtual void parseFields(const ByteVector &data);
-	  virtual ByteVector renderFields() const;
-	  class AttachedPictureFramePrivate;
-	  AttachedPictureFramePrivate *d;
-
-	private:
-	  AttachedPictureFrame(const AttachedPictureFrame &);
-	  AttachedPictureFrame &operator=(const AttachedPictureFrame &);
-	  AttachedPictureFrame(const ByteVector &data, Header *h);
-
-	};
-
-	//! support for ID3v2.2 PIC frames
-	class TAGLIB_EXPORT AttachedPictureFrameV22 : public AttachedPictureFrame
-	{
-	protected:
-	  virtual void parseFields(const ByteVector &data);
-	private:
-	  AttachedPictureFrameV22(const ByteVector &data, Header *h);
-	  friend class FrameFactory;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: attachedpictureframe.h ***/
 
 
 /*** Start of inlined file: commentsframe.h ***/
@@ -15207,200 +23059,6 @@ ByteVector Ogg::PageHeader::lacingValues() const
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-
-/*** Start of inlined file: xiphcomment.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_VORBISCOMMENT_H
-#define TAGLIB_VORBISCOMMENT_H
-
-namespace TagLib {
-
-  namespace Ogg {
-
-	/*!
-	 * A mapping between a list of field names, or keys, and a list of values
-	 * associated with that field.
-	 *
-	 * \see XiphComment::fieldListMap()
-	 */
-	typedef Map<String, StringList> FieldListMap;
-
-	//! Ogg Vorbis comment implementation
-
-	/*!
-	 * This class is an implementation of the Ogg Vorbis comment specification,
-	 * to be found in section 5 of the Ogg Vorbis specification.  Because this
-	 * format is also used in other (currently unsupported) Xiph.org formats, it
-	 * has been made part of a generic implementation rather than being limited
-	 * to strictly Vorbis.
-	 *
-	 * Vorbis comments are a simple vector of keys and values, called fields.
-	 * Multiple values for a given key are supported.
-	 *
-	 * \see fieldListMap()
-	 */
-
-	class TAGLIB_EXPORT XiphComment : public TagLib::Tag
-	{
-	public:
-	  /*!
-	   * Constructs an empty Vorbis comment.
-	   */
-	  XiphComment();
-
-	  /*!
-	   * Constructs a Vorbis comment from \a data.
-	   */
-	  XiphComment(const ByteVector &data);
-
-	  /*!
-	   * Destroys this instance of the XiphComment.
-	   */
-	  virtual ~XiphComment();
-
-	  virtual String title() const;
-	  virtual String artist() const;
-	  virtual String album() const;
-	  virtual String comment() const;
-	  virtual String genre() const;
-	  virtual uint year() const;
-	  virtual uint track() const;
-
-	  virtual void setTitle(const String &s);
-	  virtual void setArtist(const String &s);
-	  virtual void setAlbum(const String &s);
-	  virtual void setComment(const String &s);
-	  virtual void setGenre(const String &s);
-	  virtual void setYear(uint i);
-	  virtual void setTrack(uint i);
-
-	  virtual bool isEmpty() const;
-
-	  /*!
-	   * Returns the number of fields present in the comment.
-	   */
-	  uint fieldCount() const;
-
-	  /*!
-	   * Returns a reference to the map of field lists.  Because Xiph comments
-	   * support multiple fields with the same key, a pure Map would not work.
-	   * As such this is a Map of string lists, keyed on the comment field name.
-	   *
-	   * The standard set of Xiph/Vorbis fields (which may or may not be
-	   * contained in any specific comment) is:
-	   *
-	   * <ul>
-	   *   <li>TITLE</li>
-	   *   <li>VERSION</li>
-	   *   <li>ALBUM</li>
-	   *   <li>ARTIST</li>
-	   *   <li>PERFORMER</li>
-	   *   <li>COPYRIGHT</li>
-	   *   <li>ORGANIZATION</li>
-	   *   <li>DESCRIPTION</li>
-	   *   <li>GENRE</li>
-	   *   <li>DATE</li>
-	   *   <li>LOCATION</li>
-	   *   <li>CONTACT</li>
-	   *   <li>ISRC</li>
-	   * </ul>
-	   *
-	   * For a more detailed description of these fields, please see the Ogg
-	   * Vorbis specification, section 5.2.2.1.
-	   *
-	   * \note The Ogg Vorbis comment specification does allow these key values
-	   * to be either upper or lower case.  However, it is conventional for them
-	   * to be upper case.  As such, TagLib, when parsing a Xiph/Vorbis comment,
-	   * converts all fields to uppercase.  When you are using this data
-	   * structure, you will need to specify the field name in upper case.
-	   *
-	   * \warning You should not modify this data structure directly, instead
-	   * use addField() and removeField().
-	   */
-	  const FieldListMap &fieldListMap() const;
-
-	  /*!
-	   * Returns the vendor ID of the Ogg Vorbis encoder.  libvorbis 1.0 as the
-	   * most common case always returns "Xiph.Org libVorbis I 20020717".
-	   */
-	  String vendorID() const;
-
-	  /*!
-	   * Add the field specified by \a key with the data \a value.  If \a replace
-	   * is true, then all of the other fields with the same key will be removed
-	   * first.
-	   *
-	   * If the field value is empty, the field will be removed.
-	   */
-	  void addField(const String &key, const String &value, bool replace = true);
-
-	  /*!
-	   * Remove the field specified by \a key with the data \a value.  If
-	   * \a value is null, all of the fields with the given key will be removed.
-	   */
-	  void removeField(const String &key, const String &value = String::null);
-
-	  /*!
-	   * Returns true if the field is contained within the comment.
-	   *
-	   * \note This is safer than checking for membership in the FieldListMap.
-	   */
-	  bool contains(const String &key) const;
-
-	  /*!
-	   * Renders the comment to a ByteVector suitable for inserting into a file.
-	   */
-	  ByteVector render() const; // BIC: remove and merge with below
-
-	  /*!
-	   * Renders the comment to a ByteVector suitable for inserting into a file.
-	   *
-	   * If \a addFramingBit is true the standard Vorbis comment framing bit will
-	   * be appended.  However some formats (notably FLAC) do not work with this
-	   * in place.
-	   */
-	  ByteVector render(bool addFramingBit) const;
-
-	protected:
-	  /*!
-	   * Reads the tag from the file specified in the constructor and fills the
-	   * FieldListMap.
-	   */
-	  void parse(const ByteVector &data);
-
-	private:
-	  XiphComment(const XiphComment &);
-	  XiphComment &operator=(const XiphComment &);
-
-	  class XiphCommentPrivate;
-	  XiphCommentPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: xiphcomment.h ***/
-
 using namespace TagLib;
 
 class Ogg::XiphComment::XiphCommentPrivate
@@ -15727,366 +23385,6 @@ void Ogg::XiphComment::parse(const ByteVector &data)
 
 #include <bitset>
 
-
-/*** Start of inlined file: vorbisfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_VORBISFILE_H
-#define TAGLIB_VORBISFILE_H
-
-
-/*** Start of inlined file: oggfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_OGGFILE_H
-#define TAGLIB_OGGFILE_H
-
-namespace TagLib {
-
-  //! A namespace for the classes used by Ogg-based metadata files
-
-  namespace Ogg {
-
-	class PageHeader;
-
-	//! An implementation of TagLib::File with some helpers for Ogg based formats
-
-	/*!
-	 * This is an implementation of Ogg file page and packet rendering and is of
-	 * use to Ogg based formats.  While the API is small this handles the
-	 * non-trivial details of breaking up an Ogg stream into packets and makes
-	 * these available (via subclassing) to the codec meta data implementations.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  virtual ~File();
-
-	  /*!
-	   * Returns the packet contents for the i-th packet (starting from zero)
-	   * in the Ogg bitstream.
-	   *
-	   * \warning The requires reading at least the packet header for every page
-	   * up to the requested page.
-	   */
-	  ByteVector packet(uint i);
-
-	  /*!
-	   * Sets the packet with index \a i to the value \a p.
-	   */
-	  void setPacket(uint i, const ByteVector &p);
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the first page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *firstPageHeader();
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the last page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *lastPageHeader();
-
-	  virtual bool save();
-
-	protected:
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(FileName file);
-
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(IOStream *stream);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  /*!
-	   * Reads the next page and updates the internal "current page" pointer.
-	   */
-	  bool nextPage();
-	  void writePageGroup(const List<int> &group);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: oggfile.h ***/
-
-
-/*** Start of inlined file: vorbisproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_VORBISPROPERTIES_H
-#define TAGLIB_VORBISPROPERTIES_H
-
-namespace TagLib {
-
-/*
- * This is just to make this appear to be in the Ogg namespace in the
- * documentation.  The typedef below will make this work with the current code.
- * In the next BIC version of TagLib this will be really moved into the Ogg
- * namespace.
- */
-
-#ifdef DOXYGEN
-  namespace Ogg {
-#endif
-
-  namespace Vorbis {
-
-	class File;
-
-	//! An implementation of audio property reading for Ogg Vorbis
-
-	/*!
-	 * This reads the data from an Ogg Vorbis stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of Vorbis::Properties with the data read from the
-	   * Vorbis::File \a file.
-	   */
-	  Properties(File *file, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this VorbisProperties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns the Vorbis version, currently "0" (as specified by the spec).
-	   */
-	  int vorbisVersion() const;
-
-	  /*!
-	   * Returns the maximum bitrate as read from the Vorbis identification
-	   * header.
-	   */
-	  int bitrateMaximum() const;
-
-	  /*!
-	   * Returns the nominal bitrate as read from the Vorbis identification
-	   * header.
-	   */
-	  int bitrateNominal() const;
-
-	  /*!
-	   * Returns the minimum bitrate as read from the Vorbis identification
-	   * header.
-	   */
-	  int bitrateMinimum() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-
-/*
- * To keep compatibility with the current version put Vorbis in the Ogg namespace
- * only in the docs and provide a typedef to make it work.  In the next BIC
- * version this will be removed and it will only exist in the Ogg namespace.
- */
-
-#ifdef DOXYGEN
-  }
-#else
-  namespace Ogg { namespace Vorbis { typedef TagLib::AudioProperties AudioProperties; } }
-#endif
-
-}
-
-#endif
-
-/*** End of inlined file: vorbisproperties.h ***/
-
-namespace TagLib {
-
-/*
- * This is just to make this appear to be in the Ogg namespace in the
- * documentation.  The typedef below will make this work with the current code.
- * In the next BIC version of TagLib this will be really moved into the Ogg
- * namespace.
- */
-
-#ifdef DOXYGEN
-  namespace Ogg {
-#endif
-
-  //! A namespace containing classes for Vorbis metadata
-
-  namespace Vorbis {
-
-	//! An implementation of Ogg::File with Vorbis specific methods
-
-	/*!
-	 * This is the central class in the Ogg Vorbis metadata processing collection
-	 * of classes.  It's built upon Ogg::File which handles processing of the Ogg
-	 * logical bitstream and breaking it down into pages which are handled by
-	 * the codec implementations, in this case Vorbis specifically.
-	 */
-
-	class TAGLIB_EXPORT File : public Ogg::File
-	{
-	public:
-	  /*!
-	   * Contructs a Vorbis file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs a Vorbis file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the XiphComment for this file.  XiphComment implements the tag
-	   * interface, so this serves as the reimplementation of
-	   * TagLib::File::tag().
-	   */
-	  virtual Ogg::XiphComment *tag() const;
-
-	  /*!
-	   * Returns the Vorbis::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  virtual bool save();
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-
-/*
- * To keep compatibility with the current version put Vorbis in the Ogg namespace
- * only in the docs and provide a typedef to make it work.  In the next BIC
- * version this will be removed and it will only exist in the Ogg namespace.
- */
-
-#ifdef DOXYGEN
-  }
-#else
-  namespace Ogg { namespace Vorbis { typedef TagLib::Vorbis::File File; } }
-#endif
-
-}
-
-#endif
-
-/*** End of inlined file: vorbisfile.h ***/
-
 using namespace TagLib;
 
 class Vorbis::File::FilePrivate
@@ -16357,7 +23655,584 @@ void Vorbis::Properties::read()
 
 /*** End of inlined file: vorbisproperties.cpp ***/
 
-//#include "flac/flacfile.cpp"
+
+/*** Start of inlined file: flacfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: flacunknownmetadatablock.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FLACUNKNOWNMETADATABLOCK_H
+#define TAGLIB_FLACUNKNOWNMETADATABLOCK_H
+
+namespace TagLib {
+
+  namespace FLAC {
+
+	class TAGLIB_EXPORT UnknownMetadataBlock : public MetadataBlock
+	{
+	public:
+	  UnknownMetadataBlock(int blockType, const ByteVector &data);
+	  ~UnknownMetadataBlock();
+
+	  /*!
+	   * Returns the FLAC metadata block type.
+	   */
+	  int code() const;
+
+	  /*!
+	   * Sets the FLAC metadata block type.
+	   */
+	  void setCode(int code);
+
+	  /*!
+	   * Returns the FLAC metadata block type.
+	   */
+	  ByteVector data() const;
+
+	  /*!
+	   * Sets the FLAC metadata block type.
+	   */
+	  void setData(const ByteVector &data);
+
+	  /*!
+	   * Render the content of the block.
+	   */
+	  ByteVector render() const;
+
+	private:
+	  UnknownMetadataBlock(const MetadataBlock &item);
+	  UnknownMetadataBlock &operator=(const MetadataBlock &item);
+
+	  class UnknownMetadataBlockPrivate;
+	  UnknownMetadataBlockPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: flacunknownmetadatablock.h ***/
+
+using namespace TagLib;
+
+namespace
+{
+  enum { flacXiphIndex = 0, flacID3v2Index = 1, flacID3v1Index = 2 };
+  enum { MinPaddingLength = 4096 };
+  enum { LastBlockFlag = 0x80 };
+}
+
+class FLAC::File::FilePrivate
+{
+public:
+  FilePrivate() :
+	ID3v2FrameFactory(ID3v2::FrameFactory::instance()),
+	ID3v2Location(-1),
+	ID3v2OriginalSize(0),
+	ID3v1Location(-1),
+	properties(0),
+	flacStart(0),
+	streamStart(0),
+	streamLength(0),
+	scanned(false),
+	hasXiphComment(false),
+	hasID3v2(false),
+	hasID3v1(false)
+  {
+  }
+
+  ~FilePrivate()
+  {
+	for(uint i = 0; i < blocks.size(); i++) {
+	  delete blocks[i];
+	}
+	delete properties;
+  }
+
+  const ID3v2::FrameFactory *ID3v2FrameFactory;
+  long ID3v2Location;
+  uint ID3v2OriginalSize;
+
+  long ID3v1Location;
+
+  TagUnion tag;
+
+  Properties *properties;
+  ByteVector streamInfoData;
+  ByteVector xiphCommentData;
+  List<MetadataBlock *> blocks;
+
+  long flacStart;
+  long streamStart;
+  long streamLength;
+  bool scanned;
+
+  bool hasXiphComment;
+  bool hasID3v2;
+  bool hasID3v1;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+FLAC::File::File(FileName file, bool readProperties,
+				 Properties::ReadStyle propertiesStyle) :
+  TagLib::File(file)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+FLAC::File::File(FileName file, ID3v2::FrameFactory *frameFactory,
+				 bool readProperties, Properties::ReadStyle propertiesStyle) :
+  TagLib::File(file)
+{
+  d = new FilePrivate;
+  d->ID3v2FrameFactory = frameFactory;
+  read(readProperties, propertiesStyle);
+}
+
+FLAC::File::File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
+				 bool readProperties, Properties::ReadStyle propertiesStyle) :
+  TagLib::File(stream)
+{
+  d = new FilePrivate;
+  d->ID3v2FrameFactory = frameFactory;
+  read(readProperties, propertiesStyle);
+}
+
+FLAC::File::~File()
+{
+  delete d;
+}
+
+TagLib::Tag *FLAC::File::tag() const
+{
+  return &d->tag;
+}
+
+FLAC::Properties *FLAC::File::audioProperties() const
+{
+  return d->properties;
+}
+
+bool FLAC::File::save()
+{
+  if(readOnly()) {
+	debug("FLAC::File::save() - Cannot save to a read only file.");
+	return false;
+  }
+
+  if(!isValid()) {
+	debug("FLAC::File::save() -- Trying to save invalid file.");
+	return false;
+  }
+
+  // Create new vorbis comments
+
+  Tag::duplicate(&d->tag, xiphComment(true), false);
+
+  d->xiphCommentData = xiphComment()->render(false);
+
+  // Replace metadata blocks
+
+  bool foundVorbisCommentBlock = false;
+  List<MetadataBlock *> newBlocks;
+  for(uint i = 0; i < d->blocks.size(); i++) {
+	MetadataBlock *block = d->blocks[i];
+	if(block->code() == MetadataBlock::VorbisComment) {
+	  // Set the new Vorbis Comment block
+	  delete block;
+	  block = new UnknownMetadataBlock(MetadataBlock::VorbisComment, d->xiphCommentData);
+	  foundVorbisCommentBlock = true;
+	}
+	if(block->code() == MetadataBlock::Padding) {
+	  delete block;
+	  continue;
+	}
+	newBlocks.append(block);
+  }
+  if(!foundVorbisCommentBlock) {
+	newBlocks.append(new UnknownMetadataBlock(MetadataBlock::VorbisComment, d->xiphCommentData));
+	foundVorbisCommentBlock = true;
+  }
+  d->blocks = newBlocks;
+
+  // Render data for the metadata blocks
+
+  ByteVector data;
+  for(uint i = 0; i < newBlocks.size(); i++) {
+	FLAC::MetadataBlock *block = newBlocks[i];
+	ByteVector blockData = block->render();
+	ByteVector blockHeader = ByteVector::fromUInt(blockData.size());
+	blockHeader[0] = block->code();
+	data.append(blockHeader);
+	data.append(blockData);
+  }
+
+  // Adjust the padding block(s)
+
+  long originalLength = d->streamStart - d->flacStart;
+  int paddingLength = originalLength - data.size() - 4;
+  if (paddingLength < 0) {
+	paddingLength = MinPaddingLength;
+  }
+  ByteVector padding = ByteVector::fromUInt(paddingLength);
+  padding.resize(paddingLength + 4);
+  padding[0] = FLAC::MetadataBlock::Padding | LastBlockFlag;
+  data.append(padding);
+
+  // Write the data to the file
+
+  insert(data, d->flacStart, originalLength);
+  d->hasXiphComment = true;
+
+  // Update ID3 tags
+
+  if(ID3v2Tag()) {
+	if(d->hasID3v2) {
+	  if(d->ID3v2Location < d->flacStart)
+		debug("FLAC::File::save() -- This can't be right -- an ID3v2 tag after the "
+			  "start of the FLAC bytestream?  Not writing the ID3v2 tag.");
+	  else
+		insert(ID3v2Tag()->render(), d->ID3v2Location, d->ID3v2OriginalSize);
+	}
+	else
+	  insert(ID3v2Tag()->render(), 0, 0);
+  }
+
+  if(ID3v1Tag()) {
+	seek(-128, End);
+	writeBlock(ID3v1Tag()->render());
+  }
+
+  return true;
+}
+
+ID3v2::Tag *FLAC::File::ID3v2Tag(bool create)
+{
+  if(!create || d->tag[flacID3v2Index])
+	return static_cast<ID3v2::Tag *>(d->tag[flacID3v2Index]);
+
+  d->tag.set(flacID3v2Index, new ID3v2::Tag);
+  return static_cast<ID3v2::Tag *>(d->tag[flacID3v2Index]);
+}
+
+ID3v1::Tag *FLAC::File::ID3v1Tag(bool create)
+{
+  return d->tag.access<ID3v1::Tag>(flacID3v1Index, create);
+}
+
+Ogg::XiphComment *FLAC::File::xiphComment(bool create)
+{
+  return d->tag.access<Ogg::XiphComment>(flacXiphIndex, create);
+}
+
+void FLAC::File::setID3v2FrameFactory(const ID3v2::FrameFactory *factory)
+{
+  d->ID3v2FrameFactory = factory;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void FLAC::File::read(bool readProperties, Properties::ReadStyle propertiesStyle)
+{
+  // Look for an ID3v2 tag
+
+  d->ID3v2Location = findID3v2();
+
+  if(d->ID3v2Location >= 0) {
+
+	d->tag.set(flacID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
+
+	d->ID3v2OriginalSize = ID3v2Tag()->header()->completeTagSize();
+
+	if(ID3v2Tag()->header()->tagSize() <= 0)
+	  d->tag.set(flacID3v2Index, 0);
+	else
+	  d->hasID3v2 = true;
+  }
+
+  // Look for an ID3v1 tag
+
+  d->ID3v1Location = findID3v1();
+
+  if(d->ID3v1Location >= 0) {
+	d->tag.set(flacID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->hasID3v1 = true;
+  }
+
+  // Look for FLAC metadata, including vorbis comments
+
+  scan();
+
+  if(!isValid())
+	return;
+
+  if(d->hasXiphComment)
+	d->tag.set(flacXiphIndex, new Ogg::XiphComment(xiphCommentData()));
+  else
+	d->tag.set(flacXiphIndex, new Ogg::XiphComment);
+
+  if(readProperties)
+	d->properties = new Properties(streamInfoData(), streamLength(), propertiesStyle);
+}
+
+ByteVector FLAC::File::streamInfoData()
+{
+  return isValid() ? d->streamInfoData : ByteVector();
+}
+
+ByteVector FLAC::File::xiphCommentData() const
+{
+  return (isValid() && d->hasXiphComment) ? d->xiphCommentData : ByteVector();
+}
+
+long FLAC::File::streamLength()
+{
+  return d->streamLength;
+}
+
+void FLAC::File::scan()
+{
+  // Scan the metadata pages
+
+  if(d->scanned)
+	return;
+
+  if(!isValid())
+	return;
+
+  long nextBlockOffset;
+
+  if(d->hasID3v2)
+	nextBlockOffset = find("fLaC", d->ID3v2Location + d->ID3v2OriginalSize);
+  else
+	nextBlockOffset = find("fLaC");
+
+  if(nextBlockOffset < 0) {
+	debug("FLAC::File::scan() -- FLAC stream not found");
+	setValid(false);
+	return;
+  }
+
+  nextBlockOffset += 4;
+  d->flacStart = nextBlockOffset;
+
+  seek(nextBlockOffset);
+
+  ByteVector header = readBlock(4);
+
+  // Header format (from spec):
+  // <1> Last-metadata-block flag
+  // <7> BLOCK_TYPE
+  //    0 : STREAMINFO
+  //    1 : PADDING
+  //    ..
+  //    4 : VORBIS_COMMENT
+  //    ..
+  // <24> Length of metadata to follow
+
+  char blockType = header[0] & 0x7f;
+  bool isLastBlock = (header[0] & 0x80) != 0;
+  uint length = header.mid(1, 3).toUInt();
+
+  // First block should be the stream_info metadata
+
+  if(blockType != MetadataBlock::StreamInfo) {
+	debug("FLAC::File::scan() -- invalid FLAC stream");
+	setValid(false);
+	return;
+  }
+
+  d->streamInfoData = readBlock(length);
+  d->blocks.append(new UnknownMetadataBlock(blockType, d->streamInfoData));
+  nextBlockOffset += length + 4;
+
+  // Search through the remaining metadata
+  while(!isLastBlock) {
+
+	header = readBlock(4);
+	blockType = header[0] & 0x7f;
+	isLastBlock = (header[0] & 0x80) != 0;
+	length = header.mid(1, 3).toUInt();
+
+	ByteVector data = readBlock(length);
+	if(data.size() != length) {
+	  debug("FLAC::File::scan() -- FLAC stream corrupted");
+	  setValid(false);
+	  return;
+	}
+
+	MetadataBlock *block = 0;
+
+	// Found the vorbis-comment
+	if(blockType == MetadataBlock::VorbisComment) {
+	  if(!d->hasXiphComment) {
+		d->xiphCommentData = data;
+		d->hasXiphComment = true;
+	  }
+	  else {
+		debug("FLAC::File::scan() -- multiple Vorbis Comment blocks found, using the first one");
+	  }
+	}
+	else if(blockType == MetadataBlock::Picture) {
+	  FLAC::Picture *picture = new FLAC::Picture();
+	  if(picture->parse(data)) {
+		block = picture;
+	  }
+	  else {
+		debug("FLAC::File::scan() -- invalid picture found, discarting");
+		delete picture;
+	  }
+	}
+
+	if(!block) {
+	  block = new UnknownMetadataBlock(blockType, data);
+	}
+	if(block->code() != MetadataBlock::Padding) {
+	  d->blocks.append(block);
+	}
+	else {
+	  delete block;
+	}
+
+	nextBlockOffset += length + 4;
+
+	if(nextBlockOffset >= File::length()) {
+	  debug("FLAC::File::scan() -- FLAC stream corrupted");
+	  setValid(false);
+	  return;
+	}
+	seek(nextBlockOffset);
+  }
+
+  // End of metadata, now comes the datastream
+
+  d->streamStart = nextBlockOffset;
+  d->streamLength = File::length() - d->streamStart;
+
+  if(d->hasID3v1)
+	d->streamLength -= 128;
+
+  d->scanned = true;
+}
+
+long FLAC::File::findID3v1()
+{
+  if(!isValid())
+	return -1;
+
+  seek(-128, End);
+  long p = tell();
+
+  if(readBlock(3) == ID3v1::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long FLAC::File::findID3v2()
+{
+  if(!isValid())
+	return -1;
+
+  seek(0);
+
+  if(readBlock(3) == ID3v2::Header::fileIdentifier())
+	return 0;
+
+  return -1;
+}
+
+List<FLAC::Picture *> FLAC::File::pictureList()
+{
+  List<Picture *> pictures;
+  for(uint i = 0; i < d->blocks.size(); i++) {
+	Picture *picture = dynamic_cast<Picture *>(d->blocks[i]);
+	if(picture) {
+	  pictures.append(picture);
+	}
+  }
+  return pictures;
+}
+
+void FLAC::File::addPicture(Picture *picture)
+{
+  d->blocks.append(picture);
+}
+
+void FLAC::File::removePicture(Picture *picture, bool del)
+{
+  MetadataBlock *block = picture;
+  List<MetadataBlock *>::Iterator it = d->blocks.find(block);
+  if(it != d->blocks.end())
+	d->blocks.erase(it);
+
+  if(del)
+	delete picture;
+}
+
+void FLAC::File::removePictures()
+{
+  List<MetadataBlock *> newBlocks;
+  for(uint i = 0; i < d->blocks.size(); i++) {
+	Picture *picture = dynamic_cast<Picture *>(d->blocks[i]);
+	if(picture) {
+	  delete picture;
+	}
+	else {
+	  newBlocks.append(d->blocks[i]);
+	}
+  }
+  d->blocks = newBlocks;
+}
+
+/*** End of inlined file: flacfile.cpp ***/
+
 
 /*** Start of inlined file: flacpicture.cpp ***/
 /***************************************************************************
@@ -16383,279 +24258,6 @@ void Vorbis::Properties::read()
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-
-/*** Start of inlined file: flacpicture.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FLACPICTURE_H
-#define TAGLIB_FLACPICTURE_H
-
-
-/*** Start of inlined file: flacmetadatablock.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FLACMETADATABLOCK_H
-#define TAGLIB_FLACMETADATABLOCK_H
-
-namespace TagLib {
-
-  namespace FLAC {
-
-	class TAGLIB_EXPORT MetadataBlock
-	{
-	public:
-	  MetadataBlock();
-	  virtual ~MetadataBlock();
-
-	  enum BlockType {
-		StreamInfo = 0,
-		Padding,
-		Application,
-		SeekTable,
-		VorbisComment,
-		CueSheet,
-		Picture
-	  };
-
-	  /*!
-	   * Returns the FLAC metadata block type.
-	   */
-	  virtual int code() const = 0;
-
-	  /*!
-	   * Render the content of the block.
-	   */
-	  virtual ByteVector render() const = 0;
-
-	private:
-	  MetadataBlock(const MetadataBlock &item);
-	  MetadataBlock &operator=(const MetadataBlock &item);
-
-	  class MetadataBlockPrivate;
-	  MetadataBlockPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: flacmetadatablock.h ***/
-
-namespace TagLib {
-
-  namespace FLAC {
-
-	class TAGLIB_EXPORT Picture : public MetadataBlock
-	{
-	public:
-
-	  /*!
-	   * This describes the function or content of the picture.
-	   */
-	  enum Type {
-		//! A type not enumerated below
-		Other              = 0x00,
-		//! 32x32 PNG image that should be used as the file icon
-		FileIcon           = 0x01,
-		//! File icon of a different size or format
-		OtherFileIcon      = 0x02,
-		//! Front cover image of the album
-		FrontCover         = 0x03,
-		//! Back cover image of the album
-		BackCover          = 0x04,
-		//! Inside leaflet page of the album
-		LeafletPage        = 0x05,
-		//! Image from the album itself
-		Media              = 0x06,
-		//! Picture of the lead artist or soloist
-		LeadArtist         = 0x07,
-		//! Picture of the artist or performer
-		Artist             = 0x08,
-		//! Picture of the conductor
-		Conductor          = 0x09,
-		//! Picture of the band or orchestra
-		Band               = 0x0A,
-		//! Picture of the composer
-		Composer           = 0x0B,
-		//! Picture of the lyricist or text writer
-		Lyricist           = 0x0C,
-		//! Picture of the recording location or studio
-		RecordingLocation  = 0x0D,
-		//! Picture of the artists during recording
-		DuringRecording    = 0x0E,
-		//! Picture of the artists during performance
-		DuringPerformance  = 0x0F,
-		//! Picture from a movie or video related to the track
-		MovieScreenCapture = 0x10,
-		//! Picture of a large, coloured fish
-		ColouredFish       = 0x11,
-		//! Illustration related to the track
-		Illustration       = 0x12,
-		//! Logo of the band or performer
-		BandLogo           = 0x13,
-		//! Logo of the publisher (record company)
-		PublisherLogo      = 0x14
-	  };
-
-	  Picture();
-	  Picture(const ByteVector &data);
-	  ~Picture();
-
-	  /*!
-	   * Returns the type of the image.
-	   */
-	  Type type() const;
-
-	  /*!
-	   * Sets the type of the image.
-	   */
-	  void setType(Type type);
-
-	  /*!
-	   * Returns the mime type of the image.  This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   */
-	  String mimeType() const;
-
-	  /*!
-	   * Sets the mime type of the image.  This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   */
-	  void setMimeType(const String &m);
-
-	  /*!
-	   * Returns a text description of the image.
-	   */
-
-	  String description() const;
-
-	  /*!
-	   * Sets a textual description of the image to \a desc.
-	   */
-
-	  void setDescription(const String &desc);
-
-	  /*!
-	   * Returns the width of the image.
-	   */
-	  int width() const;
-
-	  /*!
-	   * Sets the width of the image.
-	   */
-	  void setWidth(int w);
-
-	  /*!
-	   * Returns the height of the image.
-	   */
-	  int height() const;
-
-	  /*!
-	   * Sets the height of the image.
-	   */
-	  void setHeight(int h);
-
-	  /*!
-	   * Returns the color depth (in bits-per-pixel) of the image.
-	   */
-	  int colorDepth() const;
-
-	  /*!
-	   * Sets the color depth (in bits-per-pixel) of the image.
-	   */
-	  void setColorDepth(int depth);
-
-	  /*!
-	   * Returns the number of colors used on the image..
-	   */
-	  int numColors() const;
-
-	  /*!
-	   * Sets the number of colors used on the image (for indexed images).
-	   */
-	  void setNumColors(int numColors);
-
-	  /*!
-	   * Returns the image data.
-	   */
-	  ByteVector data() const;
-
-	  /*!
-	   * Sets the image data.
-	   */
-	  void setData(const ByteVector &data);
-
-	  /*!
-	   * Returns the FLAC metadata block type.
-	   */
-	  int code() const;
-
-	  /*!
-	   * Render the content to the FLAC picture block format.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Parse the picture data in the FLAC picture block format.
-	   */
-	  bool parse(const ByteVector &rawData);
-
-	private:
-	  Picture(const Picture &item);
-	  Picture &operator=(const Picture &item);
-
-	  class PicturePrivate;
-	  PicturePrivate *d;
-	};
-
-	typedef List<Picture> PictureList;
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: flacpicture.h ***/
 
 using namespace TagLib;
 
@@ -16848,7 +24450,6 @@ void FLAC::Picture::setData(const ByteVector &data)
 /*** End of inlined file: flacpicture.cpp ***/
 
 
-
 /*** Start of inlined file: flacproperties.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -16869,340 +24470,6 @@ void FLAC::Picture::setData(const ByteVector &data)
  *   License Version 1.1.  You may obtain a copy of the License at         *
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
-
-
-/*** Start of inlined file: flacproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FLACPROPERTIES_H
-#define TAGLIB_FLACPROPERTIES_H
-
-namespace TagLib {
-
-  namespace FLAC {
-
-	class File;
-
-	//! An implementation of audio property reading for FLAC
-
-	/*!
-	 * This reads the data from an FLAC stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of FLAC::Properties with the data read from the
-	   * ByteVector \a data.
-	   */
-	   // BIC: switch to const reference
-	  Properties(ByteVector data, long streamLength, ReadStyle style = Average);
-
-	  /*!
-	   * Create an instance of FLAC::Properties with the data read from the
-	   * FLAC::File \a file.
-	   */
-	   // BIC: remove
-	  Properties(File *file, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this FLAC::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns the sample width as read from the FLAC identification
-	   * header.
-	   */
-	  int sampleWidth() const;
-
-	  /*!
-	   * Return the number of sample frames
-	   */
-	  unsigned long long sampleFrames() const;
-
-	  /*!
-	   * Returns the MD5 signature of the uncompressed audio stream as read
-	   * from the stream info header header.
-	   */
-	  ByteVector signature() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: flacproperties.h ***/
-
-
-/*** Start of inlined file: flacfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FLACFILE_H
-#define TAGLIB_FLACFILE_H
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace ID3v2 { class FrameFactory; class Tag; }
-  namespace ID3v1 { class Tag; }
-  namespace Ogg { class XiphComment; }
-
-  //! An implementation of FLAC metadata
-
-  /*!
-   * This is implementation of FLAC metadata for non-Ogg FLAC files.  At some
-   * point when Ogg / FLAC is more common there will be a similar implementation
-   * under the Ogg hiearchy.
-   *
-   * This supports ID3v1, ID3v2 and Xiph style comments as well as reading stream
-   * properties from the file.
-   */
-
-  namespace FLAC {
-
-	//! An implementation of TagLib::File with FLAC specific methods
-
-	/*!
-	 * This implements and provides an interface for FLAC files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to FLAC files.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \deprecated This constructor will be dropped in favor of the one below
-	   * in a future version.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * If this file contains and ID3v2 tag the frames will be created using
-	   * \a frameFactory.
-	   */
-	  // BIC: merge with the above constructor
-	  File(FileName file, ID3v2::FrameFactory *frameFactory,
-		   bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs a FLAC file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * If this file contains and ID3v2 tag the frames will be created using
-	   * \a frameFactory.
-	   */
-	  // BIC: merge with the above constructor
-	  File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
-		   bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.  This will be a union of XiphComment,
-	   * ID3v1 and ID3v2 tags.
-	   *
-	   * \see ID3v2Tag()
-	   * \see ID3v1Tag()
-	   * \see XiphComment()
-	   */
-	  virtual TagLib::Tag *tag() const;
-
-	  /*!
-	   * Returns the FLAC::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Save the file.  This will primarily save the XiphComment, but
-	   * will also keep any old ID3-tags up to date. If the file
-	   * has no XiphComment, one will be constructed from the ID3-tags.
-	   *
-	   * This returns true if the save was successful.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns a pointer to the ID3v2 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v2 tag.  If \a create is true it will create
-	   * an ID3v2 tag if one does not exist.
-	   *
-	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v2::Tag *ID3v2Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the ID3v1 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v1 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist.
-	   *
-	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v1::Tag *ID3v1Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the XiphComment for the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid XiphComment.  If \a create is true it will create
-	   * a XiphComment if one does not exist.
-	   *
-	   * \note The Tag <b>is still</b> owned by the FLAC::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  Ogg::XiphComment *xiphComment(bool create = false);
-
-	  /*!
-	   * Set the ID3v2::FrameFactory to something other than the default.  This
-	   * can be used to specify the way that ID3v2 frames will be interpreted
-	   * when
-	   *
-	   * \see ID3v2FrameFactory
-	   */
-	  void setID3v2FrameFactory(const ID3v2::FrameFactory *factory);
-
-	  /*!
-	   * Returns the block of data used by FLAC::Properties for parsing the
-	   * stream properties.
-	   *
-	   * \deprecated This method will not be public in a future release.
-	   */
-	  ByteVector streamInfoData(); // BIC: remove
-
-	  /*!
-	   * Returns the length of the audio-stream, used by FLAC::Properties for
-	   * calculating the bitrate.
-	   *
-	   * \deprecated This method will not be public in a future release.
-	   */
-	  long streamLength();  // BIC: remove
-
-	  /*!
-	   * Returns a list of pictures attached to the FLAC file.
-	   */
-	  List<Picture *> pictureList();
-
-	  /*!
-	   * Removes an attached picture. If \a del is true the picture's memory
-	   * will be freed; if it is false, it must be deleted by the user.
-	   */
-	  void removePicture(Picture *picture, bool del = true);
-
-	  /*!
-	   * Remove all attached images.
-	   */
-	  void removePictures();
-
-	  /*!
-	   * Add a new picture to the file. The file takes ownership of the
-	   * picture and will handle freeing its memory.
-	   *
-	   * \note The file will be saved only after calling save().
-	   */
-	  void addPicture(Picture *picture);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  long findID3v2();
-	  long findID3v1();
-	  ByteVector xiphCommentData() const;
-	  long findPaddingBreak(long nextPageOffset, long targetOffset, bool *isLast);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: flacfile.h ***/
 
 using namespace TagLib;
 
@@ -17417,82 +24684,6 @@ FLAC::MetadataBlock::~MetadataBlock()
 #include <config.h>
 #endif
 
-
-/*** Start of inlined file: flacunknownmetadatablock.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FLACUNKNOWNMETADATABLOCK_H
-#define TAGLIB_FLACUNKNOWNMETADATABLOCK_H
-
-namespace TagLib {
-
-  namespace FLAC {
-
-	class TAGLIB_EXPORT UnknownMetadataBlock : public MetadataBlock
-	{
-	public:
-	  UnknownMetadataBlock(int blockType, const ByteVector &data);
-	  ~UnknownMetadataBlock();
-
-	  /*!
-	   * Returns the FLAC metadata block type.
-	   */
-	  int code() const;
-
-	  /*!
-	   * Sets the FLAC metadata block type.
-	   */
-	  void setCode(int code);
-
-	  /*!
-	   * Returns the FLAC metadata block type.
-	   */
-	  ByteVector data() const;
-
-	  /*!
-	   * Sets the FLAC metadata block type.
-	   */
-	  void setData(const ByteVector &data);
-
-	  /*!
-	   * Render the content of the block.
-	   */
-	  ByteVector render() const;
-
-	private:
-	  UnknownMetadataBlock(const MetadataBlock &item);
-	  UnknownMetadataBlock &operator=(const MetadataBlock &item);
-
-	  class UnknownMetadataBlockPrivate;
-	  UnknownMetadataBlockPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: flacunknownmetadatablock.h ***/
-
 using namespace TagLib;
 
 class FLAC::UnknownMetadataBlock::UnknownMetadataBlockPrivate
@@ -17565,245 +24756,6 @@ ByteVector FLAC::UnknownMetadataBlock::render() const
  *   License Version 1.1.  You may obtain a copy of the License at         *
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
-
-
-/*** Start of inlined file: oggflacfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_OGGFLACFILE_H
-#define TAGLIB_OGGFLACFILE_H
-
-
-/*** Start of inlined file: oggfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_OGGFILE_H
-#define TAGLIB_OGGFILE_H
-
-namespace TagLib {
-
-  //! A namespace for the classes used by Ogg-based metadata files
-
-  namespace Ogg {
-
-	class PageHeader;
-
-	//! An implementation of TagLib::File with some helpers for Ogg based formats
-
-	/*!
-	 * This is an implementation of Ogg file page and packet rendering and is of
-	 * use to Ogg based formats.  While the API is small this handles the
-	 * non-trivial details of breaking up an Ogg stream into packets and makes
-	 * these available (via subclassing) to the codec meta data implementations.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  virtual ~File();
-
-	  /*!
-	   * Returns the packet contents for the i-th packet (starting from zero)
-	   * in the Ogg bitstream.
-	   *
-	   * \warning The requires reading at least the packet header for every page
-	   * up to the requested page.
-	   */
-	  ByteVector packet(uint i);
-
-	  /*!
-	   * Sets the packet with index \a i to the value \a p.
-	   */
-	  void setPacket(uint i, const ByteVector &p);
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the first page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *firstPageHeader();
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the last page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *lastPageHeader();
-
-	  virtual bool save();
-
-	protected:
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(FileName file);
-
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(IOStream *stream);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  /*!
-	   * Reads the next page and updates the internal "current page" pointer.
-	   */
-	  bool nextPage();
-	  void writePageGroup(const List<int> &group);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: oggfile.h ***/
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace Ogg {
-
-  //! An implementation of Ogg FLAC metadata
-
-  /*!
-   * This is implementation of FLAC metadata for Ogg FLAC files.  For "pure"
-   * FLAC files look under the FLAC hiearchy.
-   *
-   * Unlike "pure" FLAC-files, Ogg FLAC only supports Xiph-comments,
-   * while the audio-properties are the same.
-   */
-  namespace FLAC {
-
-	using TagLib::FLAC::Properties;
-
-	//! An implementation of TagLib::File with Ogg/FLAC specific methods
-
-	/*!
-	 * This implements and provides an interface for Ogg/FLAC files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to Ogg FLAC files.
-	 */
-
-	class TAGLIB_EXPORT File : public Ogg::File
-	{
-	public:
-	  /*!
-	   * Contructs an Ogg/FLAC file from \a file.  If \a readProperties is true
-	   * the file's audio properties will also be read using \a propertiesStyle.
-	   * If false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an Ogg/FLAC file from \a file.  If \a readProperties is true
-	   * the file's audio properties will also be read using \a propertiesStyle.
-	   * If false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.  This will always be a XiphComment.
-	   */
-	  virtual XiphComment *tag() const;
-
-	  /*!
-	   * Returns the FLAC::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Save the file.  This will primarily save and update the XiphComment.
-	   * Returns true if the save is successful.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns the length of the audio-stream, used by FLAC::Properties for
-	   * calculating the bitrate.
-	   */
-	  long streamLength();
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  ByteVector streamInfoData();
-	  ByteVector xiphCommentData();
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  } // namespace FLAC
-  } // namespace Ogg
-} // namespace TagLib
-
-#endif
-
-/*** End of inlined file: oggflacfile.h ***/
 
 using namespace TagLib;
 using TagLib::FLAC::Properties;
@@ -18049,7 +25001,326 @@ void Ogg::FLAC::File::scan()
 
 /*** End of inlined file: oggflacfile.cpp ***/
 
-//#include "mpc/mpcfile.cpp"
+
+/*** Start of inlined file: mpcfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+namespace
+{
+  enum { mpcAPEIndex, mpcID3v1Index };
+}
+
+class MPC::File::FilePrivate
+{
+public:
+  FilePrivate() :
+	APELocation(-1),
+	APESize(0),
+	ID3v1Location(-1),
+	ID3v2Header(0),
+	ID3v2Location(-1),
+	ID3v2Size(0),
+	properties(0),
+	scanned(false),
+	hasAPE(false),
+	hasID3v1(false),
+	hasID3v2(false) {}
+
+  ~FilePrivate()
+  {
+	delete ID3v2Header;
+	delete properties;
+  }
+
+  long APELocation;
+  uint APESize;
+
+  long ID3v1Location;
+
+  ID3v2::Header *ID3v2Header;
+  long ID3v2Location;
+  uint ID3v2Size;
+
+  TagUnion tag;
+
+  Properties *properties;
+  bool scanned;
+
+  // These indicate whether the file *on disk* has these tags, not if
+  // this data structure does.  This is used in computing offsets.
+
+  bool hasAPE;
+  bool hasID3v1;
+  bool hasID3v2;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+MPC::File::File(FileName file, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(file)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+MPC::File::File(IOStream *stream, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(stream)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+MPC::File::~File()
+{
+  delete d;
+}
+
+TagLib::Tag *MPC::File::tag() const
+{
+  return &d->tag;
+}
+
+MPC::Properties *MPC::File::audioProperties() const
+{
+  return d->properties;
+}
+
+bool MPC::File::save()
+{
+  if(readOnly()) {
+	debug("MPC::File::save() -- File is read only.");
+	return false;
+  }
+
+  // Possibly strip ID3v2 tag
+
+  if(d->hasID3v2 && !d->ID3v2Header) {
+	removeBlock(d->ID3v2Location, d->ID3v2Size);
+	d->hasID3v2 = false;
+	if(d->hasID3v1)
+	  d->ID3v1Location -= d->ID3v2Size;
+	if(d->hasAPE)
+	  d->APELocation -= d->ID3v2Size;
+  }
+
+  // Update ID3v1 tag
+
+  if(ID3v1Tag()) {
+	if(d->hasID3v1) {
+	  seek(d->ID3v1Location);
+	  writeBlock(ID3v1Tag()->render());
+	}
+	else {
+	  seek(0, End);
+	  d->ID3v1Location = tell();
+	  writeBlock(ID3v1Tag()->render());
+	  d->hasID3v1 = true;
+	}
+  } else
+	if(d->hasID3v1) {
+	  removeBlock(d->ID3v1Location, 128);
+	  d->hasID3v1 = false;
+	  if(d->hasAPE) {
+		if(d->APELocation > d->ID3v1Location)
+		  d->APELocation -= 128;
+	  }
+	}
+
+  // Update APE tag
+
+  if(APETag()) {
+	if(d->hasAPE)
+	  insert(APETag()->render(), d->APELocation, d->APESize);
+	else {
+	  if(d->hasID3v1)  {
+		insert(APETag()->render(), d->ID3v1Location, 0);
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+		d->APELocation = d->ID3v1Location;
+		d->ID3v1Location += d->APESize;
+	  }
+	  else {
+		seek(0, End);
+		d->APELocation = tell();
+		writeBlock(APETag()->render());
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+	  }
+	}
+  }
+  else
+	if(d->hasAPE) {
+	  removeBlock(d->APELocation, d->APESize);
+	  d->hasAPE = false;
+	  if(d->hasID3v1) {
+		if(d->ID3v1Location > d->APELocation)
+		  d->ID3v1Location -= d->APESize;
+	  }
+	}
+
+  return true;
+}
+
+ID3v1::Tag *MPC::File::ID3v1Tag(bool create)
+{
+  return d->tag.access<ID3v1::Tag>(mpcID3v1Index, create);
+}
+
+APE::Tag *MPC::File::APETag(bool create)
+{
+  return d->tag.access<APE::Tag>(mpcAPEIndex, create);
+}
+
+void MPC::File::strip(int tags)
+{
+  if(tags & ID3v1) {
+	d->tag.set(mpcID3v1Index, 0);
+	APETag(true);
+  }
+
+  if(tags & ID3v2) {
+	delete d->ID3v2Header;
+	d->ID3v2Header = 0;
+  }
+
+  if(tags & APE) {
+	d->tag.set(mpcAPEIndex, 0);
+
+	if(!ID3v1Tag())
+	  APETag(true);
+  }
+}
+
+void MPC::File::remove(int tags)
+{
+  strip(tags);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void MPC::File::read(bool readProperties, Properties::ReadStyle /* propertiesStyle */)
+{
+  // Look for an ID3v1 tag
+
+  d->ID3v1Location = findID3v1();
+
+  if(d->ID3v1Location >= 0) {
+	d->tag.set(mpcID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->hasID3v1 = true;
+  }
+
+  // Look for an APE tag
+
+  findAPE();
+
+  d->APELocation = findAPE();
+
+  if(d->APELocation >= 0) {
+	d->tag.set(mpcAPEIndex, new APE::Tag(this, d->APELocation));
+
+	d->APESize = APETag()->footer()->completeTagSize();
+	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
+	d->hasAPE = true;
+  }
+
+  if(!d->hasID3v1)
+	APETag(true);
+
+  // Look for and skip an ID3v2 tag
+
+  d->ID3v2Location = findID3v2();
+
+  if(d->ID3v2Location >= 0) {
+	seek(d->ID3v2Location);
+	d->ID3v2Header = new ID3v2::Header(readBlock(ID3v2::Header::size()));
+	d->ID3v2Size = d->ID3v2Header->completeTagSize();
+	d->hasID3v2 = true;
+  }
+
+  if(d->hasID3v2)
+	seek(d->ID3v2Location + d->ID3v2Size);
+  else
+	seek(0);
+
+  // Look for MPC metadata
+
+  if(readProperties) {
+	d->properties = new Properties(readBlock(MPC::HeaderSize),
+								   length() - d->ID3v2Size - d->APESize);
+  }
+}
+
+long MPC::File::findAPE()
+{
+  if(!isValid())
+	return -1;
+
+  if(d->hasID3v1)
+	seek(-160, End);
+  else
+	seek(-32, End);
+
+  long p = tell();
+
+  if(readBlock(8) == APE::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long MPC::File::findID3v1()
+{
+  if(!isValid())
+	return -1;
+
+  seek(-128, End);
+  long p = tell();
+
+  if(readBlock(3) == ID3v1::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long MPC::File::findID3v2()
+{
+  if(!isValid())
+	return -1;
+
+  seek(0);
+
+  if(readBlock(3) == ID3v2::Header::fileIdentifier())
+	return 0;
+
+  return -1;
+}
+
+/*** End of inlined file: mpcfile.cpp ***/
+
 
 /*** Start of inlined file: mpcproperties.cpp ***/
 /***************************************************************************
@@ -18073,265 +25344,6 @@ void Ogg::FLAC::File::scan()
  ***************************************************************************/
 
 #include <bitset>
-
-
-/*** Start of inlined file: mpcproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MPCPROPERTIES_H
-#define TAGLIB_MPCPROPERTIES_H
-
-namespace TagLib {
-
-  namespace MPC {
-
-	class File;
-
-	static const uint HeaderSize = 8*7;
-
-	//! An implementation of audio property reading for MPC
-
-	/*!
-	 * This reads the data from an MPC stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of MPC::Properties with the data read from the
-	   * ByteVector \a data.
-	   */
-	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this MPC::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns the version of the bitstream (SV4-SV7)
-	   */
-	  int mpcVersion() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: mpcproperties.h ***/
-
-
-/*** Start of inlined file: mpcfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MPCFILE_H
-#define TAGLIB_MPCFILE_H
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace ID3v1 { class Tag; }
-  namespace APE { class Tag; }
-
-  //! An implementation of MPC metadata
-
-  /*!
-   * This is implementation of MPC metadata.
-   *
-   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
-   * properties from the file. ID3v2 tags are invalid in MPC-files, but will be skipped
-   * and ignored.
-   */
-
-  namespace MPC {
-
-	//! An implementation of TagLib::File with MPC specific methods
-
-	/*!
-	 * This implements and provides an interface for MPC files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to MPC files.
-	 * The only invalid tag combination supported is an ID3v1 tag after an APE tag.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * This set of flags is used for various operations and is suitable for
-	   * being OR-ed together.
-	   */
-	  enum TagTypes {
-		//! Empty set.  Matches no tag types.
-		NoTags  = 0x0000,
-		//! Matches ID3v1 tags.
-		ID3v1   = 0x0001,
-		//! Matches ID3v2 tags.
-		ID3v2   = 0x0002,
-		//! Matches APE tags.
-		APE     = 0x0004,
-		//! Matches all tag types.
-		AllTags = 0xffff
-	  };
-
-	  /*!
-	   * Contructs an MPC file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an MPC file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
-	   * or a combination of the two.
-	   */
-	  virtual TagLib::Tag *tag() const;
-
-	  /*!
-	   * Returns the MPC::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Saves the file.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns a pointer to the ID3v1 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v1 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
-	   * new ID3v1 tag will be placed after it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v1::Tag *ID3v1Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the APE tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid APE tag.  If \a create is true it will create
-	   * a APE tag if one does not exist. If there is already an ID3v1 tag, thes
-	   * new APE tag will be placed before it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  APE::Tag *APETag(bool create = false);
-
-	  /*!
-	   * This will remove the tags that match the OR-ed together TagTypes from the
-	   * file.  By default it removes all tags.
-	   *
-	   * \warning This will also invalidate pointers to the tags
-	   * as their memory will be freed.
-	   *
-	   * \note In order to make the removal permanent save() still needs to be called.
-	   */
-	  void strip(int tags = AllTags);
-
-	  /*!
-	   * \deprecated
-	   * \see strip
-	   */
-	  void remove(int tags = AllTags);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  long findAPE();
-	  long findID3v1();
-	  long findID3v2();
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: mpcfile.h ***/
 
 using namespace TagLib;
 
@@ -18443,7 +25455,6 @@ void MPC::Properties::read()
 }
 
 /*** End of inlined file: mpcproperties.cpp ***/
-
 
 
 /*** Start of inlined file: mp4file.cpp ***/
@@ -18578,639 +25589,6 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: mp4atom.h ***/
-
-
-/*** Start of inlined file: mp4tag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MP4TAG_H
-#define TAGLIB_MP4TAG_H
-
-
-/*** Start of inlined file: mp4atom.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-// This file is not part of the public API!
-
-#ifndef DO_NOT_DOCUMENT
-
-#ifndef TAGLIB_MP4ATOM_H
-#define TAGLIB_MP4ATOM_H
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class Atom;
-	typedef TagLib::List<Atom *> AtomList;
-
-	enum AtomDataType
-	{
-	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
-	  TypeUTF8      = 1,  // without any count or null terminator
-	  TypeUTF16     = 2,  // also known as UTF-16BE
-	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
-	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
-	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
-	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
-	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
-	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
-	  TypeGIF       = 12, // (deprecated) a GIF image
-	  TypeJPEG      = 13, // a JPEG image
-	  TypePNG       = 14, // a PNG image
-	  TypeURL       = 15, // absolute, in UTF-8 characters
-	  TypeDuration  = 16, // in milliseconds, 32-bit integer
-	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
-	  TypeGenred    = 18, // a list of enumerated values
-	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
-	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
-	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
-	  TypeBMP       = 27, // Windows bitmap image
-	  TypeUndefined = 255 // undefined
-	};
-
-	struct AtomData {
-	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
-	  AtomDataType type;
-	  int locale;
-	  ByteVector data;
-	};
-
-	typedef TagLib::List<AtomData> AtomDataList;
-
-	class Atom
-	{
-	public:
-		Atom(File *file);
-		~Atom();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
-		AtomList findall(const char *name, bool recursive = false);
-		long offset;
-		long length;
-		TagLib::ByteVector name;
-		AtomList children;
-	private:
-		static const int numContainers = 11;
-		static const char *containers[11];
-	};
-
-	//! Root-level atoms
-	class Atoms
-	{
-	public:
-		Atoms(File *file);
-		~Atoms();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList atoms;
-	};
-
-  }
-
-}
-
-#endif
-
-#endif
-
-/*** End of inlined file: mp4atom.h ***/
-
-
-/*** Start of inlined file: mp4item.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MP4ITEM_H
-#define TAGLIB_MP4ITEM_H
-
-
-/*** Start of inlined file: mp4coverart.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MP4COVERART_H
-#define TAGLIB_MP4COVERART_H
-
-
-/*** Start of inlined file: mp4atom.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-// This file is not part of the public API!
-
-#ifndef DO_NOT_DOCUMENT
-
-#ifndef TAGLIB_MP4ATOM_H
-#define TAGLIB_MP4ATOM_H
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class Atom;
-	typedef TagLib::List<Atom *> AtomList;
-
-	enum AtomDataType
-	{
-	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
-	  TypeUTF8      = 1,  // without any count or null terminator
-	  TypeUTF16     = 2,  // also known as UTF-16BE
-	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
-	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
-	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
-	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
-	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
-	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
-	  TypeGIF       = 12, // (deprecated) a GIF image
-	  TypeJPEG      = 13, // a JPEG image
-	  TypePNG       = 14, // a PNG image
-	  TypeURL       = 15, // absolute, in UTF-8 characters
-	  TypeDuration  = 16, // in milliseconds, 32-bit integer
-	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
-	  TypeGenred    = 18, // a list of enumerated values
-	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
-	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
-	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
-	  TypeBMP       = 27, // Windows bitmap image
-	  TypeUndefined = 255 // undefined
-	};
-
-	struct AtomData {
-	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
-	  AtomDataType type;
-	  int locale;
-	  ByteVector data;
-	};
-
-	typedef TagLib::List<AtomData> AtomDataList;
-
-	class Atom
-	{
-	public:
-		Atom(File *file);
-		~Atom();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
-		AtomList findall(const char *name, bool recursive = false);
-		long offset;
-		long length;
-		TagLib::ByteVector name;
-		AtomList children;
-	private:
-		static const int numContainers = 11;
-		static const char *containers[11];
-	};
-
-	//! Root-level atoms
-	class Atoms
-	{
-	public:
-		Atoms(File *file);
-		~Atoms();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList atoms;
-	};
-
-  }
-
-}
-
-#endif
-
-#endif
-
-/*** End of inlined file: mp4atom.h ***/
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class TAGLIB_EXPORT CoverArt
-	{
-	public:
-	  /*!
-	   * This describes the image type.
-	   */
-	  enum Format {
-		JPEG = TypeJPEG,
-		PNG  = TypePNG,
-		BMP  = TypeBMP,
-		GIF  = TypeGIF
-	  };
-
-	  CoverArt(Format format, const ByteVector &data);
-	  ~CoverArt();
-
-	  CoverArt(const CoverArt &item);
-	  CoverArt &operator=(const CoverArt &item);
-
-	  //! Format of the image
-	  Format format() const;
-
-	  //! The image data
-	  ByteVector data() const;
-
-	private:
-	  class CoverArtPrivate;
-	  CoverArtPrivate *d;
-	};
-
-	typedef List<CoverArt> CoverArtList;
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: mp4coverart.h ***/
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class TAGLIB_EXPORT Item
-	{
-	public:
-	  struct IntPair {
-		int first, second;
-	  };
-
-	  Item();
-	  Item(const Item &item);
-	  Item &operator=(const Item &item);
-	  ~Item();
-
-	  Item(int value);
-	  Item(uchar value);
-	  Item(uint value);
-	  Item(long long value);
-	  Item(bool value);
-	  Item(int first, int second);
-	  Item(const StringList &value);
-	  Item(const ByteVectorList &value);
-	  Item(const CoverArtList &value);
-
-	  void setAtomDataType(AtomDataType type);
-	  AtomDataType atomDataType() const;
-
-	  int toInt() const;
-	  uchar toByte() const;
-	  uint toUInt() const;
-	  long long toLongLong() const;
-	  bool toBool() const;
-	  IntPair toIntPair() const;
-	  StringList toStringList() const;
-	  ByteVectorList toByteVectorList() const;
-	  CoverArtList toCoverArtList() const;
-
-	  bool isValid() const;
-
-	private:
-	  class ItemPrivate;
-	  ItemPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: mp4item.h ***/
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	typedef TagLib::Map<String, Item> ItemListMap;
-
-	class TAGLIB_EXPORT Tag: public TagLib::Tag
-	{
-	public:
-		Tag();
-		Tag(TagLib::File *file, Atoms *atoms);
-		~Tag();
-		bool save();
-
-		String title() const;
-		String artist() const;
-		String album() const;
-		String comment() const;
-		String genre() const;
-		uint year() const;
-		uint track() const;
-
-		void setTitle(const String &value);
-		void setArtist(const String &value);
-		void setAlbum(const String &value);
-		void setComment(const String &value);
-		void setGenre(const String &value);
-		void setYear(uint value);
-		void setTrack(uint value);
-
-		ItemListMap &itemListMap();
-
-	private:
-		AtomDataList parseData2(Atom *atom, TagLib::File *file, int expectedFlags = -1, bool freeForm = false);
-		TagLib::ByteVectorList parseData(Atom *atom, TagLib::File *file, int expectedFlags = -1, bool freeForm = false);
-		void parseText(Atom *atom, TagLib::File *file, int expectedFlags = 1);
-		void parseFreeForm(Atom *atom, TagLib::File *file);
-		void parseInt(Atom *atom, TagLib::File *file);
-		void parseByte(Atom *atom, TagLib::File *file);
-		void parseUInt(Atom *atom, TagLib::File *file);
-		void parseLongLong(Atom *atom, TagLib::File *file);
-		void parseGnre(Atom *atom, TagLib::File *file);
-		void parseIntPair(Atom *atom, TagLib::File *file);
-		void parseBool(Atom *atom, TagLib::File *file);
-		void parseCovr(Atom *atom, TagLib::File *file);
-
-		TagLib::ByteVector padIlst(const ByteVector &data, int length = -1);
-		TagLib::ByteVector renderAtom(const ByteVector &name, const TagLib::ByteVector &data);
-		TagLib::ByteVector renderData(const ByteVector &name, int flags, const TagLib::ByteVectorList &data);
-		TagLib::ByteVector renderText(const ByteVector &name, Item &item, int flags = TypeUTF8);
-		TagLib::ByteVector renderFreeForm(const String &name, Item &item);
-		TagLib::ByteVector renderBool(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderInt(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderByte(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderUInt(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderLongLong(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderIntPair(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderIntPairNoTrailing(const ByteVector &name, Item &item);
-		TagLib::ByteVector renderCovr(const ByteVector &name, Item &item);
-
-		void updateParents(AtomList &path, long delta, int ignore = 0);
-		void updateOffsets(long delta, long offset);
-
-		void saveNew(TagLib::ByteVector &data);
-		void saveExisting(TagLib::ByteVector &data, AtomList &path);
-
-		class TagPrivate;
-		TagPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: mp4tag.h ***/
-
-
-/*** Start of inlined file: mp4file.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MP4FILE_H
-#define TAGLIB_MP4FILE_H
-
-
-/*** Start of inlined file: mp4properties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MP4PROPERTIES_H
-#define TAGLIB_MP4PROPERTIES_H
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class Atoms;
-	class File;
-
-	//! An implementation of MP4 audio properties
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  Properties(File *file, Atoms *atoms, ReadStyle style = Average);
-	  virtual ~Properties();
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-	  virtual int bitsPerSample() const;
-	  bool isEncrypted() const;
-
-	private:
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: mp4properties.h ***/
-
-namespace TagLib {
-
-  //! An implementation of MP4 (AAC, ALAC, ...) metadata
-  namespace MP4 {
-
-	class Atoms;
-
-	/*!
-	 * This implements and provides an interface for MP4 files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to MP4 files.
-	 */
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * Contructs a MP4 file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note In the current implementation, both \a readProperties and
-	   * \a propertiesStyle are ignored.
-	   */
-	  File(FileName file, bool readProperties = true, Properties::ReadStyle audioPropertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs a MP4 file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note In the current implementation, both \a readProperties and
-	   * \a propertiesStyle are ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true, Properties::ReadStyle audioPropertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns a pointer to the MP4 tag of the file.
-	   *
-	   * MP4::Tag implements the tag interface, so this serves as the
-	   * reimplementation of TagLib::File::tag().
-	   *
-	   * \note The Tag <b>is still</b> owned by the MP4::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  Tag *tag() const;
-
-	  /*!
-	   * Returns the MP4 audio properties for this file.
-	   */
-	  Properties *audioProperties() const;
-
-	  /*!
-	   * Save the file.
-	   *
-	   * This returns true if the save was successful.
-	   */
-	  bool save();
-
-	private:
-
-	  void read(bool readProperties, Properties::ReadStyle audioPropertiesStyle);
-	  bool checkValid(const MP4::AtomList &list);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: mp4file.h ***/
 
 using namespace TagLib;
 
@@ -20770,8 +27148,9 @@ MP4::CoverArt::data() const
 
 /*** End of inlined file: mp4coverart.cpp ***/
 
+//#include "ape/apetag.cpp"
 
-/*** Start of inlined file: apetag.cpp ***/
+/*** Start of inlined file: apefooter.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -20792,248 +27171,214 @@ MP4::CoverArt::data() const
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifdef __SUNPRO_CC
-// Sun Studio finds multiple specializations of Map because
-// it considers specializations with and without class types
-// to be different; this define forces Map to use only the
-// specialization with the class keyword.
-#define WANT_CLASS_INSTANTIATION_OF_MAP (1)
-#endif
+#include <ostream>
+#include <bitset>
 
 using namespace TagLib;
-using namespace APE;
 
-class APE::Tag::TagPrivate
+class APE::Footer::FooterPrivate
 {
 public:
-  TagPrivate() : file(0), footerLocation(-1), tagLength(0) {}
+  FooterPrivate() : version(0),
+					footerPresent(true),
+					headerPresent(false),
+					isHeader(false),
+					itemCount(0),
+					tagSize(0) {}
 
-  File *file;
-  long footerLocation;
-  long tagLength;
+  ~FooterPrivate() {}
 
-  Footer footer;
+  uint version;
 
-  ItemListMap itemListMap;
+  bool footerPresent;
+  bool headerPresent;
+
+  bool isHeader;
+
+  uint itemCount;
+  uint tagSize;
+
+  static const uint size = 32;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// public methods
+// static members
 ////////////////////////////////////////////////////////////////////////////////
 
-APE::Tag::Tag() : TagLib::Tag()
+TagLib::uint APE::Footer::size()
 {
-  d = new TagPrivate;
+  return FooterPrivate::size;
 }
 
-APE::Tag::Tag(File *file, long footerLocation) : TagLib::Tag()
-{
-  d = new TagPrivate;
-  d->file = file;
-  d->footerLocation = footerLocation;
-
-  read();
-}
-
-APE::Tag::~Tag()
-{
-  delete d;
-}
-
-ByteVector APE::Tag::fileIdentifier()
+ByteVector APE::Footer::fileIdentifier()
 {
   return ByteVector::fromCString("APETAGEX");
 }
 
-String APE::Tag::title() const
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+APE::Footer::Footer()
 {
-  if(d->itemListMap["TITLE"].isEmpty())
-	return String::null;
-  return d->itemListMap["TITLE"].toString();
+  d = new FooterPrivate;
 }
 
-String APE::Tag::artist() const
+APE::Footer::Footer(const ByteVector &data)
 {
-  if(d->itemListMap["ARTIST"].isEmpty())
-	return String::null;
-  return d->itemListMap["ARTIST"].toString();
+  d = new FooterPrivate;
+  parse(data);
 }
 
-String APE::Tag::album() const
+APE::Footer::~Footer()
 {
-  if(d->itemListMap["ALBUM"].isEmpty())
-	return String::null;
-  return d->itemListMap["ALBUM"].toString();
+  delete d;
 }
 
-String APE::Tag::comment() const
+TagLib::uint APE::Footer::version() const
 {
-  if(d->itemListMap["COMMENT"].isEmpty())
-	return String::null;
-  return d->itemListMap["COMMENT"].toString();
+  return d->version;
 }
 
-String APE::Tag::genre() const
+bool APE::Footer::headerPresent() const
 {
-  if(d->itemListMap["GENRE"].isEmpty())
-	return String::null;
-  return d->itemListMap["GENRE"].toString();
+  return d->headerPresent;
 }
 
-TagLib::uint APE::Tag::year() const
+bool APE::Footer::footerPresent() const
 {
-  if(d->itemListMap["YEAR"].isEmpty())
-	return 0;
-  return d->itemListMap["YEAR"].toString().toInt();
+  return d->footerPresent;
 }
 
-TagLib::uint APE::Tag::track() const
+bool APE::Footer::isHeader() const
 {
-  if(d->itemListMap["TRACK"].isEmpty())
-	return 0;
-  return d->itemListMap["TRACK"].toString().toInt();
+  return d->isHeader;
 }
 
-void APE::Tag::setTitle(const String &s)
+void APE::Footer::setHeaderPresent(bool b) const
 {
-  addValue("TITLE", s, true);
+  d->headerPresent = b;
 }
 
-void APE::Tag::setArtist(const String &s)
+TagLib::uint APE::Footer::itemCount() const
 {
-  addValue("ARTIST", s, true);
+  return d->itemCount;
 }
 
-void APE::Tag::setAlbum(const String &s)
+void APE::Footer::setItemCount(uint s)
 {
-  addValue("ALBUM", s, true);
+  d->itemCount = s;
 }
 
-void APE::Tag::setComment(const String &s)
+TagLib::uint APE::Footer::tagSize() const
 {
-  addValue("COMMENT", s, true);
+  return d->tagSize;
 }
 
-void APE::Tag::setGenre(const String &s)
+TagLib::uint APE::Footer::completeTagSize() const
 {
-  addValue("GENRE", s, true);
-}
-
-void APE::Tag::setYear(uint i)
-{
-  if(i <= 0)
-	removeItem("YEAR");
+  if(d->headerPresent)
+	return d->tagSize + d->size;
   else
-	addValue("YEAR", String::number(i), true);
+	return d->tagSize;
 }
 
-void APE::Tag::setTrack(uint i)
+void APE::Footer::setTagSize(uint s)
 {
-  if(i <= 0)
-	removeItem("TRACK");
-  else
-	addValue("TRACK", String::number(i), true);
+  d->tagSize = s;
 }
 
-APE::Footer *APE::Tag::footer() const
+void APE::Footer::setData(const ByteVector &data)
 {
-  return &d->footer;
+  parse(data);
 }
 
-const APE::ItemListMap& APE::Tag::itemListMap() const
+ByteVector APE::Footer::renderFooter() const
 {
-  return d->itemListMap;
+	return render(false);
 }
 
-void APE::Tag::removeItem(const String &key)
+ByteVector APE::Footer::renderHeader() const
 {
-  Map<const String, Item>::Iterator it = d->itemListMap.find(key.upper());
-  if(it != d->itemListMap.end())
-	d->itemListMap.erase(it);
-}
+	if (!d->headerPresent) return ByteVector();
 
-void APE::Tag::addValue(const String &key, const String &value, bool replace)
-{
-  if(replace)
-	removeItem(key);
-  if(!value.isEmpty()) {
-	if(d->itemListMap.contains(key) || !replace)
-	  d->itemListMap[key.upper()].appendValue(value);
-	else
-	  setItem(key, Item(key, value));
-  }
-}
-
-void APE::Tag::setItem(const String &key, const Item &item)
-{
-  d->itemListMap.insert(key.upper(), item);
-}
-
-bool APE::Tag::isEmpty() const
-{
-  return d->itemListMap.isEmpty();
+	return render(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// protected methods
+// protected members
 ////////////////////////////////////////////////////////////////////////////////
 
-void APE::Tag::read()
+void APE::Footer::parse(const ByteVector &data)
 {
-  if(d->file && d->file->isValid()) {
+  if(data.size() < size())
+	return;
 
-	d->file->seek(d->footerLocation);
-	d->footer.setData(d->file->readBlock(Footer::size()));
+  // The first eight bytes, data[0..7], are the File Identifier, "APETAGEX".
 
-	if(d->footer.tagSize() <= Footer::size() ||
-	   d->footer.tagSize() > uint(d->file->length()))
-	  return;
+  // Read the version number
 
-	d->file->seek(d->footerLocation + Footer::size() - d->footer.tagSize());
-	parse(d->file->readBlock(d->footer.tagSize() - Footer::size()));
-  }
+  d->version = data.mid(8, 4).toUInt(false);
+
+  // Read the tag size
+
+  d->tagSize = data.mid(12, 4).toUInt(false);
+
+  // Read the item count
+
+  d->itemCount = data.mid(16, 4).toUInt(false);
+
+  // Read the flags
+
+  std::bitset<32> flags(TAGLIB_CONSTRUCT_BITSET(data.mid(20, 4).toUInt(false)));
+
+  d->headerPresent = flags[31];
+  d->footerPresent = !flags[30];
+  d->isHeader = flags[29];
+
 }
 
-ByteVector APE::Tag::render() const
+ByteVector APE::Footer::render(bool isHeader) const
 {
-  ByteVector data;
-  uint itemCount = 0;
+  ByteVector v;
 
-  {
-	for(Map<const String, Item>::ConstIterator it = d->itemListMap.begin();
-		it != d->itemListMap.end(); ++it)
-	{
-	  data.append(it->second.render());
-	  itemCount++;
-	}
-  }
+  // add the file identifier -- "APETAGEX"
 
-  d->footer.setItemCount(itemCount);
-  d->footer.setTagSize(data.size() + Footer::size());
-  d->footer.setHeaderPresent(true);
+  v.append(fileIdentifier());
 
-  return d->footer.renderHeader() + data + d->footer.renderFooter();
+  // add the version number -- we always render a 2.000 tag regardless of what
+  // the tag originally was.
+
+  v.append(ByteVector::fromUInt(2000, false));
+
+  // add the tag size
+
+  v.append(ByteVector::fromUInt(d->tagSize, false));
+
+  // add the item count
+
+  v.append(ByteVector::fromUInt(d->itemCount, false));
+
+  // render and add the flags
+
+  std::bitset<32> flags;
+
+  flags[31] = d->headerPresent;
+  flags[30] = false; // footer is always present
+  flags[29] = isHeader;
+
+  v.append(ByteVector::fromUInt(flags.to_ulong(), false));
+
+  // add the reserved 64bit
+
+  v.append(ByteVector::fromLongLong(0));
+
+  return v;
 }
 
-void APE::Tag::parse(const ByteVector &data)
-{
-  uint pos = 0;
+/*** End of inlined file: apefooter.cpp ***/
 
-  // 11 bytes is the minimum size for an APE item
 
-  for(uint i = 0; i < d->footer.itemCount() && pos <= data.size() - 11; i++) {
-	APE::Item item;
-	item.parse(data.mid(pos));
-
-	d->itemListMap.insert(item.key().upper(), item);
-
-	pos += item.size();
-  }
-}
-
-/*** End of inlined file: apetag.cpp ***/
-
-//#include "ape/apefooter.cpp"
 
 /*** Start of inlined file: apeitem.cpp ***/
 /***************************************************************************
@@ -21260,7 +27605,263 @@ ByteVector APE::Item::render() const
 /*** End of inlined file: apeitem.cpp ***/
 
 
-//#include "ape/apefile.cpp"
+/*** Start of inlined file: apefile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+namespace
+{
+  enum { apeAPEIndex, apeID3v1Index };
+}
+
+class APE::File::FilePrivate
+{
+public:
+  FilePrivate() :
+	APELocation(-1),
+	APESize(0),
+	ID3v1Location(-1),
+	properties(0),
+	hasAPE(false),
+	hasID3v1(false) {}
+
+  ~FilePrivate()
+  {
+	delete properties;
+  }
+
+  long APELocation;
+  uint APESize;
+
+  long ID3v1Location;
+
+  TagUnion tag;
+
+  Properties *properties;
+
+  // These indicate whether the file *on disk* has these tags, not if
+  // this data structure does.  This is used in computing offsets.
+
+  bool hasAPE;
+  bool hasID3v1;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+APE::File::File(FileName file, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(file)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+APE::File::File(IOStream *stream, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(stream)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+APE::File::~File()
+{
+  delete d;
+}
+
+TagLib::Tag *APE::File::tag() const
+{
+  return &d->tag;
+}
+
+APE::Properties *APE::File::audioProperties() const
+{
+  return d->properties;
+}
+
+bool APE::File::save()
+{
+  if(readOnly()) {
+	debug("APE::File::save() -- File is read only.");
+	return false;
+  }
+
+  // Update ID3v1 tag
+
+  if(ID3v1Tag()) {
+	if(d->hasID3v1) {
+	  seek(d->ID3v1Location);
+	  writeBlock(ID3v1Tag()->render());
+	}
+	else {
+	  seek(0, End);
+	  d->ID3v1Location = tell();
+	  writeBlock(ID3v1Tag()->render());
+	  d->hasID3v1 = true;
+	}
+  }
+  else {
+	if(d->hasID3v1) {
+	  removeBlock(d->ID3v1Location, 128);
+	  d->hasID3v1 = false;
+	  if(d->hasAPE) {
+		if(d->APELocation > d->ID3v1Location)
+		  d->APELocation -= 128;
+	  }
+	}
+  }
+
+  // Update APE tag
+
+  if(APETag()) {
+	if(d->hasAPE)
+	  insert(APETag()->render(), d->APELocation, d->APESize);
+	else {
+	  if(d->hasID3v1)  {
+		insert(APETag()->render(), d->ID3v1Location, 0);
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+		d->APELocation = d->ID3v1Location;
+		d->ID3v1Location += d->APESize;
+	  }
+	  else {
+		seek(0, End);
+		d->APELocation = tell();
+		writeBlock(APETag()->render());
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+	  }
+	}
+  }
+  else {
+	if(d->hasAPE) {
+	  removeBlock(d->APELocation, d->APESize);
+	  d->hasAPE = false;
+	  if(d->hasID3v1) {
+		if(d->ID3v1Location > d->APELocation) {
+		  d->ID3v1Location -= d->APESize;
+		}
+	  }
+	}
+  }
+
+   return true;
+}
+
+ID3v1::Tag *APE::File::ID3v1Tag(bool create)
+{
+  return d->tag.access<ID3v1::Tag>(apeID3v1Index, create);
+}
+
+APE::Tag *APE::File::APETag(bool create)
+{
+  return d->tag.access<APE::Tag>(apeAPEIndex, create);
+}
+
+void APE::File::strip(int tags)
+{
+  if(tags & ID3v1) {
+	d->tag.set(apeID3v1Index, 0);
+	APETag(true);
+  }
+
+  if(tags & APE) {
+	d->tag.set(apeAPEIndex, 0);
+
+	if(!ID3v1Tag())
+	  APETag(true);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void APE::File::read(bool readProperties, Properties::ReadStyle /* propertiesStyle */)
+{
+  // Look for an ID3v1 tag
+
+  d->ID3v1Location = findID3v1();
+
+  if(d->ID3v1Location >= 0) {
+	d->tag.set(apeID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->hasID3v1 = true;
+  }
+
+  // Look for an APE tag
+
+  d->APELocation = findAPE();
+
+  if(d->APELocation >= 0) {
+	d->tag.set(apeAPEIndex, new APE::Tag(this, d->APELocation));
+	d->APESize = APETag()->footer()->completeTagSize();
+	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
+	d->hasAPE = true;
+  }
+
+  if(!d->hasID3v1)
+	APETag(true);
+
+  // Look for APE audio properties
+
+  if(readProperties) {
+	d->properties = new Properties(this);
+  }
+}
+
+long APE::File::findAPE()
+{
+  if(!isValid())
+	return -1;
+
+  if(d->hasID3v1)
+	seek(-160, End);
+  else
+	seek(-32, End);
+
+  long p = tell();
+
+  if(readBlock(8) == APE::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long APE::File::findID3v1()
+{
+  if(!isValid())
+	return -1;
+
+  seek(-128, End);
+  long p = tell();
+
+  if(readBlock(3) == ID3v1::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+/*** End of inlined file: apefile.cpp ***/
+
 
 /*** Start of inlined file: apeproperties.cpp ***/
 /***************************************************************************
@@ -21284,264 +27885,6 @@ ByteVector APE::Item::render() const
  ***************************************************************************/
 
 #include <bitset>
-
-
-/*** Start of inlined file: apeproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEPROPERTIES_H
-#define TAGLIB_APEPROPERTIES_H
-
-namespace TagLib {
-
-  namespace APE {
-
-	class File;
-
-	//! An implementation of audio property reading for APE
-
-	/*!
-	 * This reads the data from an APE stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of APE::Properties with the data read from the
-	   * ByteVector \a data.
-	   */
-	  Properties(File *f, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this APE::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns number of bits per sample.
-	   */
-	  int bitsPerSample() const;
-
-	  /*!
-	   * Returns APE version.
-	   */
-	  int version() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-
-	  long findDescriptor();
-	  long findID3v2();
-
-	  void analyzeCurrent();
-	  void analyzeOld();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: apeproperties.h ***/
-
-
-/*** Start of inlined file: apefile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEFILE_H
-#define TAGLIB_APEFILE_H
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace ID3v1 { class Tag; }
-  namespace APE { class Tag; }
-
-  //! An implementation of APE metadata
-
-  /*!
-   * This is implementation of APE metadata.
-   *
-   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
-   * properties from the file.
-   */
-
-  namespace APE {
-
-	//! An implementation of TagLib::File with APE specific methods
-
-	/*!
-	 * This implements and provides an interface APE WavPack files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to APE files.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * This set of flags is used for various operations and is suitable for
-	   * being OR-ed together.
-	   */
-	  enum TagTypes {
-		//! Empty set.  Matches no tag types.
-		NoTags  = 0x0000,
-		//! Matches ID3v1 tags.
-		ID3v1   = 0x0001,
-		//! Matches APE tags.
-		APE     = 0x0002,
-		//! Matches all tag types.
-		AllTags = 0xffff
-	  };
-
-	  /*!
-	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
-	   * or a combination of the two.
-	   */
-	  virtual TagLib::Tag *tag() const;
-
-	  /*!
-	   * Returns the APE::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Saves the file.
-	   *
-	   * \note According to the official Monkey's Audio SDK, an APE file
-	   * can only have either ID3V1 or APE tags, so a parameter is used here.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns a pointer to the ID3v1 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v1 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
-	   * new ID3v1 tag will be placed after it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v1::Tag *ID3v1Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the APE tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid APE tag.  If \a create is true it will create
-	   * a APE tag if one does not exist.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  APE::Tag *APETag(bool create = false);
-
-	  /*!
-	   * This will remove the tags that match the OR-ed together TagTypes from the
-	   * file.  By default it removes all tags.
-	   *
-	   * \note This will also invalidate pointers to the tags
-	   * as their memory will be freed.
-	   * \note In order to make the removal permanent save() still needs to be called
-	   */
-	  void strip(int tags = AllTags);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  long findID3v1();
-	  long findAPE();
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: apefile.h ***/
 
 using namespace TagLib;
 
@@ -21733,7 +28076,264 @@ void APE::Properties::analyzeOld()
 /*** End of inlined file: apeproperties.cpp ***/
 
 
-//#include "wavpack/wavpackfile.cpp"
+/*** Start of inlined file: wavpackfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+namespace
+{
+  enum { wavAPEIndex, wavID3v1Index };
+}
+
+class WavPack::File::FilePrivate
+{
+public:
+  FilePrivate() :
+	APELocation(-1),
+	APESize(0),
+	ID3v1Location(-1),
+	properties(0),
+	hasAPE(false),
+	hasID3v1(false) {}
+
+  ~FilePrivate()
+  {
+	delete properties;
+  }
+
+  long APELocation;
+  uint APESize;
+
+  long ID3v1Location;
+
+  TagUnion tag;
+
+  Properties *properties;
+
+  // These indicate whether the file *on disk* has these tags, not if
+  // this data structure does.  This is used in computing offsets.
+
+  bool hasAPE;
+  bool hasID3v1;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+WavPack::File::File(FileName file, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(file)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+WavPack::File::File(IOStream *stream, bool readProperties,
+				Properties::ReadStyle propertiesStyle) : TagLib::File(stream)
+{
+  d = new FilePrivate;
+  read(readProperties, propertiesStyle);
+}
+
+WavPack::File::~File()
+{
+  delete d;
+}
+
+TagLib::Tag *WavPack::File::tag() const
+{
+  return &d->tag;
+}
+
+WavPack::Properties *WavPack::File::audioProperties() const
+{
+  return d->properties;
+}
+
+bool WavPack::File::save()
+{
+  if(readOnly()) {
+	debug("WavPack::File::save() -- File is read only.");
+	return false;
+  }
+
+  // Update ID3v1 tag
+
+  if(ID3v1Tag()) {
+	if(d->hasID3v1) {
+	  seek(d->ID3v1Location);
+	  writeBlock(ID3v1Tag()->render());
+	}
+	else {
+	  seek(0, End);
+	  d->ID3v1Location = tell();
+	  writeBlock(ID3v1Tag()->render());
+	  d->hasID3v1 = true;
+	}
+  }
+  else {
+	if(d->hasID3v1) {
+	  removeBlock(d->ID3v1Location, 128);
+	  d->hasID3v1 = false;
+	  if(d->hasAPE) {
+		if(d->APELocation > d->ID3v1Location)
+		  d->APELocation -= 128;
+	  }
+	}
+  }
+
+  // Update APE tag
+
+  if(APETag()) {
+	if(d->hasAPE)
+	  insert(APETag()->render(), d->APELocation, d->APESize);
+	else {
+	  if(d->hasID3v1)  {
+		insert(APETag()->render(), d->ID3v1Location, 0);
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+		d->APELocation = d->ID3v1Location;
+		d->ID3v1Location += d->APESize;
+	  }
+	  else {
+		seek(0, End);
+		d->APELocation = tell();
+		writeBlock(APETag()->render());
+		d->APESize = APETag()->footer()->completeTagSize();
+		d->hasAPE = true;
+	  }
+	}
+  }
+  else {
+	if(d->hasAPE) {
+	  removeBlock(d->APELocation, d->APESize);
+	  d->hasAPE = false;
+	  if(d->hasID3v1) {
+		if(d->ID3v1Location > d->APELocation) {
+		  d->ID3v1Location -= d->APESize;
+		}
+	  }
+	}
+  }
+
+   return true;
+}
+
+ID3v1::Tag *WavPack::File::ID3v1Tag(bool create)
+{
+  return d->tag.access<ID3v1::Tag>(wavID3v1Index, create);
+}
+
+APE::Tag *WavPack::File::APETag(bool create)
+{
+  return d->tag.access<APE::Tag>(wavAPEIndex, create);
+}
+
+void WavPack::File::strip(int tags)
+{
+  if(tags & ID3v1) {
+	d->tag.set(wavID3v1Index, 0);
+	APETag(true);
+  }
+
+  if(tags & APE) {
+	d->tag.set(wavAPEIndex, 0);
+
+	if(!ID3v1Tag())
+	  APETag(true);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void WavPack::File::read(bool readProperties, Properties::ReadStyle /* propertiesStyle */)
+{
+  // Look for an ID3v1 tag
+
+  d->ID3v1Location = findID3v1();
+
+  if(d->ID3v1Location >= 0) {
+	d->tag.set(wavID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->hasID3v1 = true;
+  }
+
+  // Look for an APE tag
+
+  d->APELocation = findAPE();
+
+  if(d->APELocation >= 0) {
+	d->tag.set(wavAPEIndex, new APE::Tag(this, d->APELocation));
+	d->APESize = APETag()->footer()->completeTagSize();
+	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
+	d->hasAPE = true;
+  }
+
+  if(!d->hasID3v1)
+	APETag(true);
+
+  // Look for WavPack audio properties
+
+  if(readProperties) {
+	seek(0);
+	d->properties = new Properties(this, length() - d->APESize);
+  }
+}
+
+long WavPack::File::findAPE()
+{
+  if(!isValid())
+	return -1;
+
+  if(d->hasID3v1)
+	seek(-160, End);
+  else
+	seek(-32, End);
+
+  long p = tell();
+
+  if(readBlock(8) == APE::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long WavPack::File::findID3v1()
+{
+  if(!isValid())
+	return -1;
+
+  seek(-128, End);
+  long p = tell();
+
+  if(readBlock(3) == ID3v1::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+/*** End of inlined file: wavpackfile.cpp ***/
+
 
 /*** Start of inlined file: wavpackproperties.cpp ***/
 /***************************************************************************
@@ -21755,267 +28355,6 @@ void APE::Properties::analyzeOld()
  *   License Version 1.1.  You may obtain a copy of the License at         *
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
-
-
-/*** Start of inlined file: wavpackproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_WVPROPERTIES_H
-#define TAGLIB_WVPROPERTIES_H
-
-namespace TagLib {
-
-  namespace WavPack {
-
-	class File;
-
-	static const uint HeaderSize = 32;
-
-	//! An implementation of audio property reading for WavPack
-
-	/*!
-	 * This reads the data from an WavPack stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of WavPack::Properties with the data read from the
-	   * ByteVector \a data.
-	   *
-	   * \deprecated This constructor will be dropped in favor of the one below
-	   * in a future version.
-	   */
-	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
-
-	  /*!
-	   * Create an instance of WavPack::Properties.
-	   */
-	  // BIC: merge with the above constructor
-	  Properties(File *file, long streamLength, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this WavPack::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns number of bits per sample.
-	   */
-	  int bitsPerSample() const;
-
-	  /*!
-	   * Returns WavPack version.
-	   */
-	  int version() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-	  unsigned int seekFinalIndex();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: wavpackproperties.h ***/
-
-
-/*** Start of inlined file: wavpackfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_WVFILE_H
-#define TAGLIB_WVFILE_H
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace ID3v1 { class Tag; }
-  namespace APE { class Tag; }
-
-  //! An implementation of WavPack metadata
-
-  /*!
-   * This is implementation of WavPack metadata.
-   *
-   * This supports ID3v1 and APE (v1 and v2) style comments as well as reading stream
-   * properties from the file.
-   */
-
-  namespace WavPack {
-
-	//! An implementation of TagLib::File with WavPack specific methods
-
-	/*!
-	 * This implements and provides an interface for WavPack files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to WavPack files.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * This set of flags is used for various operations and is suitable for
-	   * being OR-ed together.
-	   */
-	  enum TagTypes {
-		//! Empty set.  Matches no tag types.
-		NoTags  = 0x0000,
-		//! Matches ID3v1 tags.
-		ID3v1   = 0x0001,
-		//! Matches APE tags.
-		APE     = 0x0002,
-		//! Matches all tag types.
-		AllTags = 0xffff
-	  };
-
-	  /*!
-	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an WavPack file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.  This will be an APE tag, an ID3v1 tag
-	   * or a combination of the two.
-	   */
-	  virtual TagLib::Tag *tag() const;
-
-	  /*!
-	   * Returns the MPC::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Saves the file.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns a pointer to the ID3v1 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v1 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
-	   * new ID3v1 tag will be placed after it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v1::Tag *ID3v1Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the APE tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid APE tag.  If \a create is true it will create
-	   * a APE tag if one does not exist.
-	   *
-	   * \note The Tag <b>is still</b> owned by the APE::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  APE::Tag *APETag(bool create = false);
-
-	  /*!
-	   * This will remove the tags that match the OR-ed together TagTypes from the
-	   * file.  By default it removes all tags.
-	   *
-	   * \note This will also invalidate pointers to the tags
-	   * as their memory will be freed.
-	   * \note In order to make the removal permanent save() still needs to be called
-	   */
-	  void strip(int tags = AllTags);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  long findID3v1();
-	  long findAPE();
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: wavpackfile.h ***/
 
 using namespace TagLib;
 
@@ -22179,7 +28518,6 @@ unsigned int WavPack::Properties::seekFinalIndex()
 /*** End of inlined file: wavpackproperties.cpp ***/
 
 
-
 /*** Start of inlined file: speexfile.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -22202,306 +28540,6 @@ unsigned int WavPack::Properties::seekFinalIndex()
  ***************************************************************************/
 
 #include <bitset>
-
-
-/*** Start of inlined file: speexfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_SPEEXFILE_H
-#define TAGLIB_SPEEXFILE_H
-
-
-/*** Start of inlined file: oggfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_OGGFILE_H
-#define TAGLIB_OGGFILE_H
-
-namespace TagLib {
-
-  //! A namespace for the classes used by Ogg-based metadata files
-
-  namespace Ogg {
-
-	class PageHeader;
-
-	//! An implementation of TagLib::File with some helpers for Ogg based formats
-
-	/*!
-	 * This is an implementation of Ogg file page and packet rendering and is of
-	 * use to Ogg based formats.  While the API is small this handles the
-	 * non-trivial details of breaking up an Ogg stream into packets and makes
-	 * these available (via subclassing) to the codec meta data implementations.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  virtual ~File();
-
-	  /*!
-	   * Returns the packet contents for the i-th packet (starting from zero)
-	   * in the Ogg bitstream.
-	   *
-	   * \warning The requires reading at least the packet header for every page
-	   * up to the requested page.
-	   */
-	  ByteVector packet(uint i);
-
-	  /*!
-	   * Sets the packet with index \a i to the value \a p.
-	   */
-	  void setPacket(uint i, const ByteVector &p);
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the first page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *firstPageHeader();
-
-	  /*!
-	   * Returns a pointer to the PageHeader for the last page in the stream or
-	   * null if the page could not be found.
-	   */
-	  const PageHeader *lastPageHeader();
-
-	  virtual bool save();
-
-	protected:
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(FileName file);
-
-	  /*!
-	   * Contructs an Ogg file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note This constructor is protected since Ogg::File shouldn't be
-	   * instantiated directly but rather should be used through the codec
-	   * specific subclasses.
-	   */
-	  File(IOStream *stream);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  /*!
-	   * Reads the next page and updates the internal "current page" pointer.
-	   */
-	  bool nextPage();
-	  void writePageGroup(const List<int> &group);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: oggfile.h ***/
-
-
-/*** Start of inlined file: speexproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_SPEEXPROPERTIES_H
-#define TAGLIB_SPEEXPROPERTIES_H
-
-namespace TagLib {
-
-  namespace Ogg {
-
-	namespace Speex {
-
-	  class File;
-
-	  //! An implementation of audio property reading for Ogg Speex
-
-	  /*!
-	   * This reads the data from an Ogg Speex stream found in the AudioProperties
-	   * API.
-	   */
-
-	  class TAGLIB_EXPORT Properties : public AudioProperties
-	  {
-	  public:
-		/*!
-		 * Create an instance of Speex::Properties with the data read from the
-		 * Speex::File \a file.
-		 */
-		Properties(File *file, ReadStyle style = Average);
-
-		/*!
-		 * Destroys this Speex::Properties instance.
-		 */
-		virtual ~Properties();
-
-		// Reimplementations.
-
-		virtual int length() const;
-		virtual int bitrate() const;
-		virtual int sampleRate() const;
-		virtual int channels() const;
-
-		/*!
-		 * Returns the Speex version, currently "0" (as specified by the spec).
-		 */
-		int speexVersion() const;
-
-	  private:
-		Properties(const Properties &);
-		Properties &operator=(const Properties &);
-
-		void read();
-
-		class PropertiesPrivate;
-		PropertiesPrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: speexproperties.h ***/
-
-namespace TagLib {
-
-  namespace Ogg {
-
-	//! A namespace containing classes for Speex metadata
-
-	namespace Speex {
-
-	  //! An implementation of Ogg::File with Speex specific methods
-
-	  /*!
-	   * This is the central class in the Ogg Speex metadata processing collection
-	   * of classes.  It's built upon Ogg::File which handles processing of the Ogg
-	   * logical bitstream and breaking it down into pages which are handled by
-	   * the codec implementations, in this case Speex specifically.
-	   */
-
-	  class TAGLIB_EXPORT File : public Ogg::File
-	  {
-	  public:
-		/*!
-		 * Contructs a Speex file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Contructs a Speex file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stream, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		/*!
-		 * Returns the XiphComment for this file.  XiphComment implements the tag
-		 * interface, so this serves as the reimplementation of
-		 * TagLib::File::tag().
-		 */
-		virtual Ogg::XiphComment *tag() const;
-
-		/*!
-		 * Returns the Speex::Properties for this file.  If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		virtual Properties *audioProperties() const;
-
-		virtual bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-
-		class FilePrivate;
-		FilePrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: speexfile.h ***/
 
 using namespace TagLib;
 using namespace TagLib::Ogg;
@@ -22747,7 +28785,280 @@ void Speex::Properties::read()
 
 /*** End of inlined file: speexproperties.cpp ***/
 
-//#include "trueaudio/trueaudiofile.cpp"
+
+/*** Start of inlined file: trueaudiofile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+namespace
+{
+  enum { trueID3v2Index = 0, trueID3v1Index = 1 };
+}
+
+class TrueAudio::File::FilePrivate
+{
+public:
+  FilePrivate(const ID3v2::FrameFactory *frameFactory = ID3v2::FrameFactory::instance()) :
+	ID3v2FrameFactory(frameFactory),
+	ID3v2Location(-1),
+	ID3v2OriginalSize(0),
+	ID3v1Location(-1),
+	properties(0),
+	hasID3v1(false),
+	hasID3v2(false) {}
+
+  ~FilePrivate()
+  {
+	delete properties;
+  }
+
+  const ID3v2::FrameFactory *ID3v2FrameFactory;
+  long ID3v2Location;
+  uint ID3v2OriginalSize;
+
+  long ID3v1Location;
+
+  TagUnion tag;
+
+  Properties *properties;
+
+  // These indicate whether the file *on disk* has these tags, not if
+  // this data structure does.  This is used in computing offsets.
+
+  bool hasID3v1;
+  bool hasID3v2;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+TrueAudio::File::File(FileName file, bool readProperties,
+				 Properties::ReadStyle propertiesStyle) : TagLib::File(file)
+{
+  d = new FilePrivate;
+  if(isOpen())
+	read(readProperties, propertiesStyle);
+}
+
+TrueAudio::File::File(FileName file, ID3v2::FrameFactory *frameFactory,
+				 bool readProperties, Properties::ReadStyle propertiesStyle) :
+  TagLib::File(file)
+{
+  d = new FilePrivate(frameFactory);
+  if(isOpen())
+	read(readProperties, propertiesStyle);
+}
+
+TrueAudio::File::File(IOStream *stream, bool readProperties,
+				 Properties::ReadStyle propertiesStyle) : TagLib::File(stream)
+{
+  d = new FilePrivate;
+  if(isOpen())
+	read(readProperties, propertiesStyle);
+}
+
+TrueAudio::File::File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
+				 bool readProperties, Properties::ReadStyle propertiesStyle) :
+  TagLib::File(stream)
+{
+  d = new FilePrivate(frameFactory);
+  if(isOpen())
+	read(readProperties, propertiesStyle);
+}
+
+TrueAudio::File::~File()
+{
+  delete d;
+}
+
+TagLib::Tag *TrueAudio::File::tag() const
+{
+  return &d->tag;
+}
+
+TrueAudio::Properties *TrueAudio::File::audioProperties() const
+{
+  return d->properties;
+}
+
+void TrueAudio::File::setID3v2FrameFactory(const ID3v2::FrameFactory *factory)
+{
+  d->ID3v2FrameFactory = factory;
+}
+
+bool TrueAudio::File::save()
+{
+  if(readOnly()) {
+	debug("TrueAudio::File::save() -- File is read only.");
+	return false;
+  }
+
+  // Update ID3v2 tag
+
+  if(ID3v2Tag() && !ID3v2Tag()->isEmpty()) {
+	if(!d->hasID3v2) {
+	  d->ID3v2Location = 0;
+	  d->ID3v2OriginalSize = 0;
+	}
+	ByteVector data = ID3v2Tag()->render();
+	insert(data, d->ID3v2Location, d->ID3v2OriginalSize);
+	d->ID3v1Location -= d->ID3v2OriginalSize - data.size();
+	d->ID3v2OriginalSize = data.size();
+	d->hasID3v2 = true;
+  }
+  else if(d->hasID3v2) {
+	removeBlock(d->ID3v2Location, d->ID3v2OriginalSize);
+	d->ID3v1Location -= d->ID3v2OriginalSize;
+	d->ID3v2Location = -1;
+	d->ID3v2OriginalSize = 0;
+	d->hasID3v2 = false;
+  }
+
+  // Update ID3v1 tag
+
+  if(ID3v1Tag() && !ID3v1Tag()->isEmpty()) {
+	if(!d->hasID3v1) {
+	  seek(0, End);
+	  d->ID3v1Location = tell();
+	}
+	else
+	  seek(d->ID3v1Location);
+	writeBlock(ID3v1Tag()->render());
+	d->hasID3v1 = true;
+  }
+  else if(d->hasID3v1) {
+	removeBlock(d->ID3v1Location, 128);
+	d->ID3v1Location = -1;
+	d->hasID3v1 = false;
+  }
+
+  return true;
+}
+
+ID3v1::Tag *TrueAudio::File::ID3v1Tag(bool create)
+{
+  return d->tag.access<ID3v1::Tag>(trueID3v1Index, create);
+}
+
+ID3v2::Tag *TrueAudio::File::ID3v2Tag(bool create)
+{
+  return d->tag.access<ID3v2::Tag>(trueID3v2Index, create);
+}
+
+void TrueAudio::File::strip(int tags)
+{
+  if(tags & ID3v1) {
+	d->tag.set(trueID3v1Index, 0);
+	ID3v2Tag(true);
+  }
+
+  if(tags & ID3v2) {
+	d->tag.set(trueID3v2Index, 0);
+
+	if(!ID3v1Tag())
+	  ID3v2Tag(true);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// private members
+////////////////////////////////////////////////////////////////////////////////
+
+void TrueAudio::File::read(bool readProperties, Properties::ReadStyle /* propertiesStyle */)
+{
+  // Look for an ID3v2 tag
+
+  d->ID3v2Location = findID3v2();
+
+  if(d->ID3v2Location >= 0) {
+
+	d->tag.set(trueID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
+
+	d->ID3v2OriginalSize = ID3v2Tag()->header()->completeTagSize();
+
+	if(ID3v2Tag()->header()->tagSize() <= 0)
+	  d->tag.set(trueID3v2Index, 0);
+	else
+	  d->hasID3v2 = true;
+  }
+
+  // Look for an ID3v1 tag
+
+  d->ID3v1Location = findID3v1();
+
+  if(d->ID3v1Location >= 0) {
+	d->tag.set(trueID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->hasID3v1 = true;
+  }
+
+  if(!d->hasID3v1)
+	ID3v2Tag(true);
+
+  // Look for TrueAudio metadata
+
+  if(readProperties) {
+	if(d->ID3v2Location >= 0) {
+	  seek(d->ID3v2Location + d->ID3v2OriginalSize);
+	  d->properties = new Properties(readBlock(TrueAudio::HeaderSize),
+									 length() - d->ID3v2OriginalSize);
+	}
+	else {
+	  seek(0);
+	  d->properties = new Properties(readBlock(TrueAudio::HeaderSize),
+									 length());
+	}
+  }
+}
+
+long TrueAudio::File::findID3v1()
+{
+  if(!isValid())
+	return -1;
+
+  seek(-128, End);
+  long p = tell();
+
+  if(readBlock(3) == ID3v1::Tag::fileIdentifier())
+	return p;
+
+  return -1;
+}
+
+long TrueAudio::File::findID3v2()
+{
+  if(!isValid())
+	return -1;
+
+  seek(0);
+
+  if(readBlock(3) == ID3v2::Header::fileIdentifier())
+	return 0;
+
+  return -1;
+}
+
+/*** End of inlined file: trueaudiofile.cpp ***/
+
 
 /*** Start of inlined file: trueaudioproperties.cpp ***/
 /***************************************************************************
@@ -22771,289 +29082,6 @@ void Speex::Properties::read()
  ***************************************************************************/
 
 #include <bitset>
-
-
-/*** Start of inlined file: trueaudioproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_TRUEAUDIOPROPERTIES_H
-#define TAGLIB_TRUEAUDIOPROPERTIES_H
-
-namespace TagLib {
-
-  namespace TrueAudio {
-
-	class File;
-
-	static const uint HeaderSize = 18;
-
-	//! An implementation of audio property reading for TrueAudio
-
-	/*!
-	 * This reads the data from an TrueAudio stream found in the AudioProperties
-	 * API.
-	 */
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  /*!
-	   * Create an instance of TrueAudio::Properties with the data read from the
-	   * ByteVector \a data.
-	   */
-	  Properties(const ByteVector &data, long streamLength, ReadStyle style = Average);
-
-	  /*!
-	   * Destroys this TrueAudio::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-
-	  /*!
-	   * Returns number of bits per sample.
-	   */
-	  int bitsPerSample() const;
-
-	  /*!
-	   * Returns the total number of sample frames
-	   */
-	  uint sampleFrames() const;
-
-	  /*!
-	   * Returns the major version number.
-	   */
-	  int ttaVersion() const;
-
-	private:
-	  Properties(const Properties &);
-	  Properties &operator=(const Properties &);
-
-	  void read();
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: trueaudioproperties.h ***/
-
-
-/*** Start of inlined file: trueaudiofile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_TRUEAUDIOFILE_H
-#define TAGLIB_TRUEAUDIOFILE_H
-
-namespace TagLib {
-
-  class Tag;
-
-  namespace ID3v2 { class Tag; class FrameFactory; }
-  namespace ID3v1 { class Tag; }
-
-  //! An implementation of TrueAudio metadata
-
-  /*!
-   * This is implementation of TrueAudio metadata.
-   *
-   * This supports ID3v1 and ID3v2 tags as well as reading stream
-   * properties from the file.
-   */
-
-  namespace TrueAudio {
-
-	//! An implementation of TagLib::File with TrueAudio specific methods
-
-	/*!
-	 * This implements and provides an interface for TrueAudio files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to TrueAudio files.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * This set of flags is used for various operations and is suitable for
-	   * being OR-ed together.
-	   */
-	  enum TagTypes {
-		//! Empty set.  Matches no tag types.
-		NoTags  = 0x0000,
-		//! Matches ID3v1 tags.
-		ID3v1   = 0x0001,
-		//! Matches ID3v2 tags.
-		ID3v2   = 0x0002,
-		//! Matches all tag types.
-		AllTags = 0xffff
-	  };
-
-	  /*!
-	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored. The frames will be created using
-	   * \a frameFactory.
-	   */
-	  File(FileName file, ID3v2::FrameFactory *frameFactory,
-		   bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an TrueAudio file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored. The frames will be created using
-	   * \a frameFactory.
-	   */
-	  File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
-		   bool readProperties = true,
-		   Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns the Tag for this file.
-	   */
-	  virtual TagLib::Tag *tag() const;
-
-	  /*!
-	   * Returns the TrueAudio::Properties for this file.  If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Set the ID3v2::FrameFactory to something other than the default.
-	   *
-	   * \see ID3v2FrameFactory
-	   */
-	  void setID3v2FrameFactory(const ID3v2::FrameFactory *factory);
-
-	  /*!
-	   * Saves the file.
-	   */
-	  virtual bool save();
-
-	  /*!
-	   * Returns a pointer to the ID3v2 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v2 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
-	   * new ID3v1 tag will be placed after it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the TrueAudio::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v1::Tag *ID3v1Tag(bool create = false);
-
-	  /*!
-	   * Returns a pointer to the ID3v1 tag of the file.
-	   *
-	   * If \a create is false (the default) this will return a null pointer
-	   * if there is no valid ID3v1 tag.  If \a create is true it will create
-	   * an ID3v1 tag if one does not exist. If there is already an APE tag, the
-	   * new ID3v1 tag will be placed after it.
-	   *
-	   * \note The Tag <b>is still</b> owned by the TrueAudio::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  ID3v2::Tag *ID3v2Tag(bool create = false);
-
-	  /*!
-	   * This will remove the tags that match the OR-ed together TagTypes from the
-	   * file.  By default it removes all tags.
-	   *
-	   * \note This will also invalidate pointers to the tags
-	   * as their memory will be freed.
-	   * \note In order to make the removal permanent save() still needs to be called
-	   */
-	  void strip(int tags = AllTags);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-	  void scan();
-	  long findID3v1();
-	  long findID3v2();
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: trueaudiofile.h ***/
 
 using namespace TagLib;
 
@@ -23173,7 +29201,6 @@ void TrueAudio::Properties::read()
 /*** End of inlined file: trueaudioproperties.cpp ***/
 
 
-
 /*** Start of inlined file: asftag.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -23198,596 +29225,6 @@ void TrueAudio::Properties::read()
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-
-/*** Start of inlined file: asftag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFTAG_H
-#define TAGLIB_ASFTAG_H
-
-
-/*** Start of inlined file: asfattribute.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFATTRIBUTE_H
-#define TAGLIB_ASFATTRIBUTE_H
-
-
-/*** Start of inlined file: asfpicture.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef ASFPICTURE_H
-#define ASFPICTURE_H
-
-namespace TagLib
-{
-  namespace ASF
-  {
-
-	//! An ASF attached picture interface implementation
-
-	/*!
-	 * This is an implementation of ASF attached pictures interface.  Pictures may be
-	 * included in attributes, one per WM/Picture attribute (but there may be multiple WM/Picture
-	 * attribute in a single tag).  These pictures are usually in either JPEG or
-	 * PNG format.
-	 * \see Attribute::toPicture()
-	 * \see Attribute::Attribute(const Picture& picture)
-	 */
-	class TAGLIB_EXPORT Picture {
-	public:
-
-	  /*!
-	   * This describes the function or content of the picture.
-	   */
-	  enum Type {
-		//! A type not enumerated below
-		Other              = 0x00,
-		//! 32x32 PNG image that should be used as the file icon
-		FileIcon           = 0x01,
-		//! File icon of a different size or format
-		OtherFileIcon      = 0x02,
-		//! Front cover image of the album
-		FrontCover         = 0x03,
-		//! Back cover image of the album
-		BackCover          = 0x04,
-		//! Inside leaflet page of the album
-		LeafletPage        = 0x05,
-		//! Image from the album itself
-		Media              = 0x06,
-		//! Picture of the lead artist or soloist
-		LeadArtist         = 0x07,
-		//! Picture of the artist or performer
-		Artist             = 0x08,
-		//! Picture of the conductor
-		Conductor          = 0x09,
-		//! Picture of the band or orchestra
-		Band               = 0x0A,
-		//! Picture of the composer
-		Composer           = 0x0B,
-		//! Picture of the lyricist or text writer
-		Lyricist           = 0x0C,
-		//! Picture of the recording location or studio
-		RecordingLocation  = 0x0D,
-		//! Picture of the artists during recording
-		DuringRecording    = 0x0E,
-		//! Picture of the artists during performance
-		DuringPerformance  = 0x0F,
-		//! Picture from a movie or video related to the track
-		MovieScreenCapture = 0x10,
-		//! Picture of a large, coloured fish
-		ColouredFish       = 0x11,
-		//! Illustration related to the track
-		Illustration       = 0x12,
-		//! Logo of the band or performer
-		BandLogo           = 0x13,
-		//! Logo of the publisher (record company)
-		PublisherLogo      = 0x14
-	  };
-
-	  /*!
-	   * Constructs an empty picture.
-	   */
-	  Picture();
-
-	  /*!
-	   * Construct an picture as a copy of \a other.
-	   */
-	  Picture(const Picture& other);
-
-	  /*!
-	   * Destroys the picture.
-	   */
-	  virtual ~Picture();
-
-	  /*!
-	   * Copies the contents of \a other into this picture.
-	   */
-	  Picture& operator=(const Picture& other);
-
-	  /*!
-	   * Returns true if Picture stores valid picture
-	   */
-	  bool isValid() const;
-
-	  /*!
-	   * Returns the mime type of the image. This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   * \see setMimeType(const String &)
-	   * \see picture()
-	   * \see setPicture(const ByteArray&)
-	   */
-	  String mimeType() const;
-
-	  /*!
-	   * Sets the mime type of the image.  This should in most cases be
-	   * "image/png" or "image/jpeg".
-	   * \see setMimeType(const String &)
-	   * \see picture()
-	   * \see setPicture(const ByteArray&)
-	   */
-	  void setMimeType(const String &value);
-
-	  /*!
-	   * Returns the type of the image.
-	   *
-	   * \see Type
-	   * \see setType()
-	   */
-	  Type type() const;
-
-	  /*!
-	   * Sets the type for the image.
-	   *
-	   * \see Type
-	   * \see type()
-	   */
-	  void setType(const ASF::Picture::Type& t);
-
-	  /*!
-	   * Returns a text description of the image.
-	   *
-	   * \see setDescription()
-	   */
-	  String description() const;
-
-	  /*!
-	   * Sets a textual description of the image to \a desc.
-	   *
-	   * \see description()
-	   */
-	  void setDescription(const String &desc);
-
-	  /*!
-	   * Returns the image data as a ByteVector.
-	   *
-	   * \note ByteVector has a data() method that returns a const char * which
-	   * should make it easy to export this data to external programs.
-	   *
-	   * \see setPicture()
-	   * \see mimeType()
-	   */
-	  ByteVector picture() const;
-
-	  /*!
-	   * Sets the image data to \a p.  \a p should be of the type specified in
-	   * this frame's mime-type specification.
-	   *
-	   * \see picture()
-	   * \see mimeType()
-	   * \see setMimeType()
-	   */
-	  void setPicture(const ByteVector &p);
-
-	  /*!
-	   * Returns picture as binary raw data \a value
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Returns picture as binary raw data \a value
-	   */
-	  int dataSize() const;
-
-#ifndef DO_NOT_DOCUMENT
-	  /* THIS IS PRIVATE, DON'T TOUCH IT! */
-	  void parse(const ByteVector& );
-	  static Picture fromInvalid();
-	  friend class Attribute;
-#endif
-	  private:
-		class PicturePrivate;
-		PicturePrivate *d;
-	  };
-  }
-}
-
-#endif // ASFPICTURE_H
-
-/*** End of inlined file: asfpicture.h ***/
-
-namespace TagLib
-{
-
-  namespace ASF
-  {
-
-	class File;
-	class Picture;
-
-	class TAGLIB_EXPORT Attribute
-	{
-	public:
-
-	  /*!
-	   * Enum of types an Attribute can have.
-	   */
-	  enum AttributeTypes {
-		UnicodeType = 0,
-		BytesType   = 1,
-		BoolType    = 2,
-		DWordType   = 3,
-		QWordType   = 4,
-		WordType    = 5,
-		GuidType    = 6
-	  };
-
-	  /*!
-	   * Constructs an empty attribute.
-	   */
-	  Attribute();
-
-	  /*!
-	   * Constructs an attribute with \a key and a UnicodeType \a value.
-	   */
-	  Attribute(const String &value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a BytesType \a value.
-	   */
-	  Attribute(const ByteVector &value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a Picture \a value.
-	   *
-	   * This attribute is compatible with the ID3 frame, APIC. The ID3 specification for the APIC frame stipulates that,
-	   * while there may be any number of APIC frames associated with a file,
-	   * only one may be of type 1 and only one may be of type 2.
-	   *
-	   * The specification also states that the description of the picture can be no longer than 64 characters, but can be empty.
-	   * WM/Picture attributes added with TagLib::ASF are not automatically validated to conform to ID3 specifications.
-	   * You must add code in your application to perform validations if you want to maintain complete compatibility with ID3.
-	   */
-	  Attribute(const Picture &value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a DWordType \a value.
-	   */
-	  Attribute(unsigned int value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a QWordType \a value.
-	   */
-	  Attribute(unsigned long long value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a WordType \a value.
-	   */
-	  Attribute(unsigned short value);
-
-	  /*!
-	   * Constructs an attribute with \a key and a BoolType \a value.
-	   */
-	  Attribute(bool value);
-
-	  /*!
-	   * Construct an attribute as a copy of \a other.
-	   */
-	  Attribute(const Attribute &item);
-
-	  /*!
-	   * Copies the contents of \a other into this item.
-	   */
-	  ASF::Attribute &operator=(const Attribute &other);
-
-	  /*!
-	   * Destroys the attribute.
-	   */
-	  virtual ~Attribute();
-
-	  /*!
-	   * Returns type of the value.
-	   */
-	  AttributeTypes type() const;
-
-	  /*!
-	   * Returns the BoolType \a value.
-	   */
-	  unsigned short toBool() const;
-
-	  /*!
-	   * Returns the WordType \a value.
-	   */
-	  unsigned short toUShort() const;
-
-	  /*!
-	   * Returns the DWordType \a value.
-	   */
-	  unsigned int toUInt() const;
-
-	  /*!
-	   * Returns the QWordType \a value.
-	   */
-	  unsigned long long toULongLong() const;
-
-	  /*!
-	   * Returns the UnicodeType \a value.
-	   */
-	  String toString() const;
-
-	  /*!
-	   * Returns the BytesType \a value.
-	   */
-	  ByteVector toByteVector() const;
-
-	  /*!
-	   * Returns the Picture \a value.
-	   */
-	  Picture toPicture() const;
-
-	  /*!
-	   * Returns the language number, or 0 is no stream number was set.
-	   */
-	  int language() const;
-
-	  /*!
-	   * Sets the language number.
-	   */
-	  void setLanguage(int value);
-
-	  /*!
-	   * Returns the stream number, or 0 is no stream number was set.
-	   */
-	  int stream() const;
-
-	  /*!
-	   * Sets the stream number.
-	   */
-	  void setStream(int value);
-
-#ifndef DO_NOT_DOCUMENT
-	  /* THIS IS PRIVATE, DON'T TOUCH IT! */
-	  String parse(ASF::File &file, int kind = 0);
-#endif
-
-	  //! Returns the size of the stored data
-	  int dataSize() const;
-
-	private:
-	  friend class File;
-
-	  ByteVector render(const String &name, int kind = 0) const;
-
-	  class AttributePrivate;
-	  AttributePrivate *d;
-	};
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: asfattribute.h ***/
-
-namespace TagLib {
-
-  namespace ASF {
-
-	typedef List<Attribute> AttributeList;
-	typedef Map<String, AttributeList> AttributeListMap;
-
-	class TAGLIB_EXPORT Tag : public TagLib::Tag {
-
-	  friend class File;
-
-	public:
-
-	  Tag();
-
-	  virtual ~Tag();
-
-	  /*!
-	   * Returns the track name.
-	   */
-	  virtual String title() const;
-
-	  /*!
-	   * Returns the artist name.
-	   */
-	  virtual String artist() const;
-
-	  /*!
-	   * Returns the album name; if no album name is present in the tag
-	   * String::null will be returned.
-	   */
-	  virtual String album() const;
-
-	  /*!
-	   * Returns the track comment.
-	   */
-	  virtual String comment() const;
-
-	  /*!
-	   * Returns the genre name; if no genre is present in the tag String::null
-	   * will be returned.
-	   */
-	  virtual String genre() const;
-
-	  /*!
-	   * Returns the rating.
-	   */
-	  virtual String rating() const;
-
-	  /*!
-	   * Returns the genre name; if no genre is present in the tag String::null
-	   * will be returned.
-	   */
-	  virtual String copyright() const;
-
-	  /*!
-	   * Returns the year; if there is no year set, this will return 0.
-	   */
-	  virtual uint year() const;
-
-	  /*!
-	   * Returns the track number; if there is no track number set, this will
-	   * return 0.
-	   */
-	  virtual uint track() const;
-
-	  /*!
-	   * Sets the title to \a s.
-	   */
-	  virtual void setTitle(const String &s);
-
-	  /*!
-	   * Sets the artist to \a s.
-	   */
-	  virtual void setArtist(const String &s);
-
-	  /*!
-	   * Sets the album to \a s.  If \a s is String::null then this value will be
-	   * cleared.
-	   */
-	  virtual void setAlbum(const String &s);
-
-	  /*!
-	   * Sets the comment to \a s.
-	   */
-	  virtual void setComment(const String &s);
-
-	  /*!
-	   * Sets the rating to \a s.
-	   */
-	  virtual void setRating(const String &s);
-
-	  /*!
-	   * Sets the copyright to \a s.
-	   */
-	  virtual void setCopyright(const String &s);
-
-	  /*!
-	   * Sets the genre to \a s.
-	   */
-	  virtual void setGenre(const String &s);
-
-	  /*!
-	   * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
-	   */
-	  virtual void setYear(uint i);
-
-	  /*!
-	   * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
-	   */
-	  virtual void setTrack(uint i);
-
-	  /*!
-	   * Returns true if the tag does not contain any data.  This should be
-	   * reimplemented in subclasses that provide more than the basic tagging
-	   * abilities in this class.
-	   */
-	  virtual bool isEmpty() const;
-
-	  /*!
-	   * Returns a reference to the item list map.  This is an AttributeListMap of
-	   * all of the items in the tag.
-	   *
-	   * This is the most powerfull structure for accessing the items of the tag.
-	   */
-	  AttributeListMap &attributeListMap();
-
-	  /*!
-	   * Removes the \a key attribute from the tag
-	   */
-	  void removeItem(const String &name);
-
-	  /*!
-	   * Sets the \a key attribute to the value of \a attribute. If an attribute
-	   * with the \a key is already present, it will be replaced.
-	   */
-	  void setAttribute(const String &name, const Attribute &attribute);
-
-	  /*!
-	   * Sets the \a key attribute to the value of \a attribute. If an attribute
-	   * with the \a key is already present, it will be added to the list.
-	   */
-	  void addAttribute(const String &name, const Attribute &attribute);
-
-	private:
-
-	  class TagPrivate;
-	  TagPrivate *d;
-	};
-  }
-}
-#endif
-
-/*** End of inlined file: asftag.h ***/
 
 using namespace TagLib;
 
@@ -23983,202 +29420,6 @@ bool ASF::Tag::isEmpty() const
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-
-/*** Start of inlined file: asffile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFFILE_H
-#define TAGLIB_ASFFILE_H
-
-
-/*** Start of inlined file: asfproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFPROPERTIES_H
-#define TAGLIB_ASFPROPERTIES_H
-
-namespace TagLib {
-
-  namespace ASF {
-
-	//! An implementation of ASF audio properties
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-
-	  /*!
-	   * Create an instance of ASF::Properties.
-	   */
-	  Properties();
-
-	  /*!
-	   * Destroys this ASF::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-	  bool isEncrypted() const;
-
-#ifndef DO_NOT_DOCUMENT
-	  void setLength(int value);
-	  void setBitrate(int value);
-	  void setSampleRate(int value);
-	  void setChannels(int value);
-	  void setEncrypted(bool value);
-#endif
-
-	private:
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: asfproperties.h ***/
-
-namespace TagLib {
-
-  //! An implementation of ASF (WMA) metadata
-  namespace ASF {
-
-	/*!
-	 * This implements and provides an interface for ASF files to the
-	 * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	 * the abstract TagLib::File API as well as providing some additional
-	 * information specific to ASF files.
-	 */
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-
-	  /*!
-	   * Contructs an ASF file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note In the current implementation, both \a readProperties and
-	   * \a propertiesStyle are ignored.
-	   */
-	  File(FileName file, bool readProperties = true, Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Contructs an ASF file from \a file.  If \a readProperties is true the
-	   * file's audio properties will also be read using \a propertiesStyle.  If
-	   * false, \a propertiesStyle is ignored.
-	   *
-	   * \note In the current implementation, both \a readProperties and
-	   * \a propertiesStyle are ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true, Properties::ReadStyle propertiesStyle = Properties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  /*!
-	   * Returns a pointer to the ASF tag of the file.
-	   *
-	   * ASF::Tag implements the tag interface, so this serves as the
-	   * reimplementation of TagLib::File::tag().
-	   *
-	   * \note The Tag <b>is still</b> owned by the ASF::File and should not be
-	   * deleted by the user.  It will be deleted when the file (object) is
-	   * destroyed.
-	   */
-	  virtual Tag *tag() const;
-
-	  /*!
-	   * Returns the ASF audio properties for this file.
-	   */
-	  virtual Properties *audioProperties() const;
-
-	  /*!
-	   * Save the file.
-	   *
-	   * This returns true if the save was successful.
-	   */
-	  virtual bool save();
-
-	private:
-
-	  int readBYTE(bool *ok = 0);
-	  int readWORD(bool *ok = 0);
-	  unsigned int readDWORD(bool *ok = 0);
-	  long long readQWORD(bool *ok = 0);
-	  static ByteVector renderString(const String &str, bool includeLength = false);
-	  String readString(int len);
-	  void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-
-	  friend class Attribute;
-	  friend class Picture;
-
-	  class BaseObject;
-	  class UnknownObject;
-	  class FilePropertiesObject;
-	  class StreamPropertiesObject;
-	  class ContentDescriptionObject;
-	  class ExtendedContentDescriptionObject;
-	  class HeaderExtensionObject;
-	  class MetadataObject;
-	  class MetadataLibraryObject;
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: asffile.h ***/
 
 using namespace TagLib;
 
@@ -25407,125 +30648,6 @@ ASF::Picture ASF::Picture::fromInvalid()
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-
-/*** Start of inlined file: rifffile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_RIFFFILE_H
-#define TAGLIB_RIFFFILE_H
-
-namespace TagLib {
-
-  //! An implementation of TagLib::File with RIFF specific methods
-
-  namespace RIFF {
-
-	//! An RIFF file class with some useful methods specific to RIFF
-
-	/*!
-	 * This implements the generic TagLib::File API and additionally provides
-	 * access to properties that are distinct to RIFF files, notably access
-	 * to the different ID3 tags.
-	 */
-
-	class TAGLIB_EXPORT File : public TagLib::File
-	{
-	public:
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	protected:
-
-	  enum Endianness { BigEndian, LittleEndian };
-
-	  File(FileName file, Endianness endianness);
-	  File(IOStream *stream, Endianness endianness);
-
-	  /*!
-	   * \return The size of the main RIFF chunk.
-	   */
-	  uint riffSize() const;
-
-	  /*!
-	   * \return The number of chunks in the file.
-	   */
-	  uint chunkCount() const;
-
-	  /*!
-	   * \return The offset within the file for the selected chunk number.
-	   */
-	  uint chunkOffset(uint i) const;
-
-	  /*!
-	   * \return The size of the chunk data.
-	   */
-	  uint chunkDataSize(uint i) const;
-
-	  /*!
-	   * \return The size of the padding after the chunk (can be either 0 or 1).
-	   */
-	  uint chunkPadding(uint i) const;
-
-	  /*!
-	   * \return The name of the specified chunk, for instance, "COMM" or "ID3 "
-	   */
-	  ByteVector chunkName(uint i) const;
-
-	  /*!
-	   * Reads the chunk data from the file and returns it.
-	   *
-	   * \note This \e will move the read pointer for the file.
-	   */
-	  ByteVector chunkData(uint i);
-
-	  /*!
-	   * Sets the data for the chunk \a name to \a data.  If a chunk with the
-	   * given name already exists it will be overwritten, otherwise it will be
-	   * created after the existing chunks.
-	   *
-	   * \warning This will update the file immediately.
-	   */
-	  void setChunkData(const ByteVector &name, const ByteVector &data);
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read();
-	  void writeChunk(const ByteVector &name, const ByteVector &data,
-					  ulong offset, ulong replace = 0,
-					  uint leadingPadding = 0);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: rifffile.h ***/
-
 #include <vector>
 
 using namespace TagLib;
@@ -25804,193 +30926,6 @@ void RIFF::File::writeChunk(const ByteVector &name, const ByteVector &data,
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-
-/*** Start of inlined file: aifffile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_AIFFFILE_H
-#define TAGLIB_AIFFFILE_H
-
-
-/*** Start of inlined file: aiffproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_AIFFPROPERTIES_H
-#define TAGLIB_AIFFPROPERTIES_H
-
-namespace TagLib {
-
-  namespace RIFF {
-
-	namespace AIFF {
-
-	  class File;
-
-	  //! An implementation of audio property reading for AIFF
-
-	  /*!
-	   * This reads the data from an AIFF stream found in the AudioProperties
-	   * API.
-	   */
-
-	  class TAGLIB_EXPORT Properties : public AudioProperties
-	  {
-	  public:
-		/*!
-		 * Create an instance of AIFF::Properties with the data read from the
-		 * ByteVector \a data.
-		 */
-		Properties(const ByteVector &data, ReadStyle style);
-
-		/*!
-		 * Destroys this AIFF::Properties instance.
-		 */
-		virtual ~Properties();
-
-		// Reimplementations.
-
-		virtual int length() const;
-		virtual int bitrate() const;
-		virtual int sampleRate() const;
-		virtual int channels() const;
-
-		int sampleWidth() const;
-		uint sampleFrames() const;
-
-	  private:
-		Properties(const Properties &);
-		Properties &operator=(const Properties &);
-
-		void read(const ByteVector &data);
-
-		class PropertiesPrivate;
-		PropertiesPrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: aiffproperties.h ***/
-
-namespace TagLib {
-
-  namespace RIFF {
-
-	//! An implementation of AIFF metadata
-
-	/*!
-	 * This is implementation of AIFF metadata.
-	 *
-	 * This supports an ID3v2 tag as well as reading stream from the ID3 RIFF
-	 * chunk as well as properties from the file.
-	 */
-
-	namespace AIFF {
-
-	  //! An implementation of TagLib::File with AIFF specific methods
-
-	  /*!
-	   * This implements and provides an interface for AIFF files to the
-	   * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	   * the abstract TagLib::File API as well as providing some additional
-	   * information specific to AIFF files.
-	   */
-
-	  class TAGLIB_EXPORT File : public TagLib::RIFF::File
-	  {
-	  public:
-		/*!
-		 * Contructs an AIFF file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Contructs an AIFF file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stream, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		/*!
-		 * Returns the Tag for this file.
-		 */
-		virtual ID3v2::Tag *tag() const;
-
-		/*!
-		 * Returns the AIFF::Properties for this file.  If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		virtual Properties *audioProperties() const;
-
-		/*!
-		 * Saves the file.
-		 */
-		virtual bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-
-		class FilePrivate;
-		FilePrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: aifffile.h ***/
-
 using namespace TagLib;
 
 class RIFF::AIFF::File::FilePrivate
@@ -26266,201 +31201,6 @@ void RIFF::AIFF::Properties::read(const ByteVector &data)
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-
-/*** Start of inlined file: wavfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_WAVFILE_H
-#define TAGLIB_WAVFILE_H
-
-
-/*** Start of inlined file: wavproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_WAVPROPERTIES_H
-#define TAGLIB_WAVPROPERTIES_H
-
-namespace TagLib {
-
-  class ByteVector;
-
-  namespace RIFF {
-
-	namespace WAV {
-
-	  class File;
-
-	  //! An implementation of audio property reading for WAV
-
-	  /*!
-	   * This reads the data from an WAV stream found in the AudioProperties
-	   * API.
-	   */
-
-	  class TAGLIB_EXPORT Properties : public AudioProperties
-	  {
-	  public:
-		/*!
-		 * Create an instance of WAV::Properties with the data read from the
-		 * ByteVector \a data.
-		 */
-		Properties(const ByteVector &data, ReadStyle style);
-
-		/*!
-		 * Create an instance of WAV::Properties with the data read from the
-		 * ByteVector \a data and the length calculated using \a streamLength.
-		 */
-		Properties(const ByteVector &data, uint streamLength, ReadStyle style);
-
-		/*!
-		 * Destroys this WAV::Properties instance.
-		 */
-		virtual ~Properties();
-
-		// Reimplementations.
-
-		virtual int length() const;
-		virtual int bitrate() const;
-		virtual int sampleRate() const;
-		virtual int channels() const;
-
-		int sampleWidth() const;
-		uint sampleFrames() const;
-
-	  private:
-		Properties(const Properties &);
-		Properties &operator=(const Properties &);
-
-		void read(const ByteVector &data);
-
-		class PropertiesPrivate;
-		PropertiesPrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: wavproperties.h ***/
-
-namespace TagLib {
-
-  namespace RIFF {
-
-	//! An implementation of WAV metadata
-
-	/*!
-	 * This is implementation of WAV metadata.
-	 *
-	 * This supports an ID3v2 tag as well as reading stream from the ID3 RIFF
-	 * chunk as well as properties from the file.
-	 */
-
-	namespace WAV {
-
-	  //! An implementation of TagLib::File with WAV specific methods
-
-	  /*!
-	   * This implements and provides an interface for WAV files to the
-	   * TagLib::Tag and TagLib::AudioProperties interfaces by way of implementing
-	   * the abstract TagLib::File API as well as providing some additional
-	   * information specific to WAV files.
-	   */
-
-	  class TAGLIB_EXPORT File : public TagLib::RIFF::File
-	  {
-	  public:
-		/*!
-		 * Contructs an WAV file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Contructs an WAV file from \a file.  If \a readProperties is true the
-		 * file's audio properties will also be read using \a propertiesStyle.  If
-		 * false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stream, bool readProperties = true,
-			 Properties::ReadStyle propertiesStyle = Properties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		/*!
-		 * Returns the Tag for this file.
-		 */
-		virtual ID3v2::Tag *tag() const;
-
-		/*!
-		 * Returns the WAV::Properties for this file.  If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		virtual Properties *audioProperties() const;
-
-		/*!
-		 * Saves the file.
-		 */
-		virtual bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties, Properties::ReadStyle propertiesStyle);
-
-		class FilePrivate;
-		FilePrivate *d;
-	  };
-	}
-  }
-}
-
-#endif
-
-/*** End of inlined file: wavfile.h ***/
-
 using namespace TagLib;
 
 class RIFF::WAV::File::FilePrivate
@@ -26708,62 +31448,6 @@ void RIFF::WAV::Properties::read(const ByteVector &data)
  *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
 
-
-/*** Start of inlined file: modfilebase.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_MODFILEBASE_H
-#define TAGLIB_MODFILEBASE_H
-
-#include <algorithm>
-
-namespace TagLib {
-
-  namespace Mod {
-
-	class TAGLIB_EXPORT FileBase : public TagLib::File
-	{
-	protected:
-	  FileBase(FileName file);
-	  FileBase(IOStream *stream);
-
-	  void writeString(const String &s, ulong size, char padding = 0);
-	  void writeByte(uchar byte);
-	  void writeU16L(ushort number);
-	  void writeU32L(ulong number);
-	  void writeU16B(ushort number);
-	  void writeU32B(ulong number);
-
-	  bool readString(String &s, ulong size);
-	  bool readByte(uchar &byte);
-	  bool readU16L(ushort &number);
-	  bool readU32L(ulong &number);
-	  bool readU16B(ushort &number);
-	  bool readU32B(ulong &number);
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: modfilebase.h ***/
-
 using namespace TagLib;
 using namespace Mod;
 
@@ -26880,325 +31564,6 @@ bool Mod::FileBase::readU32B(ulong &number) {
  *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
  *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
-
-
-/*** Start of inlined file: modfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_MODFILE_H
-#define TAGLIB_MODFILE_H
-
-
-/*** Start of inlined file: modtag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_MODTAG_H
-#define TAGLIB_MODTAG_H
-
-namespace TagLib {
-
-  namespace Mod {
-
-	/*!
-	 * Tags for module files (Mod, S3M, IT, XM).
-	 *
-	 * Note that only the \a title is supported as such by most
-	 * module file formats.  Except for XM files the \a trackerName
-	 * is derived from the file format or the flavour of the file
-	 * format.  For XM files it is stored in the file.
-	 *
-	 * The \a comment tag is not strictly supported by module files,
-	 * but it is common practice to abuse instrument/sample/pattern
-	 * names as multiline comments.  TagLib does so as well.
-	 */
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
-	{
-	public:
-	  Tag();
-	  virtual ~Tag();
-
-	  /*!
-	   * Returns the track name; if no track name is present in the tag
-	   * String::null will be returned.
-	   */
-	  String title() const;
-
-	  /*!
-	   * Not supported by module files.  Therefore always returns String::null.
-	   */
-	  String artist() const;
-
-	  /*!
-	   * Not supported by module files.  Therefore always returns String::null.
-	   */
-	  String album() const;
-
-	  /*!
-	   * Returns the track comment derived from the instrument/sample/pattern
-	   * names; if no comment is present in the tag String::null will be
-	   * returned.
-	   */
-	  String comment() const;
-
-	  /*!
-	   * Not supported by module files.  Therefore always returns String::null.
-	   */
-	  String genre() const;
-
-	  /*!
-	   * Not supported by module files.  Therefore always returns 0.
-	   */
-	  uint year() const;
-
-	  /*!
-	   * Not supported by module files.  Therefore always returns 0.
-	   */
-	  uint track() const;
-
-	  /*!
-	   * Returns the name of the tracker used to create/edit the module file.
-	   * Only XM files store this tag to the file as such, for other formats
-	   * (Mod, S3M, IT) this is derived from the file type or the flavour of
-	   * the file type.  Therefore only XM files might have an empty
-	   * (String::null) tracker name.
-	   */
-	  String trackerName() const;
-
-	  /*!
-	   * Sets the title to \a title.  If \a title is String::null then this
-	   * value will be cleared.
-	   *
-	   * The length limits per file type are (1 characetr = 1 byte):
-	   * Mod 20 characters, S3M 27 characters, IT 25 characters and XM 20
-	   * characters.
-	   */
-	  void setTitle(const String &title);
-
-	  /*!
-	   * Not supported by module files and therefore ignored.
-	   */
-	  void setArtist(const String &artist);
-
-	  /*!
-	   * Not supported by module files and therefore ignored.
-	   */
-	  void setAlbum(const String &album);
-
-	  /*!
-	   * Sets the comment to \a comment.  If \a comment is String::null then
-	   * this value will be cleared.
-	   *
-	   * Note that module file formats don't actually support a comment tag.
-	   * Instead the names of instruments/patterns/samples are abused as
-	   * a multiline comment. Because of this the number of lines in a
-	   * module file is fixed to the number of instruments/patterns/samples.
-	   *
-	   * Also note that the instrument/pattern/sample name length is limited
-	   * an thus the line length in comments are limited. Too big comments
-	   * will be truncated.
-	   *
-	   * The line length limits per file type are (1 characetr = 1 byte):
-	   * Mod 22 characters, S3M 27 characters, IT 25 characters and XM 22
-	   * characters.
-	   */
-	  void setComment(const String &comment);
-
-	  /*!
-	   * Not supported by module files and therefore ignored.
-	   */
-	  void setGenre(const String &genre);
-
-	  /*!
-	   * Not supported by module files and therefore ignored.
-	   */
-	  void setYear(uint year);
-
-	  /*!
-	   * Not supported by module files and therefore ignored.
-	   */
-	  void setTrack(uint track);
-
-	  /*!
-	   * Sets the tracker name to \a trackerName.  If \a trackerName is
-	   * String::null then this value will be cleared.
-	   *
-	   * Note that only XM files support this tag.  Setting the
-	   * tracker name for other module file formats will be ignored.
-	   *
-	   * The length of this tag is limited to 20 characters (1 character
-	   * = 1 byte).
-	   */
-	  void setTrackerName(const String &trackerName);
-
-	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
-
-	  class TagPrivate;
-	  TagPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: modtag.h ***/
-
-
-/*** Start of inlined file: modproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_MODPROPERTIES_H
-#define TAGLIB_MODPROPERTIES_H
-
-namespace TagLib {
-
-  namespace Mod {
-
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-	  Properties(AudioProperties::ReadStyle propertiesStyle);
-	  virtual ~Properties();
-
-	  int length() const;
-	  int bitrate() const;
-	  int sampleRate() const;
-	  int channels() const;
-
-	  uint instrumentCount() const;
-	  uchar lengthInPatterns() const;
-
-	  void setChannels(int channels);
-
-	  void setInstrumentCount(uint sampleCount);
-	  void setLengthInPatterns(uchar lengthInPatterns);
-
-	private:
-	  friend class File;
-
-	  Properties(const Properties&);
-	  Properties &operator=(const Properties&);
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: modproperties.h ***/
-
-namespace TagLib {
-
-  namespace Mod {
-
-	class TAGLIB_EXPORT File : public TagLib::Mod::FileBase
-	{
-	public:
-	  /*!
-	   * Contructs a Protracker file from \a file. If \a readProperties
-	   * is true the file's audio properties will also be read using
-	   * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-	   */
-	  File(FileName file, bool readProperties = true,
-		   AudioProperties::ReadStyle propertiesStyle =
-		   AudioProperties::Average);
-
-	  /*!
-	   * Contructs a Protracker file from \a stream. If \a readProperties
-	   * is true the file's audio properties will also be read using
-	   * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-	   */
-	  File(IOStream *stream, bool readProperties = true,
-		   AudioProperties::ReadStyle propertiesStyle =
-		   AudioProperties::Average);
-
-	  /*!
-	   * Destroys this instance of the File.
-	   */
-	  virtual ~File();
-
-	  Mod::Tag *tag() const;
-
-	  /*!
-	   * Returns the Mod::Properties for this file. If no audio properties
-	   * were read then this will return a null pointer.
-	   */
-	  Mod::Properties *audioProperties() const;
-
-	  /*!
-	   * Save the file.
-	   * This is the same as calling save(AllTags);
-	   *
-	   * \note Saving Protracker tags is not supported.
-	   */
-	  bool save();
-
-	private:
-	  File(const File &);
-	  File &operator=(const File &);
-
-	  void read(bool readProperties);
-
-	  class FilePrivate;
-	  FilePrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: modfile.h ***/
 
 
 /*** Start of inlined file: modfileprivate.h ***/
@@ -27650,173 +32015,6 @@ void Mod::Properties::setLengthInPatterns(uchar lengthInPatterns)
  *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
 
-
-/*** Start of inlined file: s3mfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_S3MFILE_H
-#define TAGLIB_S3MFILE_H
-
-
-/*** Start of inlined file: s3mproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_S3MPROPERTIES_H
-#define TAGLIB_S3MPROPERTIES_H
-
-namespace TagLib {
-  namespace S3M {
-	class TAGLIB_EXPORT Properties : public AudioProperties {
-	  friend class File;
-	public:
-	  /*! Flag bits. */
-	  enum {
-		ST2Vibrato           =   1,
-		ST2Tempo             =   2,
-		AmigaSlides          =   4,
-		Vol0MixOptimizations =   8,
-		AmigaLimits          =  16,
-		EnableFilter         =  32,
-		CustomData           = 128
-	  };
-
-	  Properties(AudioProperties::ReadStyle propertiesStyle);
-	  virtual ~Properties();
-
-	  int length()     const;
-	  int bitrate()    const;
-	  int sampleRate() const;
-	  int channels()   const;
-
-	  ushort lengthInPatterns()  const;
-	  bool   stereo()            const;
-	  ushort sampleCount()       const;
-	  ushort patternCount()      const;
-	  ushort flags()             const;
-	  ushort trackerVersion()    const;
-	  ushort fileFormatVersion() const;
-	  uchar  globalVolume()      const;
-	  uchar  masterVolume()      const;
-	  uchar  tempo()             const;
-	  uchar  bpmSpeed()          const;
-
-	  void setChannels(int channels);
-
-	  void setLengthInPatterns (ushort lengthInPatterns);
-	  void setStereo           (bool stereo);
-	  void setSampleCount      (ushort sampleCount);
-	  void setPatternCount     (ushort patternCount);
-	  void setFlags            (ushort flags);
-	  void setTrackerVersion   (ushort trackerVersion);
-	  void setFileFormatVersion(ushort fileFormatVersion);
-	  void setGlobalVolume     (uchar globalVolume);
-	  void setMasterVolume     (uchar masterVolume);
-	  void setTempo            (uchar tempo);
-	  void setBpmSpeed         (uchar bpmSpeed);
-
-	private:
-	  Properties(const Properties&);
-	  Properties &operator=(const Properties&);
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: s3mproperties.h ***/
-
-namespace TagLib {
-
-  namespace S3M {
-
-	class TAGLIB_EXPORT File : public Mod::FileBase {
-	  public:
-		/*!
-		 * Contructs a ScreamTracker III file from \a file. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Contructs a ScreamTracker III file from \a stream. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stream, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		Mod::Tag *tag() const;
-
-		/*!
-		 * Returns the S3M::Properties for this file. If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		S3M::Properties *audioProperties() const;
-
-		/*!
-		 * Save the file.
-		 * This is the same as calling save(AllTags);
-		 *
-		 * \note Saving ScreamTracker III tags is not supported.
-		 */
-		bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties);
-
-		class FilePrivate;
-		FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: s3mfile.h ***/
-
 #include <iostream>
 
 using namespace TagLib;
@@ -28243,186 +32441,6 @@ void S3M::Properties::setBpmSpeed(uchar bpmSpeed)
  *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
  *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
-
-
-/*** Start of inlined file: itfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_ITFILE_H
-#define TAGLIB_ITFILE_H
-
-
-/*** Start of inlined file: itproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_ITPROPERTIES_H
-#define TAGLIB_ITPROPERTIES_H
-
-namespace TagLib {
-  namespace IT {
-	class TAGLIB_EXPORT Properties : public AudioProperties {
-	  friend class File;
-	public:
-	  /*! Flag bits. */
-	  enum {
-		Stereo                  =   1,
-		Vol0MixOptimizations    =   2,
-		UseInstruments          =   4,
-		LinearSlides            =   8,
-		OldEffects              =  16,
-		LinkEffects             =  32,
-		UseMidiPitchController  =  64,
-		RequestEmbeddedMidiConf = 128
-	  };
-
-	  /*! Special bits. */
-	  enum {
-		MessageAttached  = 1,
-		MidiConfEmbedded = 8
-	  };
-
-	  Properties(AudioProperties::ReadStyle propertiesStyle);
-	  virtual ~Properties();
-
-	  int length()     const;
-	  int bitrate()    const;
-	  int sampleRate() const;
-	  int channels()   const;
-
-	  ushort lengthInPatterns()  const;
-	  bool   stereo()            const;
-	  ushort instrumentCount()   const;
-	  ushort sampleCount()       const;
-	  ushort patternCount()      const;
-	  ushort version()           const;
-	  ushort compatibleVersion() const;
-	  ushort flags()             const;
-	  ushort special()           const;
-	  uchar  globalVolume()      const;
-	  uchar  mixVolume()         const;
-	  uchar  tempo()             const;
-	  uchar  bpmSpeed()          const;
-	  uchar  panningSeparation() const;
-	  uchar  pitchWheelDepth()   const;
-
-	  void setChannels(int channels);
-	  void setLengthInPatterns(ushort lengthInPatterns);
-	  void setInstrumentCount(ushort instrumentCount);
-	  void setSampleCount (ushort sampleCount);
-	  void setPatternCount(ushort patternCount);
-	  void setVersion     (ushort version);
-	  void setCompatibleVersion(ushort compatibleVersion);
-	  void setFlags       (ushort flags);
-	  void setSpecial     (ushort special);
-	  void setGlobalVolume(uchar globalVolume);
-	  void setMixVolume   (uchar mixVolume);
-	  void setTempo       (uchar tempo);
-	  void setBpmSpeed    (uchar bpmSpeed);
-	  void setPanningSeparation(uchar panningSeparation);
-	  void setPitchWheelDepth  (uchar pitchWheelDepth);
-
-	private:
-	  Properties(const Properties&);
-	  Properties &operator=(const Properties&);
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: itproperties.h ***/
-
-namespace TagLib {
-
-  namespace IT {
-
-	class TAGLIB_EXPORT File : public Mod::FileBase {
-	  public:
-		/*!
-		 * Contructs a Impulse Tracker file from \a file. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Contructs a Impulse Tracker file from \a stream. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stram, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		Mod::Tag *tag() const;
-
-		/*!
-		 * Returns the IT::Properties for this file. If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		IT::Properties *audioProperties() const;
-
-		/*!
-		 * Save the file.
-		 * This is the same as calling save(AllTags);
-		 *
-		 * \note Saving Impulse Tracker tags is not supported.
-		 */
-		bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties);
-
-		class FilePrivate;
-		FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: itfile.h ***/
 
 using namespace TagLib;
 using namespace IT;
@@ -28978,163 +32996,6 @@ void IT::Properties::setPitchWheelDepth(uchar pitchWheelDepth)
  *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
  *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
-
-
-/*** Start of inlined file: xmfile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_XMFILE_H
-#define TAGLIB_XMFILE_H
-
-
-/*** Start of inlined file: xmproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef TAGLIB_XMPROPERTIES_H
-#define TAGLIB_XMPROPERTIES_H
-
-namespace TagLib {
-  namespace XM {
-	class Properties : public AudioProperties {
-	  friend class File;
-	public:
-	  /*! Flag bits. */
-	  enum {
-		LinearFreqTable = 1 // otherwise its the amiga freq. table
-	  };
-
-	  Properties(AudioProperties::ReadStyle propertiesStyle);
-	  virtual ~Properties();
-
-	  int length()     const;
-	  int bitrate()    const;
-	  int sampleRate() const;
-	  int channels()   const;
-
-	  ushort lengthInPatterns() const;
-	  ushort version()          const;
-	  ushort restartPosition()  const;
-	  ushort patternCount()     const;
-	  ushort instrumentCount()  const;
-	  uint   sampleCount()      const;
-	  ushort flags()            const;
-	  ushort tempo()            const;
-	  ushort bpmSpeed()         const;
-
-	  void setChannels(int channels);
-
-	  void setLengthInPatterns(ushort lengthInPatterns);
-	  void setVersion(ushort version);
-	  void setRestartPosition(ushort restartPosition);
-	  void setPatternCount(ushort patternCount);
-	  void setInstrumentCount(ushort instrumentCount);
-	  void setSampleCount(uint sampleCount);
-	  void setFlags(ushort flags);
-	  void setTempo(ushort tempo);
-	  void setBpmSpeed(ushort bpmSpeed);
-
-	private:
-	  Properties(const Properties&);
-	  Properties &operator=(const Properties&);
-
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: xmproperties.h ***/
-
-namespace TagLib {
-
-  namespace XM {
-
-	class TAGLIB_EXPORT File : public Mod::FileBase {
-	  public:
-		/*!
-		 * Contructs a Extended Module file from \a file. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(FileName file, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Contructs a Extended Module file from \a stream. If \a readProperties
-		 * is true the file's audio properties will also be read using
-		 * \a propertiesStyle. If false, \a propertiesStyle is ignored.
-		 */
-		File(IOStream *stream, bool readProperties = true,
-			 AudioProperties::ReadStyle propertiesStyle =
-			 AudioProperties::Average);
-
-		/*!
-		 * Destroys this instance of the File.
-		 */
-		virtual ~File();
-
-		Mod::Tag *tag() const;
-
-		/*!
-		 * Returns the XM::Properties for this file. If no audio properties
-		 * were read then this will return a null pointer.
-		 */
-		XM::Properties *audioProperties() const;
-
-		/*!
-		 * Save the file.
-		 * This is the same as calling save(AllTags);
-		 *
-		 * \note Saving Extended Module tags is not supported.
-		 */
-		bool save();
-
-	  private:
-		File(const File &);
-		File &operator=(const File &);
-
-		void read(bool readProperties);
-
-		class FilePrivate;
-		FilePrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: xmfile.h ***/
 
 #include <string.h>
 #include <algorithm>
@@ -29928,7 +33789,6 @@ void XM::Properties::setBpmSpeed(ushort bpmSpeed)
 
 /*** End of inlined file: xmproperties.cpp ***/
 
-//#include "toolkit/tstring.cpp"
 
 /*** Start of inlined file: tstringlist.cpp ***/
 /***************************************************************************
@@ -30049,7 +33909,6 @@ std::ostream &operator<<(std::ostream &s, const StringList &l)
 }
 
 /*** End of inlined file: tstringlist.cpp ***/
-
 
 
 /*** Start of inlined file: tbytevector.cpp ***/
@@ -31223,7 +35082,6 @@ void IOStream::clear()
 
 /*** End of inlined file: tiostream.cpp ***/
 
-//#include "toolkit/tfile.cpp"
 
 /*** Start of inlined file: tfilestream.cpp ***/
 /***************************************************************************
@@ -31245,155 +35103,6 @@ void IOStream::clear()
  *   License Version 1.1.  You may obtain a copy of the License at         *
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
-
-
-/*** Start of inlined file: tfilestream.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FILESTREAM_H
-#define TAGLIB_FILESTREAM_H
-
-namespace TagLib {
-
-  class String;
-  class Tag;
-  class AudioProperties;
-
-  //! A file class with some useful methods for tag manipulation
-
-  /*!
-   * This class is a basic file class with some methods that are particularly
-   * useful for tag editors.  It has methods to take advantage of
-   * ByteVector and a binary search method for finding patterns in a file.
-   */
-
-  class TAGLIB_EXPORT FileStream : public IOStream
-  {
-  public:
-	/*!
-	 * Construct a File object and opens the \a file.  \a file should be a
-	 * be a C-string in the local file system encoding.
-	 */
-	FileStream(FileName file, bool openReadOnly = false);
-
-	/*!
-	 * Destroys this FileStream instance.
-	 */
-	virtual ~FileStream();
-
-	/*!
-	 * Returns the file name in the local file system encoding.
-	 */
-	FileName name() const;
-
-	/*!
-	 * Reads a block of size \a length at the current get pointer.
-	 */
-	ByteVector readBlock(ulong length);
-
-	/*!
-	 * Attempts to write the block \a data at the current get pointer.  If the
-	 * file is currently only opened read only -- i.e. readOnly() returns true --
-	 * this attempts to reopen the file in read/write mode.
-	 *
-	 * \note This should be used instead of using the streaming output operator
-	 * for a ByteVector.  And even this function is significantly slower than
-	 * doing output with a char[].
-	 */
-	void writeBlock(const ByteVector &data);
-
-	/*!
-	 * Insert \a data at position \a start in the file overwriting \a replace
-	 * bytes of the original content.
-	 *
-	 * \note This method is slow since it requires rewriting all of the file
-	 * after the insertion point.
-	 */
-	void insert(const ByteVector &data, ulong start = 0, ulong replace = 0);
-
-	/*!
-	 * Removes a block of the file starting a \a start and continuing for
-	 * \a length bytes.
-	 *
-	 * \note This method is slow since it involves rewriting all of the file
-	 * after the removed portion.
-	 */
-	void removeBlock(ulong start = 0, ulong length = 0);
-
-	/*!
-	 * Returns true if the file is read only (or if the file can not be opened).
-	 */
-	bool readOnly() const;
-
-	/*!
-	 * Since the file can currently only be opened as an argument to the
-	 * constructor (sort-of by design), this returns if that open succeeded.
-	 */
-	bool isOpen() const;
-
-	/*!
-	 * Move the I/O pointer to \a offset in the file from position \a p.  This
-	 * defaults to seeking from the beginning of the file.
-	 *
-	 * \see Position
-	 */
-	void seek(long offset, Position p = Beginning);
-
-	/*!
-	 * Reset the end-of-file and error flags on the file.
-	 */
-	void clear();
-
-	/*!
-	 * Returns the current offset within the file.
-	 */
-	long tell() const;
-
-	/*!
-	 * Returns the length of the file.
-	 */
-	long length();
-
-	/*!
-	 * Truncates the file to a \a length.
-	 */
-	void truncate(long length);
-
-  protected:
-
-	/*!
-	 * Returns the buffer size that is used for internal buffering.
-	 */
-	static uint bufferSize();
-
-  private:
-	class FileStreamPrivate;
-	FileStreamPrivate *d;
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: tfilestream.h ***/
 
 #include <stdio.h>
 #include <string.h>
@@ -31758,7 +35467,6 @@ TagLib::uint FileStream::bufferSize()
 /*** End of inlined file: tfilestream.cpp ***/
 
 
-
 /*** Start of inlined file: tdebug.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -31851,160 +35559,6 @@ void TagLib::debugData(const ByteVector &v)
 	See the header file "ConvertUTF.h" for complete documentation.
 
 ------------------------------------------------------------------------ */
-
-
-/*** Start of inlined file: unicode.h ***/
-#ifndef TAGLIB_UNICODE_H
-#define TAGLIB_UNICODE_H
-
-/*******************************************************************************
- *                                                                             *
- * THIS FILE IS INCLUDED IN TAGLIB, BUT IS NOT COPYRIGHTED BY THE TAGLIB       *
- * AUTHORS, NOT PART OF THE TAGLIB API AND COULD GO AWAY AT ANY POINT IN TIME. *
- * AS SUCH IT SHOULD BE CONSIERED FOR INTERNAL USE ONLY.                       *
- *                                                                             *
- *******************************************************************************/
-
-#ifndef DO_NOT_DOCUMENT  // tell Doxygen not to document this header
-
-/*
- * Copyright 2001 Unicode, Inc.
- *
- * Disclaimer
- *
- * This source code is provided as is by Unicode, Inc. No claims are
- * made as to fitness for any particular purpose. No warranties of any
- * kind are expressed or implied. The recipient agrees to determine
- * applicability of information provided. If this file has been
- * purchased on magnetic or optical media from Unicode, Inc., the
- * sole remedy for any claim will be exchange of defective media
- * within 90 days of receipt.
- *
- * Limitations on Rights to Redistribute This Code
- *
- * Unicode, Inc. hereby grants the right to freely use the information
- * supplied in this file in the creation of products supporting the
- * Unicode Standard, and to make copies of this file in any form
- * for internal or external distribution as long as this notice
- * remains attached.
- */
-
-/*
- * This file has been modified by Scott Wheeler <wheeler@kde.org> to remove
- * the UTF32 conversion functions and to place the appropriate functions
- * in their own C++ namespace.
- */
-
-/* ---------------------------------------------------------------------
-
-	Conversions between UTF32, UTF-16, and UTF-8.  Header file.
-
-	Several functions are included here, forming a complete set of
-	conversions between the three formats.  UTF-7 is not included
-	here, but is handled in a separate source file.
-
-	Each of these routines takes pointers to input buffers and output
-	buffers.  The input buffers are const.
-
-	Each routine converts the text between *sourceStart and sourceEnd,
-	putting the result into the buffer between *targetStart and
-	targetEnd. Note: the end pointers are *after* the last item: e.g.
-	*(sourceEnd - 1) is the last item.
-
-	The return result indicates whether the conversion was successful,
-	and if not, whether the problem was in the source or target buffers.
-	(Only the first encountered problem is indicated.)
-
-	After the conversion, *sourceStart and *targetStart are both
-	updated to point to the end of last text successfully converted in
-	the respective buffers.
-
-	Input parameters:
-	sourceStart - pointer to a pointer to the source buffer.
-		The contents of this are modified on return so that
-		it points at the next thing to be converted.
-	targetStart - similarly, pointer to pointer to the target buffer.
-	sourceEnd, targetEnd - respectively pointers to the ends of the
-		two buffers, for overflow checking only.
-
-	These conversion functions take a ConversionFlags argument. When this
-	flag is set to strict, both irregular sequences and isolated surrogates
-	will cause an error.  When the flag is set to lenient, both irregular
-	sequences and isolated surrogates are converted.
-
-	Whether the flag is strict or lenient, all illegal sequences will cause
-	an error return. This includes sequences such as: <F4 90 80 80>, <C0 80>,
-	or <A0> in UTF-8, and values above 0x10FFFF in UTF-32. Conformant code
-	must check for illegal sequences.
-
-	When the flag is set to lenient, characters over 0x10FFFF are converted
-	to the replacement character; otherwise (when the flag is set to strict)
-	they constitute an error.
-
-	Output parameters:
-	The value "sourceIllegal" is returned from some routines if the input
-	sequence is malformed.  When "sourceIllegal" is returned, the source
-	value will point to the illegal value that caused the problem. E.g.,
-	in UTF-8 when a sequence is malformed, it points to the start of the
-	malformed sequence.
-
-	Author: Mark E. Davis, 1994.
-	Rev History: Rick McGowan, fixes & updates May 2001.
-		 Fixes & updates, Sept 2001.
-
------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------
-	The following 4 definitions are compiler-specific.
-	The C standard does not guarantee that wchar_t has at least
-	16 bits, so wchar_t is no less portable than unsigned short!
-	All should be unsigned values to avoid sign extension during
-	bit mask & shift operations.
------------------------------------------------------------------------- */
-
-/* Some fundamental constants */
-#define UNI_REPLACEMENT_CHAR (UTF32)0x0000FFFD
-#define UNI_MAX_BMP (UTF32)0x0000FFFF
-#define UNI_MAX_UTF16 (UTF32)0x0010FFFF
-#define UNI_MAX_UTF32 (UTF32)0x7FFFFFFF
-
-namespace Unicode {
-
-typedef unsigned long	UTF32;	/* at least 32 bits */
-typedef unsigned short	UTF16;	/* at least 16 bits */
-typedef unsigned char	UTF8;	/* typically 8 bits */
-typedef unsigned char	Boolean; /* 0 or 1 */
-
-typedef enum {
-	conversionOK = 0,	/* conversion successful */
-	sourceExhausted = 1,	/* partial character in source, but hit end */
-	targetExhausted = 2,	/* insuff. room in target for conversion */
-	sourceIllegal = 3	/* source sequence is illegal/malformed */
-} ConversionResult;
-
-typedef enum {
-	strictConversion = 0,
-	lenientConversion
-} ConversionFlags;
-
-ConversionResult ConvertUTF8toUTF16 (
-		const UTF8** sourceStart, const UTF8* sourceEnd,
-		UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags);
-
-ConversionResult ConvertUTF16toUTF8 (
-		const UTF16** sourceStart, const UTF16* sourceEnd,
-		UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags);
-
-Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd);
-
-} // namespace Unicode
-
-/* --------------------------------------------------------------------- */
-
-#endif
-#endif
-
-/*** End of inlined file: unicode.h ***/
 
 #include <stdio.h>
 
@@ -32259,57 +35813,4 @@ ConversionResult ConvertUTF8toUTF16 (
    --------------------------------------------------------------------- */
 
 /*** End of inlined file: unicode.cpp ***/
-
-//#include "tag.cpp"
-//#include "tagunion.cpp"
-//#include "fileref.cpp"
-
-/*** Start of inlined file: audioproperties.cpp ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-using namespace TagLib;
-
-class AudioProperties::AudioPropertiesPrivate
-{
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// public methods
-////////////////////////////////////////////////////////////////////////////////
-
-AudioProperties::~AudioProperties()
-{
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// protected methods
-////////////////////////////////////////////////////////////////////////////////
-
-AudioProperties::AudioProperties(ReadStyle)
-{
-
-}
-
-/*** End of inlined file: audioproperties.cpp ***/
-
 
