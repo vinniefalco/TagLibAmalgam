@@ -12934,8 +12934,9 @@ AudioProperties::AudioProperties(ReadStyle)
 
 /*** End of inlined file: audioproperties.cpp ***/
 
+// these two don't compile unless they come early
 
-/*** Start of inlined file: mpegfile.cpp ***/
+/*** Start of inlined file: mp4atom.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -12956,8 +12957,12 @@ AudioProperties::AudioProperties(ReadStyle)
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-/*** Start of inlined file: id3v1tag.h ***/
+
+/*** Start of inlined file: mp4atom.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -12978,164 +12983,262 @@ AudioProperties::AudioProperties(ReadStyle)
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ID3V1TAG_H
-#define TAGLIB_ID3V1TAG_H
+// This file is not part of the public API!
+
+#ifndef DO_NOT_DOCUMENT
+
+#ifndef TAGLIB_MP4ATOM_H
+#define TAGLIB_MP4ATOM_H
 
 namespace TagLib {
 
-  class File;
+  namespace MP4 {
 
-  //! An ID3v1 implementation
+	class Atom;
+	typedef TagLib::List<Atom *> AtomList;
 
-  namespace ID3v1 {
-
-	//! A abstraction for the string to data encoding in ID3v1 tags.
-
-	/*!
-	 * ID3v1 should in theory always contain ISO-8859-1 (Latin1) data.  In
-	 * practice it does not.  TagLib by default only supports ISO-8859-1 data
-	 * in ID3v1 tags.
-	 *
-	 * However by subclassing this class and reimplementing parse() and render()
-	 * and setting your reimplementation as the default with
-	 * ID3v1::Tag::setStringHandler() you can define how you would like these
-	 * transformations to be done.
-	 *
-	 * \warning It is advisable <b>not</b> to write non-ISO-8859-1 data to ID3v1
-	 * tags.  Please consider disabling the writing of ID3v1 tags in the case
-	 * that the data is not ISO-8859-1.
-	 *
-	 * \see ID3v1::Tag::setStringHandler()
-	 */
-
-	class TAGLIB_EXPORT StringHandler
+	enum AtomDataType
 	{
-	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
-	public:
-	  // BIC: Add virtual destructor.
-	  StringHandler();
-
-	  /*!
-	   * Decode a string from \a data.  The default implementation assumes that
-	   * \a data is an ISO-8859-1 (Latin1) character array.
-	   */
-	  virtual String parse(const ByteVector &data) const;
-
-	  /*!
-	   * Encode a ByteVector with the data from \a s.  The default implementation
-	   * assumes that \a s is an ISO-8859-1 (Latin1) string.  If the string is
-	   * does not conform to ISO-8859-1, no value is written.
-	   *
-	   * \warning It is recommended that you <b>not</b> override this method, but
-	   * instead do not write an ID3v1 tag in the case that the data is not
-	   * ISO-8859-1.
-	   */
-	  virtual ByteVector render(const String &s) const;
+	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
+	  TypeUTF8      = 1,  // without any count or null terminator
+	  TypeUTF16     = 2,  // also known as UTF-16BE
+	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
+	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
+	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
+	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
+	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
+	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
+	  TypeGIF       = 12, // (deprecated) a GIF image
+	  TypeJPEG      = 13, // a JPEG image
+	  TypePNG       = 14, // a PNG image
+	  TypeURL       = 15, // absolute, in UTF-8 characters
+	  TypeDuration  = 16, // in milliseconds, 32-bit integer
+	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
+	  TypeGenred    = 18, // a list of enumerated values
+	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
+	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
+	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
+	  TypeBMP       = 27, // Windows bitmap image
+	  TypeUndefined = 255 // undefined
 	};
 
-	//! The main class in the ID3v1 implementation
+	struct AtomData {
+	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
+	  AtomDataType type;
+	  int locale;
+	  ByteVector data;
+	};
 
-	/*!
-	 * This is an implementation of the ID3v1 format.  ID3v1 is both the simplist
-	 * and most common of tag formats but is rather limited.  Because of its
-	 * pervasiveness and the way that applications have been written around the
-	 * fields that it provides, the generic TagLib::Tag API is a mirror of what is
-	 * provided by ID3v1.
-	 *
-	 * ID3v1 tags should generally only contain Latin1 information.  However because
-	 * many applications do not follow this rule there is now support for overriding
-	 * the ID3v1 string handling using the ID3v1::StringHandler class.  Please see
-	 * the documentation for that class for more information.
-	 *
-	 * \see StringHandler
-	 *
-	 * \note Most fields are truncated to a maximum of 28-30 bytes.  The
-	 * truncation happens automatically when the tag is rendered.
-	 */
+	typedef TagLib::List<AtomData> AtomDataList;
 
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	class Atom
 	{
 	public:
-	  /*!
-	   * Create an ID3v1 tag with default values.
-	   */
-	  Tag();
-
-	  /*!
-	   * Create an ID3v1 tag and parse the data in \a file starting at
-	   * \a tagOffset.
-	   */
-	  Tag(File *file, long tagOffset);
-
-	  /*!
-	   * Destroys this Tag instance.
-	   */
-	  virtual ~Tag();
-
-	  /*!
-	   * Renders the in memory values to a ByteVector suitable for writing to
-	   * the file.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Returns the string "TAG" suitable for usage in locating the tag in a
-	   * file.
-	   */
-	  static ByteVector fileIdentifier();
-
-	  // Reimplementations.
-
-	  virtual String title() const;
-	  virtual String artist() const;
-	  virtual String album() const;
-	  virtual String comment() const;
-	  virtual String genre() const;
-	  virtual uint year() const;
-	  virtual uint track() const;
-
-	  virtual void setTitle(const String &s);
-	  virtual void setArtist(const String &s);
-	  virtual void setAlbum(const String &s);
-	  virtual void setComment(const String &s);
-	  virtual void setGenre(const String &s);
-	  virtual void setYear(uint i);
-	  virtual void setTrack(uint i);
-
-	  /*!
-	   * Sets the string handler that decides how the ID3v1 data will be
-	   * converted to and from binary data.
-	   *
-	   * \see StringHandler
-	   */
-	  static void setStringHandler(const StringHandler *handler);
-
-	protected:
-	  /*!
-	   * Reads from the file specified in the constructor.
-	   */
-	  void read();
-	  /*!
-	   * Pareses the body of the tag in \a data.
-	   */
-	  void parse(const ByteVector &data);
-
+		Atom(File *file);
+		~Atom();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
+		AtomList findall(const char *name, bool recursive = false);
+		long offset;
+		long length;
+		TagLib::ByteVector name;
+		AtomList children;
 	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
-
-	  class TagPrivate;
-	  TagPrivate *d;
+		static const int numContainers = 11;
+		static const char *containers[11];
 	};
+
+	//! Root-level atoms
+	class Atoms
+	{
+	public:
+		Atoms(File *file);
+		~Atoms();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList atoms;
+	};
+
   }
+
 }
 
 #endif
 
-/*** End of inlined file: id3v1tag.h ***/
+#endif
+
+/*** End of inlined file: mp4atom.h ***/
+
+using namespace TagLib;
+
+const char *MP4::Atom::containers[11] = {
+	"moov", "udta", "mdia", "meta", "ilst",
+	"stbl", "minf", "moof", "traf", "trak",
+	"stsd"
+};
+
+MP4::Atom::Atom(File *file)
+{
+  offset = file->tell();
+  ByteVector header = file->readBlock(8);
+  if (header.size() != 8) {
+	// The atom header must be 8 bytes long, otherwise there is either
+	// trailing garbage or the file is truncated
+	debug("MP4: Couldn't read 8 bytes of data for atom header");
+	length = 0;
+	file->seek(0, File::End);
+	return;
+  }
+
+  length = header.mid(0, 4).toUInt();
+
+  if (length == 1) {
+	long long longLength = file->readBlock(8).toLongLong();
+	if (longLength >= 8 && longLength <= 0xFFFFFFFF) {
+		// The atom has a 64-bit length, but it's actually a 32-bit value
+		length = (long)longLength;
+	}
+	else {
+		debug("MP4: 64-bit atoms are not supported");
+		length = 0;
+		file->seek(0, File::End);
+		return;
+	}
+  }
+  if (length < 8) {
+	debug("MP4: Invalid atom size");
+	length = 0;
+	file->seek(0, File::End);
+	return;
+  }
+
+  name = header.mid(4, 4);
+
+  for(int i = 0; i < numContainers; i++) {
+	if(name == containers[i]) {
+	  if(name == "meta") {
+		file->seek(4, File::Current);
+	  }
+	  else if(name == "stsd") {
+		file->seek(8, File::Current);
+	  }
+	  while(file->tell() < offset + length) {
+		MP4::Atom *child = new MP4::Atom(file);
+		children.append(child);
+		if (child->length == 0)
+		  return;
+	  }
+	  return;
+	}
+  }
+
+  file->seek(offset + length);
+}
+
+MP4::Atom::~Atom()
+{
+  for(unsigned int i = 0; i < children.size(); i++) {
+	delete children[i];
+  }
+  children.clear();
+}
+
+MP4::Atom *
+MP4::Atom::find(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  if(name1 == 0) {
+	return this;
+  }
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name1) {
+	  return children[i]->find(name2, name3, name4);
+	}
+  }
+  return 0;
+}
+
+MP4::AtomList
+MP4::Atom::findall(const char *name, bool recursive)
+{
+  MP4::AtomList result;
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name) {
+	  result.append(children[i]);
+	}
+	if(recursive) {
+	  result.append(children[i]->findall(name, recursive));
+	}
+  }
+  return result;
+}
+
+bool
+MP4::Atom::path(MP4::AtomList &path, const char *name1, const char *name2, const char *name3)
+{
+  path.append(this);
+  if(name1 == 0) {
+	return true;
+  }
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name1) {
+	  return children[i]->path(path, name2, name3);
+	}
+  }
+  return false;
+}
+
+MP4::Atoms::Atoms(File *file)
+{
+  file->seek(0, File::End);
+  long end = file->tell();
+  file->seek(0);
+  while(file->tell() + 8 <= end) {
+	MP4::Atom *atom = new MP4::Atom(file);
+	atoms.append(atom);
+	if (atom->length == 0)
+	  break;
+  }
+}
+
+MP4::Atoms::~Atoms()
+{
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	delete atoms[i];
+  }
+  atoms.clear();
+}
+
+MP4::Atom *
+MP4::Atoms::find(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	if(atoms[i]->name == name1) {
+	  return atoms[i]->find(name2, name3, name4);
+	}
+  }
+  return 0;
+}
+
+MP4::AtomList
+MP4::Atoms::path(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  MP4::AtomList path;
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	if(atoms[i]->name == name1) {
+	  if(!atoms[i]->path(path, name2, name3, name4)) {
+		path.clear();
+	  }
+	  return path;
+	}
+  }
+  return path;
+}
+
+/*** End of inlined file: mp4atom.cpp ***/
 
 
-/*** Start of inlined file: apefooter.h ***/
+
+/*** Start of inlined file: apetag.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -13156,153 +13259,13 @@ namespace TagLib {
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_APEFOOTER_H
-#define TAGLIB_APEFOOTER_H
-
-namespace TagLib {
-
-  namespace APE {
-
-	//! An implementation of APE footers
-
-	/*!
-	 * This class implements APE footers (and headers). It attempts to follow, both
-	 * semantically and programatically, the structure specified in
-	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
-	 * headers specified there.
-	 */
-
-	class TAGLIB_EXPORT Footer
-	{
-	public:
-	  /*!
-	   * Constructs an empty APE footer.
-	   */
-	  Footer();
-
-	  /*!
-	   * Constructs an APE footer based on \a data.  parse() is called
-	   * immediately.
-	   */
-	  Footer(const ByteVector &data);
-
-	  /*!
-	   * Destroys the footer.
-	   */
-	  virtual ~Footer();
-
-	  /*!
-	   * Returns the version number.  (Note: This is the 1000 or 2000.)
-	   */
-	  uint version() const;
-
-	  /*!
-	   * Returns true if a header is present in the tag.
-	   */
-	  bool headerPresent() const;
-
-	  /*!
-	   * Returns true if a footer is present in the tag.
-	   */
-	  bool footerPresent() const;
-
-	  /*!
-	   * Returns true this is actually the header.
-	   */
-	  bool isHeader() const;
-
-	  /*!
-	   * Sets whether the header should be rendered or not
-	   */
-	  void setHeaderPresent(bool b) const;
-
-	  /*!
-	   * Returns the number of items in the tag.
-	   */
-	  uint itemCount() const;
-
-	  /*!
-	   * Set the item count to \a s.
-	   * \see itemCount()
-	   */
-	  void setItemCount(uint s);
-
-	  /*!
-	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
-	   * The size of the \e entire tag will be this plus the header size, if present.
-	   *
-	   * \see completeTagSize()
-	   */
-	  uint tagSize() const;
-
-	  /*!
-	   * Returns the tag size, including if present, the header
-	   * size.
-	   *
-	   * \see tagSize()
-	   */
-	  uint completeTagSize() const;
-
-	  /*!
-	   * Set the tag size to \a s.
-	   * \see tagSize()
-	   */
-	  void setTagSize(uint s);
-
-	  /*!
-	   * Returns the size of the footer.  Presently this is always 32 bytes.
-	   */
-	  static uint size();
-
-	  /*!
-	   * Returns the string used to identify an APE tag inside of a file.
-	   * Presently this is always "APETAGEX".
-	   */
-	  static ByteVector fileIdentifier();
-
-	  /*!
-	   * Sets the data that will be used as the footer.  32 bytes,
-	   * starting from \a data will be used.
-	   */
-	  void setData(const ByteVector &data);
-
-	  /*!
-	   * Renders the footer back to binary format.
-	   */
-	  ByteVector renderFooter() const;
-
-	  /*!
-	   * Renders the header corresponding to the footer. If headerPresent is
-	   * set to false, it returns an empty ByteVector.
-	   */
-	  ByteVector renderHeader() const;
-
-	protected:
-	  /*!
-	   * Called by setData() to parse the footer data.  It makes this information
-	   * available through the public API.
-	   */
-	  void parse(const ByteVector &data);
-
-	  /*!
-	   * Called by renderFooter and renderHeader
-	   */
-	  ByteVector render(bool isHeader) const;
-
-	private:
-	  Footer(const Footer &);
-	  Footer &operator=(const Footer &);
-
-	  class FooterPrivate;
-	  FooterPrivate *d;
-	};
-
-  }
-}
-
+#ifdef __SUNPRO_CC
+// Sun Studio finds multiple specializations of Map because
+// it considers specializations with and without class types
+// to be different; this define forces Map to use only the
+// specialization with the class keyword.
+#define WANT_CLASS_INSTANTIATION_OF_MAP (1)
 #endif
-
-/*** End of inlined file: apefooter.h ***/
 
 
 /*** Start of inlined file: apetag.h ***/
@@ -13662,6 +13625,611 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: apetag.h ***/
+
+
+/*** Start of inlined file: apefooter.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEFOOTER_H
+#define TAGLIB_APEFOOTER_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	//! An implementation of APE footers
+
+	/*!
+	 * This class implements APE footers (and headers). It attempts to follow, both
+	 * semantically and programatically, the structure specified in
+	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
+	 * headers specified there.
+	 */
+
+	class TAGLIB_EXPORT Footer
+	{
+	public:
+	  /*!
+	   * Constructs an empty APE footer.
+	   */
+	  Footer();
+
+	  /*!
+	   * Constructs an APE footer based on \a data.  parse() is called
+	   * immediately.
+	   */
+	  Footer(const ByteVector &data);
+
+	  /*!
+	   * Destroys the footer.
+	   */
+	  virtual ~Footer();
+
+	  /*!
+	   * Returns the version number.  (Note: This is the 1000 or 2000.)
+	   */
+	  uint version() const;
+
+	  /*!
+	   * Returns true if a header is present in the tag.
+	   */
+	  bool headerPresent() const;
+
+	  /*!
+	   * Returns true if a footer is present in the tag.
+	   */
+	  bool footerPresent() const;
+
+	  /*!
+	   * Returns true this is actually the header.
+	   */
+	  bool isHeader() const;
+
+	  /*!
+	   * Sets whether the header should be rendered or not
+	   */
+	  void setHeaderPresent(bool b) const;
+
+	  /*!
+	   * Returns the number of items in the tag.
+	   */
+	  uint itemCount() const;
+
+	  /*!
+	   * Set the item count to \a s.
+	   * \see itemCount()
+	   */
+	  void setItemCount(uint s);
+
+	  /*!
+	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
+	   * The size of the \e entire tag will be this plus the header size, if present.
+	   *
+	   * \see completeTagSize()
+	   */
+	  uint tagSize() const;
+
+	  /*!
+	   * Returns the tag size, including if present, the header
+	   * size.
+	   *
+	   * \see tagSize()
+	   */
+	  uint completeTagSize() const;
+
+	  /*!
+	   * Set the tag size to \a s.
+	   * \see tagSize()
+	   */
+	  void setTagSize(uint s);
+
+	  /*!
+	   * Returns the size of the footer.  Presently this is always 32 bytes.
+	   */
+	  static uint size();
+
+	  /*!
+	   * Returns the string used to identify an APE tag inside of a file.
+	   * Presently this is always "APETAGEX".
+	   */
+	  static ByteVector fileIdentifier();
+
+	  /*!
+	   * Sets the data that will be used as the footer.  32 bytes,
+	   * starting from \a data will be used.
+	   */
+	  void setData(const ByteVector &data);
+
+	  /*!
+	   * Renders the footer back to binary format.
+	   */
+	  ByteVector renderFooter() const;
+
+	  /*!
+	   * Renders the header corresponding to the footer. If headerPresent is
+	   * set to false, it returns an empty ByteVector.
+	   */
+	  ByteVector renderHeader() const;
+
+	protected:
+	  /*!
+	   * Called by setData() to parse the footer data.  It makes this information
+	   * available through the public API.
+	   */
+	  void parse(const ByteVector &data);
+
+	  /*!
+	   * Called by renderFooter and renderHeader
+	   */
+	  ByteVector render(bool isHeader) const;
+
+	private:
+	  Footer(const Footer &);
+	  Footer &operator=(const Footer &);
+
+	  class FooterPrivate;
+	  FooterPrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: apefooter.h ***/
+
+namespace TagLib
+{
+
+class APE::Tag::TagPrivate
+{
+public:
+  TagPrivate() : file(0), footerLocation(-1), tagLength(0) {}
+
+  TagLib::File *file;
+  long footerLocation;
+  long tagLength;
+
+  Footer footer;
+
+  ItemListMap itemListMap;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public methods
+////////////////////////////////////////////////////////////////////////////////
+
+APE::Tag::Tag() : TagLib::Tag()
+{
+  d = new TagPrivate;
+}
+
+APE::Tag::Tag(TagLib::File *file, long footerLocation) : TagLib::Tag()
+{
+  d = new TagPrivate;
+  d->file = file;
+  d->footerLocation = footerLocation;
+
+  read();
+}
+
+APE::Tag::~Tag()
+{
+  delete d;
+}
+
+ByteVector APE::Tag::fileIdentifier()
+{
+  return ByteVector::fromCString("APETAGEX");
+}
+
+String APE::Tag::title() const
+{
+  if(d->itemListMap["TITLE"].isEmpty())
+	return String::null;
+  return d->itemListMap["TITLE"].toString();
+}
+
+String APE::Tag::artist() const
+{
+  if(d->itemListMap["ARTIST"].isEmpty())
+	return String::null;
+  return d->itemListMap["ARTIST"].toString();
+}
+
+String APE::Tag::album() const
+{
+  if(d->itemListMap["ALBUM"].isEmpty())
+	return String::null;
+  return d->itemListMap["ALBUM"].toString();
+}
+
+String APE::Tag::comment() const
+{
+  if(d->itemListMap["COMMENT"].isEmpty())
+	return String::null;
+  return d->itemListMap["COMMENT"].toString();
+}
+
+String APE::Tag::genre() const
+{
+  if(d->itemListMap["GENRE"].isEmpty())
+	return String::null;
+  return d->itemListMap["GENRE"].toString();
+}
+
+TagLib::uint APE::Tag::year() const
+{
+  if(d->itemListMap["YEAR"].isEmpty())
+	return 0;
+  return d->itemListMap["YEAR"].toString().toInt();
+}
+
+TagLib::uint APE::Tag::track() const
+{
+  if(d->itemListMap["TRACK"].isEmpty())
+	return 0;
+  return d->itemListMap["TRACK"].toString().toInt();
+}
+
+void APE::Tag::setTitle(const String &s)
+{
+  addValue("TITLE", s, true);
+}
+
+void APE::Tag::setArtist(const String &s)
+{
+  addValue("ARTIST", s, true);
+}
+
+void APE::Tag::setAlbum(const String &s)
+{
+  addValue("ALBUM", s, true);
+}
+
+void APE::Tag::setComment(const String &s)
+{
+  addValue("COMMENT", s, true);
+}
+
+void APE::Tag::setGenre(const String &s)
+{
+  addValue("GENRE", s, true);
+}
+
+void APE::Tag::setYear(uint i)
+{
+  if(i <= 0)
+	removeItem("YEAR");
+  else
+	addValue("YEAR", String::number(i), true);
+}
+
+void APE::Tag::setTrack(uint i)
+{
+  if(i <= 0)
+	removeItem("TRACK");
+  else
+	addValue("TRACK", String::number(i), true);
+}
+
+APE::Footer *APE::Tag::footer() const
+{
+  return &d->footer;
+}
+
+const APE::ItemListMap& APE::Tag::itemListMap() const
+{
+  return d->itemListMap;
+}
+
+void APE::Tag::removeItem(const String &key)
+{
+  Map<const String, Item>::Iterator it = d->itemListMap.find(key.upper());
+  if(it != d->itemListMap.end())
+	d->itemListMap.erase(it);
+}
+
+void APE::Tag::addValue(const String &key, const String &value, bool replace)
+{
+  if(replace)
+	removeItem(key);
+  if(!value.isEmpty()) {
+	if(d->itemListMap.contains(key) || !replace)
+	  d->itemListMap[key.upper()].appendValue(value);
+	else
+	  setItem(key, Item(key, value));
+  }
+}
+
+void APE::Tag::setItem(const String &key, const Item &item)
+{
+  d->itemListMap.insert(key.upper(), item);
+}
+
+bool APE::Tag::isEmpty() const
+{
+  return d->itemListMap.isEmpty();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected methods
+////////////////////////////////////////////////////////////////////////////////
+
+void APE::Tag::read()
+{
+  if(d->file && d->file->isValid()) {
+
+	d->file->seek(d->footerLocation);
+	d->footer.setData(d->file->readBlock(Footer::size()));
+
+	if(d->footer.tagSize() <= Footer::size() ||
+	   d->footer.tagSize() > uint(d->file->length()))
+	  return;
+
+	d->file->seek(d->footerLocation + Footer::size() - d->footer.tagSize());
+	parse(d->file->readBlock(d->footer.tagSize() - Footer::size()));
+  }
+}
+
+ByteVector APE::Tag::render() const
+{
+  ByteVector data;
+  uint itemCount = 0;
+
+  {
+	for(Map<const String, Item>::ConstIterator it = d->itemListMap.begin();
+		it != d->itemListMap.end(); ++it)
+	{
+	  data.append(it->second.render());
+	  itemCount++;
+	}
+  }
+
+  d->footer.setItemCount(itemCount);
+  d->footer.setTagSize(data.size() + Footer::size());
+  d->footer.setHeaderPresent(true);
+
+  return d->footer.renderHeader() + data + d->footer.renderFooter();
+}
+
+void APE::Tag::parse(const ByteVector &data)
+{
+  uint pos = 0;
+
+  // 11 bytes is the minimum size for an APE item
+
+  for(uint i = 0; i < d->footer.itemCount() && pos <= data.size() - 11; i++) {
+	APE::Item item;
+	item.parse(data.mid(pos));
+
+	d->itemListMap.insert(item.key().upper(), item);
+
+	pos += item.size();
+  }
+}
+
+}
+
+/*** End of inlined file: apetag.cpp ***/
+
+
+/*** Start of inlined file: mpegfile.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: id3v1tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ID3V1TAG_H
+#define TAGLIB_ID3V1TAG_H
+
+namespace TagLib {
+
+  class File;
+
+  //! An ID3v1 implementation
+
+  namespace ID3v1 {
+
+	//! A abstraction for the string to data encoding in ID3v1 tags.
+
+	/*!
+	 * ID3v1 should in theory always contain ISO-8859-1 (Latin1) data.  In
+	 * practice it does not.  TagLib by default only supports ISO-8859-1 data
+	 * in ID3v1 tags.
+	 *
+	 * However by subclassing this class and reimplementing parse() and render()
+	 * and setting your reimplementation as the default with
+	 * ID3v1::Tag::setStringHandler() you can define how you would like these
+	 * transformations to be done.
+	 *
+	 * \warning It is advisable <b>not</b> to write non-ISO-8859-1 data to ID3v1
+	 * tags.  Please consider disabling the writing of ID3v1 tags in the case
+	 * that the data is not ISO-8859-1.
+	 *
+	 * \see ID3v1::Tag::setStringHandler()
+	 */
+
+	class TAGLIB_EXPORT StringHandler
+	{
+	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
+	public:
+	  // BIC: Add virtual destructor.
+	  StringHandler();
+
+	  /*!
+	   * Decode a string from \a data.  The default implementation assumes that
+	   * \a data is an ISO-8859-1 (Latin1) character array.
+	   */
+	  virtual String parse(const ByteVector &data) const;
+
+	  /*!
+	   * Encode a ByteVector with the data from \a s.  The default implementation
+	   * assumes that \a s is an ISO-8859-1 (Latin1) string.  If the string is
+	   * does not conform to ISO-8859-1, no value is written.
+	   *
+	   * \warning It is recommended that you <b>not</b> override this method, but
+	   * instead do not write an ID3v1 tag in the case that the data is not
+	   * ISO-8859-1.
+	   */
+	  virtual ByteVector render(const String &s) const;
+	};
+
+	//! The main class in the ID3v1 implementation
+
+	/*!
+	 * This is an implementation of the ID3v1 format.  ID3v1 is both the simplist
+	 * and most common of tag formats but is rather limited.  Because of its
+	 * pervasiveness and the way that applications have been written around the
+	 * fields that it provides, the generic TagLib::Tag API is a mirror of what is
+	 * provided by ID3v1.
+	 *
+	 * ID3v1 tags should generally only contain Latin1 information.  However because
+	 * many applications do not follow this rule there is now support for overriding
+	 * the ID3v1 string handling using the ID3v1::StringHandler class.  Please see
+	 * the documentation for that class for more information.
+	 *
+	 * \see StringHandler
+	 *
+	 * \note Most fields are truncated to a maximum of 28-30 bytes.  The
+	 * truncation happens automatically when the tag is rendered.
+	 */
+
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Create an ID3v1 tag with default values.
+	   */
+	  Tag();
+
+	  /*!
+	   * Create an ID3v1 tag and parse the data in \a file starting at
+	   * \a tagOffset.
+	   */
+	  Tag(File *file, long tagOffset);
+
+	  /*!
+	   * Destroys this Tag instance.
+	   */
+	  virtual ~Tag();
+
+	  /*!
+	   * Renders the in memory values to a ByteVector suitable for writing to
+	   * the file.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Returns the string "TAG" suitable for usage in locating the tag in a
+	   * file.
+	   */
+	  static ByteVector fileIdentifier();
+
+	  // Reimplementations.
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  /*!
+	   * Sets the string handler that decides how the ID3v1 data will be
+	   * converted to and from binary data.
+	   *
+	   * \see StringHandler
+	   */
+	  static void setStringHandler(const StringHandler *handler);
+
+	protected:
+	  /*!
+	   * Reads from the file specified in the constructor.
+	   */
+	  void read();
+	  /*!
+	   * Pareses the body of the tag in \a data.
+	   */
+	  void parse(const ByteVector &data);
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: id3v1tag.h ***/
 
 #include <bitset>
 
