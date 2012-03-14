@@ -21,6 +21,10 @@
 #include "fileref.cpp"
 #include "audioproperties.cpp"
 
+// these two don't compile unless they come early
+#include "mp4/mp4atom.cpp"
+#include "ape/apetag.cpp"
+
 #include "mpeg/mpegfile.cpp"
 #include "mpeg/mpegproperties.cpp"
 #include "mpeg/mpegheader.cpp"
