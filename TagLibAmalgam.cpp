@@ -1,3 +1,24 @@
+/*
+  ==============================================================================
+
+  Copyright (c) 2002 Scott Wheeler, Lukas Lalinsky, Ismael Orenstein,
+  Allan Sandfeld Jensen, Teemu Tervo, Mathias Panzenbock
+
+  Official Project Location: http://developer.kde.org/~wheeler/taglib.html
+  Amalgamated Project Location: https://github.com/vinniefalco/TagLibAmalgam
+
+  ------------------------------------------------------------------------------
+
+  TagLib is distributed under the GNU Lesser General Public License (LGPL) and
+  Mozilla Public License (MPL). Essentially that means that it may be used in
+  proprietary applications, but if changes are made to TagLib they must be
+  contributed back to the project. Please review the licenses if you are
+  considering using TagLib in your project. See COPYING.MPL and COPYING.GPL for
+  more information on the licenses.
+
+  ==============================================================================
+*/
+
 #define TAGLIB_NO_CONFIG
 #define MAKE_TAGLIB_LIB
 #define TAGLIB_STATIC
@@ -6,10 +27,18 @@
 
 // disable warnings about unsafe standard library calls
 #ifdef _MSC_VER
+#pragma push_macro ("_CRT_SECURE_NO_WARNINGS")
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#pragma warning (push)
+#pragma warning (disable: 4996) // deprecated POSIX names
 #endif
+
+// These wrap taglib .cpp files with a namespace to prevent a flood of
+// compilation errors caused by promiscuous usage of "using" directives.
+#define TAGLIB_BEGIN_SOURCE namespace TagLib {
+#define TAGLIB_END_SOURCE }
 
 //#include "TagLibConfig.h"
 
@@ -359,7 +388,7 @@ namespace TagLib {
 #define TAGLIB_BYTEVECTOR_H
 
 #include <vector>
-#include <ostream>
+#include <iostream>
 
 namespace TagLib {
 
@@ -756,7 +785,7 @@ TAGLIB_EXPORT std::ostream &operator<<(std::ostream &s, const TagLib::ByteVector
 /*** End of inlined file: tbytevector.h ***/
 
 #include <string>
-#include <ostream>
+#include <iostream>
 
 /*!
  * \relates TagLib::String
@@ -1694,6 +1723,11 @@ namespace TagLib {
 	 */
 	bool operator==(const List<T> &l) const;
 
+	/*!
+	 * Compares this list with \a l and returns true if the lists differ.
+	 */
+	bool operator!=(const List<T> &l) const;
+
   protected:
 	/*
 	 * If this List is being shared via implicit sharing, do a deep copy of the
@@ -2013,6 +2047,12 @@ bool List<T>::operator==(const List<T> &l) const
   return d->list == l.d->list;
 }
 
+template <class T>
+bool List<T>::operator!=(const List<T> &l) const
+{
+  return d->list != l.d->list;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // protected members
 ////////////////////////////////////////////////////////////////////////////////
@@ -2121,7 +2161,7 @@ namespace TagLib {
 
 /*** End of inlined file: tbytevectorlist.h ***/
 
-#include <ostream>
+#include <iostream>
 
 namespace TagLib {
 
@@ -2206,7 +2246,7 @@ std::ostream &operator<<(std::ostream &s, const TagLib::StringList &l);
 
 /*** End of inlined file: tstringlist.h ***/
 
-#include <ostream>
+#include <iostream>
 
 #include <string.h>
 
@@ -3063,6 +3103,204 @@ std::ostream &operator<<(std::ostream &s, const String &str)
 #define TAGLIB_FILE_H
 
 
+/*** Start of inlined file: tag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TAG_H
+#define TAGLIB_TAG_H
+
+namespace TagLib {
+
+  //! A simple, generic interface to common audio meta data fields
+
+  /*!
+   * This is an attempt to abstract away the difference in the meta data formats
+   * of various audio codecs and tagging schemes.  As such it is generally a
+   * subset of what is available in the specific formats but should be suitable
+   * for most applications.  This is meant to compliment the generic APIs found
+   * in TagLib::AudioProperties, TagLib::File and TagLib::FileRef.
+   */
+
+  class PropertyMap;
+
+  class TAGLIB_EXPORT Tag
+  {
+  public:
+
+	/*!
+	 * Detroys this Tag instance.
+	 */
+	virtual ~Tag();
+
+	/*!
+	 * Exports the tags of the file as dictionary mapping (human readable) tag
+	 * names (Strings) to StringLists of tag values.
+	 * The default implementation in this class considers only the usual built-in
+	 * tags (artist, album, ...) and only one value per key.
+	 */
+	PropertyMap properties() const;
+
+	/*!
+	 * Removes unsupported properties, or a subset of them, from the tag.
+	 * The parameter \a properties must contain only entries from
+	 * properties().unsupportedData().
+	 * BIC: Will become virtual in future releases. Currently the non-virtual
+	 * standard implementation of TagLib::Tag does nothing, since there are
+	 * no unsupported elements.
+	 */
+	void removeUnsupportedProperties(const StringList& properties);
+
+	/*!
+	 * Sets the tags of this File to those specified in \a properties. This default
+	 * implementation sets only the tags for which setter methods exist in this class
+	 * (artist, album, ...), and only one value per key; the rest will be contained
+	 * in the returned PropertyMap.
+	 */
+	PropertyMap setProperties(const PropertyMap &properties);
+
+	/*!
+	 * Returns the track name; if no track name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String title() const = 0;
+
+	/*!
+	 * Returns the artist name; if no artist name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String artist() const = 0;
+
+	/*!
+	 * Returns the album name; if no album name is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String album() const = 0;
+
+	/*!
+	 * Returns the track comment; if no comment is present in the tag
+	 * String::null will be returned.
+	 */
+	virtual String comment() const = 0;
+
+	/*!
+	 * Returns the genre name; if no genre is present in the tag String::null
+	 * will be returned.
+	 */
+	virtual String genre() const = 0;
+
+	/*!
+	 * Returns the year; if there is no year set, this will return 0.
+	 */
+	virtual uint year() const = 0;
+
+	/*!
+	 * Returns the track number; if there is no track number set, this will
+	 * return 0.
+	 */
+	virtual uint track() const = 0;
+
+	/*!
+	 * Sets the title to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setTitle(const String &s) = 0;
+
+	/*!
+	 * Sets the artist to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setArtist(const String &s) = 0;
+
+	/*!
+	 * Sets the album to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setAlbum(const String &s) = 0;
+
+	/*!
+	 * Sets the comment to \a s.  If \a s is String::null then this value will be
+	 * cleared.
+	 */
+	virtual void setComment(const String &s) = 0;
+
+	/*!
+	 * Sets the genre to \a s.  If \a s is String::null then this value will be
+	 * cleared.  For tag formats that use a fixed set of genres, the appropriate
+	 * value will be selected based on a string comparison.  A list of available
+	 * genres for those formats should be available in that type's
+	 * implementation.
+	 */
+	virtual void setGenre(const String &s) = 0;
+
+	/*!
+	 * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
+	 */
+	virtual void setYear(uint i) = 0;
+
+	/*!
+	 * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
+	 */
+	virtual void setTrack(uint i) = 0;
+
+	/*!
+	 * Returns true if the tag does not contain any data.  This should be
+	 * reimplemented in subclasses that provide more than the basic tagging
+	 * abilities in this class.
+	 */
+	virtual bool isEmpty() const;
+
+	/*!
+	 * Copies the generic data from one tag to another.
+	 *
+	 * \note This will no affect any of the lower level details of the tag.  For
+	 * instance if any of the tag type specific data (maybe a URL for a band) is
+	 * set, this will not modify or copy that.  This just copies using the API
+	 * in this class.
+	 *
+	 * If \a overwrite is true then the values will be unconditionally copied.
+	 * If false only empty values will be overwritten.
+	 */
+	static void duplicate(const Tag *source, Tag *target, bool overwrite = true);
+
+  protected:
+	/*!
+	 * Construct a Tag.  This is protected since tags should only be instantiated
+	 * through subclasses.
+	 */
+	Tag();
+
+  private:
+	Tag(const Tag &);
+	Tag &operator=(const Tag &);
+
+	class TagPrivate;
+	TagPrivate *d;
+  };
+}
+
+#endif
+
+/*** End of inlined file: tag.h ***/
+
+
 /*** Start of inlined file: tiostream.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -3223,6 +3461,7 @@ namespace TagLib {
   class String;
   class Tag;
   class AudioProperties;
+  class PropertyMap;
 
   //! A file class with some useful methods for tag manipulation
 
@@ -3263,6 +3502,36 @@ namespace TagLib {
 	 */
 	virtual Tag *tag() const = 0;
 
+	/*!
+	 * Exports the tags of the file as dictionary mapping (human readable) tag
+	 * names (Strings) to StringLists of tag values. Calls the according specialization
+	 * in the File subclasses.
+	 * For each metadata object of the file that could not be parsed into the PropertyMap
+	 * format, the returend map's unsupportedData() list will contain one entry identifying
+	 * that object (e.g. the frame type for ID3v2 tags). Use removeUnsupportedProperties()
+	 * to remove (a subset of) them.
+	 * BIC: Will be made virtual in future releases.
+	 */
+	PropertyMap properties() const;
+
+	/*!
+	 * Removes unsupported properties, or a subset of them, from the file's metadata.
+	 * The parameter \a properties must contain only entries from
+	 * properties().unsupportedData().
+	 * BIC: Will be mad virtual in future releases.
+	 */
+	void removeUnsupportedProperties(const StringList& properties);
+
+	/*!
+	 * Sets the tags of this File to those specified in \a properties. Calls the
+	 * according specialization method in the subclasses of File to do the translation
+	 * into the format-specific details.
+	 * If some value(s) could not be written imported to the specific metadata format,
+	 * the returned PropertyMap will contain those value(s). Otherwise it will be empty,
+	 * indicating that no problems occured.
+	 * BIC: will become pure virtual in the future
+	 */
+	PropertyMap setProperties(const PropertyMap &properties);
 	/*!
 	 * Returns a pointer to this file's audio properties.  This should be
 	 * reimplemented in the concrete subclasses.  If no audio properties were
@@ -3600,327 +3869,11 @@ namespace TagLib {
 
 /*** End of inlined file: tfilestream.h ***/
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
 
-#ifdef _WIN32
-# include <wchar.h>
-# include <windows.h>
-# include <io.h>
-# define ftruncate _chsize
-#else
-# include <unistd.h>
-#endif
-
-#include <stdlib.h>
-
-#ifndef R_OK
-# define R_OK 4
-#endif
-#ifndef W_OK
-# define W_OK 2
-#endif
-
-using namespace TagLib;
-
-class File::FilePrivate
-{
-public:
-  FilePrivate(IOStream *stream);
-
-  IOStream *stream;
-  bool valid;
-  static const uint bufferSize = 1024;
-};
-
-File::FilePrivate::FilePrivate(IOStream *stream) :
-  stream(stream),
-  valid(true)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// public members
-////////////////////////////////////////////////////////////////////////////////
-
-File::File(FileName fileName)
-{
-  IOStream *stream = new FileStream(fileName);
-  d = new FilePrivate(stream);
-}
-
-File::File(IOStream *stream)
-{
-  d = new FilePrivate(stream);
-}
-
-File::~File()
-{
-  if(d->stream)
-	delete d->stream;
-  delete d;
-}
-
-FileName File::name() const
-{
-  return d->stream->name();
-}
-
-ByteVector File::readBlock(ulong length)
-{
-  return d->stream->readBlock(length);
-}
-
-void File::writeBlock(const ByteVector &data)
-{
-  d->stream->writeBlock(data);
-}
-
-long File::find(const ByteVector &pattern, long fromOffset, const ByteVector &before)
-{
-  if(!d->stream || pattern.size() > d->bufferSize)
-	  return -1;
-
-  // The position in the file that the current buffer starts at.
-
-  long bufferOffset = fromOffset;
-  ByteVector buffer;
-
-  // These variables are used to keep track of a partial match that happens at
-  // the end of a buffer.
-
-  int previousPartialMatch = -1;
-  int beforePreviousPartialMatch = -1;
-
-  // Save the location of the current read pointer.  We will restore the
-  // position using seek() before all returns.
-
-  long originalPosition = tell();
-
-  // Start the search at the offset.
-
-  seek(fromOffset);
-
-  // This loop is the crux of the find method.  There are three cases that we
-  // want to account for:
-  //
-  // (1) The previously searched buffer contained a partial match of the search
-  // pattern and we want to see if the next one starts with the remainder of
-  // that pattern.
-  //
-  // (2) The search pattern is wholly contained within the current buffer.
-  //
-  // (3) The current buffer ends with a partial match of the pattern.  We will
-  // note this for use in the next itteration, where we will check for the rest
-  // of the pattern.
-  //
-  // All three of these are done in two steps.  First we check for the pattern
-  // and do things appropriately if a match (or partial match) is found.  We
-  // then check for "before".  The order is important because it gives priority
-  // to "real" matches.
-
-  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
-
-	// (1) previous partial match
-
-	if(previousPartialMatch >= 0 && int(d->bufferSize) > previousPartialMatch) {
-	  const int patternOffset = (d->bufferSize - previousPartialMatch);
-	  if(buffer.containsAt(pattern, 0, patternOffset)) {
-		seek(originalPosition);
-		return bufferOffset - d->bufferSize + previousPartialMatch;
-	  }
-	}
-
-	if(!before.isNull() && beforePreviousPartialMatch >= 0 && int(d->bufferSize) > beforePreviousPartialMatch) {
-	  const int beforeOffset = (d->bufferSize - beforePreviousPartialMatch);
-	  if(buffer.containsAt(before, 0, beforeOffset)) {
-		seek(originalPosition);
-		return -1;
-	  }
-	}
-
-	// (2) pattern contained in current buffer
-
-	long location = buffer.find(pattern);
-	if(location >= 0) {
-	  seek(originalPosition);
-	  return bufferOffset + location;
-	}
-
-	if(!before.isNull() && buffer.find(before) >= 0) {
-	  seek(originalPosition);
-	  return -1;
-	}
-
-	// (3) partial match
-
-	previousPartialMatch = buffer.endsWithPartialMatch(pattern);
-
-	if(!before.isNull())
-	  beforePreviousPartialMatch = buffer.endsWithPartialMatch(before);
-
-	bufferOffset += d->bufferSize;
-  }
-
-  // Since we hit the end of the file, reset the status before continuing.
-
-  clear();
-
-  seek(originalPosition);
-
-  return -1;
-}
-
-long File::rfind(const ByteVector &pattern, long fromOffset, const ByteVector &before)
-{
-  if(!d->stream || pattern.size() > d->bufferSize)
-	  return -1;
-
-  // The position in the file that the current buffer starts at.
-
-  ByteVector buffer;
-
-  // These variables are used to keep track of a partial match that happens at
-  // the end of a buffer.
-
-  /*
-  int previousPartialMatch = -1;
-  int beforePreviousPartialMatch = -1;
-  */
-
-  // Save the location of the current read pointer.  We will restore the
-  // position using seek() before all returns.
-
-  long originalPosition = tell();
-
-  // Start the search at the offset.
-
-  long bufferOffset;
-  if(fromOffset == 0) {
-	seek(-1 * int(d->bufferSize), End);
-	bufferOffset = tell();
-  }
-  else {
-	seek(fromOffset + -1 * int(d->bufferSize), Beginning);
-	bufferOffset = tell();
-  }
-
-  // See the notes in find() for an explanation of this algorithm.
-
-  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
-
-	// TODO: (1) previous partial match
-
-	// (2) pattern contained in current buffer
-
-	long location = buffer.rfind(pattern);
-	if(location >= 0) {
-	  seek(originalPosition);
-	  return bufferOffset + location;
-	}
-
-	if(!before.isNull() && buffer.find(before) >= 0) {
-	  seek(originalPosition);
-	  return -1;
-	}
-
-	// TODO: (3) partial match
-
-	bufferOffset -= d->bufferSize;
-	seek(bufferOffset);
-  }
-
-  // Since we hit the end of the file, reset the status before continuing.
-
-  clear();
-
-  seek(originalPosition);
-
-  return -1;
-}
-
-void File::insert(const ByteVector &data, ulong start, ulong replace)
-{
-  d->stream->insert(data, start, replace);
-}
-
-void File::removeBlock(ulong start, ulong length)
-{
-  d->stream->removeBlock(start, length);
-}
-
-bool File::readOnly() const
-{
-  return d->stream->readOnly();
-}
-
-bool File::isOpen() const
-{
-  return d->stream->isOpen();
-}
-
-bool File::isValid() const
-{
-  return isOpen() && d->valid;
-}
-
-void File::seek(long offset, Position p)
-{
-  d->stream->seek(offset, IOStream::Position(p));
-}
-
-void File::truncate(long length)
-{
-  d->stream->truncate(length);
-}
-
-void File::clear()
-{
-  d->stream->clear();
-}
-
-long File::tell() const
-{
-  return d->stream->tell();
-}
-
-long File::length()
-{
-  return d->stream->length();
-}
-
-bool File::isReadable(const char *file)
-{
-  return access(file, R_OK) == 0;
-}
-
-bool File::isWritable(const char *file)
-{
-  return access(file, W_OK) == 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// protected members
-////////////////////////////////////////////////////////////////////////////////
-
-TagLib::uint File::bufferSize()
-{
-  return FilePrivate::bufferSize;
-}
-
-void File::setValid(bool valid)
-{
-  d->valid = valid;
-}
-
-/*** End of inlined file: tfile.cpp ***/
-
-
-/*** Start of inlined file: tag.cpp ***/
+/*** Start of inlined file: tpropertymap.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
+ *   it  under the terms of the GNU Lesser General Public License version  *
  *   2.1 as published by the Free Software Foundation.                     *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful, but   *
@@ -3930,1029 +3883,12 @@ void File::setValid(bool valid)
  *                                                                         *
  *   You should have received a copy of the GNU Lesser General Public      *
  *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
  ***************************************************************************/
 
-
-/*** Start of inlined file: tag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_TAG_H
-#define TAGLIB_TAG_H
-
-namespace TagLib {
-
-  //! A simple, generic interface to common audio meta data fields
-
-  /*!
-   * This is an attempt to abstract away the difference in the meta data formats
-   * of various audio codecs and tagging schemes.  As such it is generally a
-   * subset of what is available in the specific formats but should be suitable
-   * for most applications.  This is meant to compliment the generic APIs found
-   * in TagLib::AudioProperties, TagLib::File and TagLib::FileRef.
-   */
-
-  class TAGLIB_EXPORT Tag
-  {
-  public:
-
-	/*!
-	 * Detroys this Tag instance.
-	 */
-	virtual ~Tag();
-
-	/*!
-	 * Returns the track name; if no track name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String title() const = 0;
-
-	/*!
-	 * Returns the artist name; if no artist name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String artist() const = 0;
-
-	/*!
-	 * Returns the album name; if no album name is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String album() const = 0;
-
-	/*!
-	 * Returns the track comment; if no comment is present in the tag
-	 * String::null will be returned.
-	 */
-	virtual String comment() const = 0;
-
-	/*!
-	 * Returns the genre name; if no genre is present in the tag String::null
-	 * will be returned.
-	 */
-	virtual String genre() const = 0;
-
-	/*!
-	 * Returns the year; if there is no year set, this will return 0.
-	 */
-	virtual uint year() const = 0;
-
-	/*!
-	 * Returns the track number; if there is no track number set, this will
-	 * return 0.
-	 */
-	virtual uint track() const = 0;
-
-	/*!
-	 * Sets the title to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setTitle(const String &s) = 0;
-
-	/*!
-	 * Sets the artist to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setArtist(const String &s) = 0;
-
-	/*!
-	 * Sets the album to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setAlbum(const String &s) = 0;
-
-	/*!
-	 * Sets the comment to \a s.  If \a s is String::null then this value will be
-	 * cleared.
-	 */
-	virtual void setComment(const String &s) = 0;
-
-	/*!
-	 * Sets the genre to \a s.  If \a s is String::null then this value will be
-	 * cleared.  For tag formats that use a fixed set of genres, the appropriate
-	 * value will be selected based on a string comparison.  A list of available
-	 * genres for those formats should be available in that type's
-	 * implementation.
-	 */
-	virtual void setGenre(const String &s) = 0;
-
-	/*!
-	 * Sets the year to \a i.  If \a s is 0 then this value will be cleared.
-	 */
-	virtual void setYear(uint i) = 0;
-
-	/*!
-	 * Sets the track to \a i.  If \a s is 0 then this value will be cleared.
-	 */
-	virtual void setTrack(uint i) = 0;
-
-	/*!
-	 * Returns true if the tag does not contain any data.  This should be
-	 * reimplemented in subclasses that provide more than the basic tagging
-	 * abilities in this class.
-	 */
-	virtual bool isEmpty() const;
-
-	/*!
-	 * Copies the generic data from one tag to another.
-	 *
-	 * \note This will no affect any of the lower level details of the tag.  For
-	 * instance if any of the tag type specific data (maybe a URL for a band) is
-	 * set, this will not modify or copy that.  This just copies using the API
-	 * in this class.
-	 *
-	 * If \a overwrite is true then the values will be unconditionally copied.
-	 * If false only empty values will be overwritten.
-	 */
-	static void duplicate(const Tag *source, Tag *target, bool overwrite = true);
-
-  protected:
-	/*!
-	 * Construct a Tag.  This is protected since tags should only be instantiated
-	 * through subclasses.
-	 */
-	Tag();
-
-  private:
-	Tag(const Tag &);
-	Tag &operator=(const Tag &);
-
-	class TagPrivate;
-	TagPrivate *d;
-  };
-}
-
-#endif
-
-/*** End of inlined file: tag.h ***/
-
-using namespace TagLib;
-
-class Tag::TagPrivate
-{
-
-};
-
-Tag::Tag()
-{
-
-}
-
-Tag::~Tag()
-{
-
-}
-
-bool Tag::isEmpty() const
-{
-  return (title().isEmpty() &&
-		  artist().isEmpty() &&
-		  album().isEmpty() &&
-		  comment().isEmpty() &&
-		  genre().isEmpty() &&
-		  year() == 0 &&
-		  track() == 0);
-}
-
-void Tag::duplicate(const Tag *source, Tag *target, bool overwrite) // static
-{
-  if(overwrite) {
-	target->setTitle(source->title());
-	target->setArtist(source->artist());
-	target->setAlbum(source->album());
-	target->setComment(source->comment());
-	target->setGenre(source->genre());
-	target->setYear(source->year());
-	target->setTrack(source->track());
-  }
-  else {
-	if(target->title().isEmpty())
-	  target->setTitle(source->title());
-	if(target->artist().isEmpty())
-	  target->setArtist(source->artist());
-	if(target->album().isEmpty())
-	  target->setAlbum(source->album());
-	if(target->comment().isEmpty())
-	  target->setComment(source->comment());
-	if(target->genre().isEmpty())
-	  target->setGenre(source->genre());
-	if(target->year() <= 0)
-	  target->setYear(source->year());
-	if(target->track() <= 0)
-	  target->setTrack(source->track());
-  }
-}
-
-/*** End of inlined file: tag.cpp ***/
-
-
-/*** Start of inlined file: tagunion.cpp ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-
-/*** Start of inlined file: tagunion.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_TAGUNION_H
-#define TAGLIB_TAGUNION_H
-
-#ifndef DO_NOT_DOCUMENT
-
-namespace TagLib {
-
-  /*!
-   * \internal
-   */
-
-  class TagUnion : public Tag
-  {
-  public:
-
-	enum AccessType { Read, Write };
-
-	/*!
-	 * Creates a TagLib::Tag that is the union of \a first, \a second, and
-	 * \a third.  The TagUnion takes ownership of these tags and will handle
-	 * their deletion.
-	 */
-	TagUnion(Tag *first = 0, Tag *second = 0, Tag *third = 0);
-
-	virtual ~TagUnion();
-
-	Tag *operator[](int index) const;
-	Tag *tag(int index) const;
-
-	void set(int index, Tag *tag);
-
-	virtual String title() const;
-	virtual String artist() const;
-	virtual String album() const;
-	virtual String comment() const;
-	virtual String genre() const;
-	virtual uint year() const;
-	virtual uint track() const;
-
-	virtual void setTitle(const String &s);
-	virtual void setArtist(const String &s);
-	virtual void setAlbum(const String &s);
-	virtual void setComment(const String &s);
-	virtual void setGenre(const String &s);
-	virtual void setYear(uint i);
-	virtual void setTrack(uint i);
-	virtual bool isEmpty() const;
-
-	template <class T> T *access(int index, bool create)
-	{
-	  if(!create || tag(index))
-		return static_cast<T *>(tag(index));
-
-	  set(index, new T);
-	  return static_cast<T *>(tag(index));
-	}
-
-  private:
-	TagUnion(const Tag &);
-	TagUnion &operator=(const Tag &);
-
-	class TagUnionPrivate;
-	TagUnionPrivate *d;
-  };
-}
-
-#endif
-#endif
-
-/*** End of inlined file: tagunion.h ***/
-
-using namespace TagLib;
-
-#define stringUnion(method)                                          \
-  if(tag(0) && !tag(0)->method().isEmpty())                          \
-	return tag(0)->method();                                         \
-  if(tag(1) && !tag(1)->method().isEmpty())                          \
-	return tag(1)->method();                                         \
-  if(tag(2) && !tag(2)->method().isEmpty())                          \
-	return tag(2)->method();                                         \
-  return String::null                                                \
-
-#define numberUnion(method)                                          \
-  if(tag(0) && tag(0)->method() > 0)                                 \
-	return tag(0)->method();                                         \
-  if(tag(1) && tag(1)->method() > 0)                                 \
-	return tag(1)->method();                                         \
-  if(tag(2) && tag(2)->method() > 0)                                 \
-	return tag(2)->method();                                         \
-  return 0
-
-#define setUnion(method, value)                                      \
-  if(tag(0))                                                         \
-	tag(0)->set##method(value);                                      \
-  if(tag(1))                                                         \
-	tag(1)->set##method(value);                                      \
-  if(tag(2))                                                         \
-	tag(2)->set##method(value);                                      \
-
-class TagUnion::TagUnionPrivate
-{
-public:
-  TagUnionPrivate() : tags(3, static_cast<Tag *>(0))
-  {
-
-  }
-
-  ~TagUnionPrivate()
-  {
-	delete tags[0];
-	delete tags[1];
-	delete tags[2];
-  }
-
-  std::vector<Tag *> tags;
-};
-
-TagUnion::TagUnion(Tag *first, Tag *second, Tag *third)
-{
-  d = new TagUnionPrivate;
-
-  d->tags[0] = first;
-  d->tags[1] = second;
-  d->tags[2] = third;
-}
-
-TagUnion::~TagUnion()
-{
-  delete d;
-}
-
-Tag *TagUnion::operator[](int index) const
-{
-  return tag(index);
-}
-
-Tag *TagUnion::tag(int index) const
-{
-  return d->tags[index];
-}
-
-void TagUnion::set(int index, Tag *tag)
-{
-  delete d->tags[index];
-  d->tags[index] = tag;
-}
-
-String TagUnion::title() const
-{
-  stringUnion(title);
-}
-
-String TagUnion::artist() const
-{
-  stringUnion(artist);
-}
-
-String TagUnion::album() const
-{
-  stringUnion(album);
-}
-
-String TagUnion::comment() const
-{
-  stringUnion(comment);
-}
-
-String TagUnion::genre() const
-{
-  stringUnion(genre);
-}
-
-TagLib::uint TagUnion::year() const
-{
-  numberUnion(year);
-}
-
-TagLib::uint TagUnion::track() const
-{
-  numberUnion(track);
-}
-
-void TagUnion::setTitle(const String &s)
-{
-  setUnion(Title, s);
-}
-
-void TagUnion::setArtist(const String &s)
-{
-  setUnion(Artist, s);
-}
-
-void TagUnion::setAlbum(const String &s)
-{
-  setUnion(Album, s);
-}
-
-void TagUnion::setComment(const String &s)
-{
-  setUnion(Comment, s);
-}
-
-void TagUnion::setGenre(const String &s)
-{
-  setUnion(Genre, s);
-}
-
-void TagUnion::setYear(uint i)
-{
-  setUnion(Year, i);
-}
-
-void TagUnion::setTrack(uint i)
-{
-  setUnion(Track, i);
-}
-
-bool TagUnion::isEmpty() const
-{
-  if(d->tags[0] && !d->tags[0]->isEmpty())
-	return false;
-  if(d->tags[1] && !d->tags[1]->isEmpty())
-	return false;
-  if(d->tags[2] && !d->tags[2]->isEmpty())
-	return false;
-
-  return true;
-}
-
-/*** End of inlined file: tagunion.cpp ***/
-
-
-/*** Start of inlined file: fileref.cpp ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-
-/*** Start of inlined file: fileref.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_FILEREF_H
-#define TAGLIB_FILEREF_H
-
-
-/*** Start of inlined file: audioproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_AUDIOPROPERTIES_H
-#define TAGLIB_AUDIOPROPERTIES_H
-
-namespace TagLib {
-
-  //! A simple, abstract interface to common audio properties
-
-  /*!
-   * The values here are common to most audio formats.  For more specific, codec
-   * dependant values, please see see the subclasses APIs.  This is meant to
-   * compliment the TagLib::File and TagLib::Tag APIs in providing a simple
-   * interface that is sufficient for most applications.
-   */
-
-  class TAGLIB_EXPORT AudioProperties
-  {
-  public:
-
-	/*!
-	 * Reading audio properties from a file can sometimes be very time consuming
-	 * and for the most accurate results can often involve reading the entire
-	 * file.  Because in many situations speed is critical or the accuracy of the
-	 * values is not particularly important this allows the level of desired
-	 * accuracy to be set.
-	 */
-	enum ReadStyle {
-	  //! Read as little of the file as possible
-	  Fast,
-	  //! Read more of the file and make better values guesses
-	  Average,
-	  //! Read as much of the file as needed to report accurate values
-	  Accurate
-	};
-
-	/*!
-	 * Destroys this AudioProperties instance.
-	 */
-	virtual ~AudioProperties();
-
-	/*!
-	 * Returns the length of the file in seconds.
-	 */
-	virtual int length() const = 0;
-
-	/*!
-	 * Returns the most appropriate bit rate for the file in kb/s.  For constant
-	 * bitrate formats this is simply the bitrate of the file.  For variable
-	 * bitrate formats this is either the average or nominal bitrate.
-	 */
-	virtual int bitrate() const = 0;
-
-	/*!
-	 * Returns the sample rate in Hz.
-	 */
-	virtual int sampleRate() const = 0;
-
-	/*!
-	 * Returns the number of audio channels.
-	 */
-	virtual int channels() const = 0;
-
-  protected:
-
-	/*!
-	 * Construct an audio properties instance.  This is protected as this class
-	 * should not be instantiated directly, but should be instantiated via its
-	 * subclasses and can be fetched from the FileRef or File APIs.
-	 *
-	 * \see ReadStyle
-	 */
-	AudioProperties(ReadStyle style);
-
-  private:
-	AudioProperties(const AudioProperties &);
-	AudioProperties &operator=(const AudioProperties &);
-
-	class AudioPropertiesPrivate;
-	AudioPropertiesPrivate *d;
-  };
-
-}
-
-#endif
-
-/*** End of inlined file: audioproperties.h ***/
-
-namespace TagLib {
-
-  class Tag;
-
-  //! This class provides a simple abstraction for creating and handling files
-
-  /*!
-   * FileRef exists to provide a minimal, generic and value-based wrapper around
-   * a File.  It is lightweight and implicitly shared, and as such suitable for
-   * pass-by-value use.  This hides some of the uglier details of TagLib::File
-   * and the non-generic portions of the concrete file implementations.
-   *
-   * This class is useful in a "simple usage" situation where it is desirable
-   * to be able to get and set some of the tag information that is similar
-   * across file types.
-   *
-   * Also note that it is probably a good idea to plug this into your mime
-   * type system rather than using the constructor that accepts a file name using
-   * the FileTypeResolver.
-   *
-   * \see FileTypeResolver
-   * \see addFileTypeResolver()
-   */
-
-  class TAGLIB_EXPORT FileRef
-  {
-  public:
-
-  //! A class for pluggable file type resolution.
-
-  /*!
-   * This class is used to add extend TagLib's very basic file name based file
-   * type resolution.
-   *
-   * This can be accomplished with:
-   *
-   * \code
-   *
-   * class MyFileTypeResolver : FileTypeResolver
-   * {
-   *   TagLib::File *createFile(TagLib::FileName *fileName, bool, AudioProperties::ReadStyle)
-   *   {
-   *     if(someCheckForAnMP3File(fileName))
-   *       return new TagLib::MPEG::File(fileName);
-   *     return 0;
-   *   }
-   * }
-   *
-   * FileRef::addFileTypeResolver(new MyFileTypeResolver);
-   *
-   * \endcode
-   *
-   * Naturally a less contrived example would be slightly more complex.  This
-   * can be used to plug in mime-type detection systems or to add new file types
-   * to TagLib.
-   */
-
-	class TAGLIB_EXPORT FileTypeResolver
-	{
-	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
-	public:
-	  /*!
-	   * This method must be overridden to provide an additional file type
-	   * resolver.  If the resolver is able to determine the file type it should
-	   * return a valid File object; if not it should return 0.
-	   *
-	   * \note The created file is then owned by the FileRef and should not be
-	   * deleted.  Deletion will happen automatically when the FileRef passes
-	   * out of scope.
-	   */
-	  virtual File *createFile(FileName fileName,
-							   bool readAudioProperties = true,
-							   AudioProperties::ReadStyle
-							   audioPropertiesStyle = AudioProperties::Average) const = 0;
-	};
-
-	/*!
-	 * Creates a null FileRef.
-	 */
-	FileRef();
-
-	/*!
-	 * Create a FileRef from \a fileName.  If \a readAudioProperties is true then
-	 * the audio properties will be read using \a audioPropertiesStyle.  If
-	 * \a readAudioProperties is false then \a audioPropertiesStyle will be
-	 * ignored.
-	 *
-	 * Also see the note in the class documentation about why you may not want to
-	 * use this method in your application.
-	 */
-	explicit FileRef(FileName fileName,
-					 bool readAudioProperties = true,
-					 AudioProperties::ReadStyle
-					 audioPropertiesStyle = AudioProperties::Average);
-
-	/*!
-	 * Contruct a FileRef using \a file.  The FileRef now takes ownership of the
-	 * pointer and will delete the File when it passes out of scope.
-	 */
-	explicit FileRef(File *file);
-
-	/*!
-	 * Make a copy of \a ref.
-	 */
-	FileRef(const FileRef &ref);
-
-	/*!
-	 * Destroys this FileRef instance.
-	 */
-	virtual ~FileRef();
-
-	/*!
-	 * Returns a pointer to represented file's tag.
-	 *
-	 * \warning This pointer will become invalid when this FileRef and all
-	 * copies pass out of scope.
-	 *
-	 * \warning Do not cast it to any subclasses of \class Tag.
-	 * Use tag returning methods of appropriate subclasses of \class File instead.
-	 *
-	 * \see File::tag()
-	 */
-	Tag *tag() const;
-
-	/*!
-	 * Returns the audio properties for this FileRef.  If no audio properties
-	 * were read then this will returns a null pointer.
-	 */
-	AudioProperties *audioProperties() const;
-
-	/*!
-	 * Returns a pointer to the file represented by this handler class.
-	 *
-	 * As a general rule this call should be avoided since if you need to work
-	 * with file objects directly, you are probably better served instantiating
-	 * the File subclasses (i.e. MPEG::File) manually and working with their APIs.
-	 *
-	 * This <i>handle</i> exists to provide a minimal, generic and value-based
-	 * wrapper around a File.  Accessing the file directly generally indicates
-	 * a moving away from this simplicity (and into things beyond the scope of
-	 * FileRef).
-	 *
-	 * \warning This pointer will become invalid when this FileRef and all
-	 * copies pass out of scope.
-	 */
-	File *file() const;
-
-	/*!
-	 * Saves the file.  Returns true on success.
-	 */
-	bool save();
-
-	/*!
-	 * Adds a FileTypeResolver to the list of those used by TagLib.  Each
-	 * additional FileTypeResolver is added to the front of a list of resolvers
-	 * that are tried.  If the FileTypeResolver returns zero the next resolver
-	 * is tried.
-	 *
-	 * Returns a pointer to the added resolver (the same one that's passed in --
-	 * this is mostly so that static inialializers have something to use for
-	 * assignment).
-	 *
-	 * \see FileTypeResolver
-	 */
-	static const FileTypeResolver *addFileTypeResolver(const FileTypeResolver *resolver);
-
-	/*!
-	 * As is mentioned elsewhere in this class's documentation, the default file
-	 * type resolution code provided by TagLib only works by comparing file
-	 * extensions.
-	 *
-	 * This method returns the list of file extensions that are used by default.
-	 *
-	 * The extensions are all returned in lowercase, though the comparison used
-	 * by TagLib for resolution is case-insensitive.
-	 *
-	 * \note This does not account for any additional file type resolvers that
-	 * are plugged in.  Also note that this is not intended to replace a propper
-	 * mime-type resolution system, but is just here for reference.
-	 *
-	 * \see FileTypeResolver
-	 */
-	static StringList defaultFileExtensions();
-
-	/*!
-	 * Returns true if the file (and as such other pointers) are null.
-	 */
-	bool isNull() const;
-
-	/*!
-	 * Assign the file pointed to by \a ref to this FileRef.
-	 */
-	FileRef &operator=(const FileRef &ref);
-
-	/*!
-	 * Returns true if this FileRef and \a ref point to the same File object.
-	 */
-	bool operator==(const FileRef &ref) const;
-
-	/*!
-	 * Returns true if this FileRef and \a ref do not point to the same File
-	 * object.
-	 */
-	bool operator!=(const FileRef &ref) const;
-
-	/*!
-	 * A simple implementation of file type guessing.  If \a readAudioProperties
-	 * is true then the audio properties will be read using
-	 * \a audioPropertiesStyle.  If \a readAudioProperties is false then
-	 * \a audioPropertiesStyle will be ignored.
-	 *
-	 * \note You generally shouldn't use this method, but instead the constructor
-	 * directly.
-	 *
-	 * \deprecated
-	 */
-	static File *create(FileName fileName,
-						bool readAudioProperties = true,
-						AudioProperties::ReadStyle audioPropertiesStyle = AudioProperties::Average);
-
-  private:
-	class FileRefPrivate;
-	FileRefPrivate *d;
-  };
-
-} // namespace TagLib
-
-#endif
-
-/*** End of inlined file: fileref.h ***/
-
-
-/*** Start of inlined file: asffile.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFFILE_H
-#define TAGLIB_ASFFILE_H
-
-
-/*** Start of inlined file: asfproperties.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFPROPERTIES_H
-#define TAGLIB_ASFPROPERTIES_H
-
-namespace TagLib {
-
-  namespace ASF {
-
-	//! An implementation of ASF audio properties
-	class TAGLIB_EXPORT Properties : public AudioProperties
-	{
-	public:
-
-	  /*!
-	   * Create an instance of ASF::Properties.
-	   */
-	  Properties();
-
-	  /*!
-	   * Destroys this ASF::Properties instance.
-	   */
-	  virtual ~Properties();
-
-	  // Reimplementations.
-	  virtual int length() const;
-	  virtual int bitrate() const;
-	  virtual int sampleRate() const;
-	  virtual int channels() const;
-	  bool isEncrypted() const;
-
-#ifndef DO_NOT_DOCUMENT
-	  void setLength(int value);
-	  void setBitrate(int value);
-	  void setSampleRate(int value);
-	  void setChannels(int value);
-	  void setEncrypted(bool value);
-#endif
-
-	private:
-	  class PropertiesPrivate;
-	  PropertiesPrivate *d;
-	};
-
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: asfproperties.h ***/
-
-
-/*** Start of inlined file: asftag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_ASFTAG_H
-#define TAGLIB_ASFTAG_H
+#ifndef PROPERTYMAP_H_
+#define PROPERTYMAP_H_
 
 
 /*** Start of inlined file: tmap.h ***/
@@ -5346,6 +4282,417 @@ void Map<Key, T>::detach()
 
 /*** End of inlined file: tmap.h ***/
 
+namespace TagLib {
+
+  typedef Map<String,StringList> SimplePropertyMap;
+
+  //! A map for format-independent <key,valuelist> tag representations.
+
+  /*!
+   * This map implements a generic representation of textual audio metadata
+   * ("tags") realized as pairs of a case-insensitive key
+   * and a nonempty list of corresponding values, each value being an an arbitrary
+   * unicode String.
+   * The key has the same restrictions as in the vorbis comment specification,
+   * i.e. it must contain at least one character; all printable ASCII characters
+   * except '=' and '~' are allowed.
+   *
+   * In order to be safe with other formats, keep these additional restrictions in mind:
+   *
+   * - APE only allows keys from 2 to 16 printable ASCII characters (including space),
+   *   with the exception of these strings: ID3, TAG, OggS, MP+
+   *
+   */
+
+  class TAGLIB_EXPORT PropertyMap: public SimplePropertyMap
+  {
+  public:
+
+	typedef SimplePropertyMap::Iterator Iterator;
+	typedef SimplePropertyMap::ConstIterator ConstIterator;
+
+	PropertyMap();
+
+	PropertyMap(const PropertyMap &m);
+
+	/*!
+	 * Creates a PropertyMap initialized from a SimplePropertyMap. Copies all
+	 * entries from \a m that have valid keys.
+	 * Invalid keys will be appended to the unsupportedData() list.
+	 */
+	PropertyMap(const SimplePropertyMap &m);
+
+	virtual ~PropertyMap();
+
+	/*!
+	 * Inserts \a values under \a key in the map.  If \a key already exists,
+	 * then \values will be appended to the existing StringList.
+	 * The returned value indicates success, i.e. whether \a key is a
+	 * valid key.
+	 */
+	bool insert(const String &key, const StringList &values);
+
+	/*!
+	 * Replaces any existing values for \a key with the given \a values,
+	 * and simply insert them if \a key did not exist before.
+	 * The returned value indicates success, i.e. whether \a key is a
+	 * valid key.
+	 */
+	bool replace(const String &key, const StringList &values);
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	Iterator find(const String &key);
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	ConstIterator find(const String &key) const;
+
+	/*!
+	 * Returns true if the map contains values for \a key.
+	 */
+	bool contains(const String &key) const;
+
+	/*!
+	 * Returns true if this map contains all keys of \a other
+	 * and the values coincide for that keys. Does not take
+	 * the unsupportedData list into account.
+	 */
+	bool contains(const PropertyMap &other) const;
+
+	/*!
+	 * Erase the \a key and its values from the map.
+	 */
+	PropertyMap &erase(const String &key);
+
+	/*!
+	 * Erases from this map all keys that appear in \a other.
+	 */
+	PropertyMap &erase(const PropertyMap &other);
+
+	/*!
+	 * Merge the contents of \a other into this PropertyMap.
+	 * If a key is contained in both maps, the values of the second
+	 * are appended to that of the first.
+	 * The unsupportedData() lists are concatenated as well.
+	 */
+	PropertyMap &merge(const PropertyMap &other);
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note: This has undefined behavior if the key is not valid or not
+	 * present in the map.
+	 */
+	const StringList &operator[](const String &key) const;
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note: This has undefined behavior if the key is not valid or not
+	 * present in the map.
+	 */
+	StringList &operator[](const String &key);
+
+	/*!
+	 * Returns true if and only if \other has the same contents as this map.
+	 */
+	bool operator==(const PropertyMap &other) const;
+
+	/*!
+	 * Returns false if and only \other has the same contents as this map.
+	 */
+	bool operator!=(const PropertyMap &other) const;
+
+	/*!
+	 * If a PropertyMap is read from a File object using File::properties(),
+	 * the StringList returned from this function will represent metadata
+	 * that could not be parsed into the PropertyMap representation. This could
+	 * be e.g. binary data, unknown ID3 frames, etc.
+	 * You can remove items from the returned list, which tells TagLib to remove
+	 * those unsupported elements if you call File::setProperties() with the
+	 * same PropertyMap as argument.
+	 */
+	StringList &unsupportedData();
+	const StringList &unsupportedData() const;
+
+	/*!
+	 * Removes all entries which have an empty value list.
+	 */
+	void removeEmpty();
+
+	String toString() const;
+
+	/*!
+	 * Converts \a proposed into another String suitable to be used as
+	 * a key, or returns String::null if this is not possible.
+	 */
+	static String prepareKey(const String &proposed);
+
+  private:
+
+	StringList unsupported;
+  };
+
+}
+#endif /* PROPERTYMAP_H_ */
+
+/*** End of inlined file: tpropertymap.h ***/
+
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+# include <wchar.h>
+# include <windows.h>
+# include <io.h>
+# define ftruncate _chsize
+#else
+# include <unistd.h>
+#endif
+
+#include <stdlib.h>
+
+#ifndef R_OK
+# define R_OK 4
+#endif
+#ifndef W_OK
+# define W_OK 2
+#endif
+
+
+/*** Start of inlined file: asffile.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFFILE_H
+#define TAGLIB_ASFFILE_H
+
+
+/*** Start of inlined file: asfproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFPROPERTIES_H
+#define TAGLIB_ASFPROPERTIES_H
+
+
+/*** Start of inlined file: audioproperties.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_AUDIOPROPERTIES_H
+#define TAGLIB_AUDIOPROPERTIES_H
+
+namespace TagLib {
+
+  //! A simple, abstract interface to common audio properties
+
+  /*!
+   * The values here are common to most audio formats.  For more specific, codec
+   * dependant values, please see see the subclasses APIs.  This is meant to
+   * compliment the TagLib::File and TagLib::Tag APIs in providing a simple
+   * interface that is sufficient for most applications.
+   */
+
+  class TAGLIB_EXPORT AudioProperties
+  {
+  public:
+
+	/*!
+	 * Reading audio properties from a file can sometimes be very time consuming
+	 * and for the most accurate results can often involve reading the entire
+	 * file.  Because in many situations speed is critical or the accuracy of the
+	 * values is not particularly important this allows the level of desired
+	 * accuracy to be set.
+	 */
+	enum ReadStyle {
+	  //! Read as little of the file as possible
+	  Fast,
+	  //! Read more of the file and make better values guesses
+	  Average,
+	  //! Read as much of the file as needed to report accurate values
+	  Accurate
+	};
+
+	/*!
+	 * Destroys this AudioProperties instance.
+	 */
+	virtual ~AudioProperties();
+
+	/*!
+	 * Returns the length of the file in seconds.
+	 */
+	virtual int length() const = 0;
+
+	/*!
+	 * Returns the most appropriate bit rate for the file in kb/s.  For constant
+	 * bitrate formats this is simply the bitrate of the file.  For variable
+	 * bitrate formats this is either the average or nominal bitrate.
+	 */
+	virtual int bitrate() const = 0;
+
+	/*!
+	 * Returns the sample rate in Hz.
+	 */
+	virtual int sampleRate() const = 0;
+
+	/*!
+	 * Returns the number of audio channels.
+	 */
+	virtual int channels() const = 0;
+
+  protected:
+
+	/*!
+	 * Construct an audio properties instance.  This is protected as this class
+	 * should not be instantiated directly, but should be instantiated via its
+	 * subclasses and can be fetched from the FileRef or File APIs.
+	 *
+	 * \see ReadStyle
+	 */
+	AudioProperties(ReadStyle style);
+
+  private:
+	AudioProperties(const AudioProperties &);
+	AudioProperties &operator=(const AudioProperties &);
+
+	class AudioPropertiesPrivate;
+	AudioPropertiesPrivate *d;
+  };
+
+}
+
+#endif
+
+/*** End of inlined file: audioproperties.h ***/
+
+namespace TagLib {
+
+  namespace ASF {
+
+	//! An implementation of ASF audio properties
+	class TAGLIB_EXPORT Properties : public AudioProperties
+	{
+	public:
+
+	  /*!
+	   * Create an instance of ASF::Properties.
+	   */
+	  Properties();
+
+	  /*!
+	   * Destroys this ASF::Properties instance.
+	   */
+	  virtual ~Properties();
+
+	  // Reimplementations.
+	  virtual int length() const;
+	  virtual int bitrate() const;
+	  virtual int sampleRate() const;
+	  virtual int channels() const;
+	  bool isEncrypted() const;
+
+#ifndef DO_NOT_DOCUMENT
+	  void setLength(int value);
+	  void setBitrate(int value);
+	  void setSampleRate(int value);
+	  void setChannels(int value);
+	  void setEncrypted(bool value);
+#endif
+
+	private:
+	  class PropertiesPrivate;
+	  PropertiesPrivate *d;
+	};
+
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: asfproperties.h ***/
+
+
+/*** Start of inlined file: asftag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_ASFTAG_H
+#define TAGLIB_ASFTAG_H
+
 
 /*** Start of inlined file: asfattribute.h ***/
 /***************************************************************************
@@ -5449,6 +4796,7 @@ void Map<Key, T>::detach()
 namespace TagLib {
 
   class StringList;
+  class PropertyMap;
 
   namespace ID3v2 {
 
@@ -5472,6 +4820,14 @@ namespace TagLib {
 	  friend class FrameFactory;
 
 	public:
+
+	  /*!
+	   * Creates a textual frame which corresponds to a single key in the PropertyMap
+	   * interface. These are all (User)TextIdentificationFrames except TIPL and TMCL,
+	   * all (User)URLLinkFrames, CommentsFrames, and UnsynchronizedLyricsFrame.
+	   */
+	  static Frame *createTextualFrame(const String &key, const StringList &values);
+
 	  /*!
 	   * Destroys this Frame instance.
 	   */
@@ -5541,6 +4897,28 @@ namespace TagLib {
 	   * type \a t.
 	   */
 	  static ByteVector textDelimiter(String::Type t);
+
+	  /*!
+	   * The string with which an instrument name is prefixed to build a key in a PropertyMap;
+	   * used to translate PropertyMaps to TMCL frames. In the current implementation, this
+	   * is "PERFORMER:".
+	   */
+	  static const String instrumentPrefix;
+	  /*!
+	   * The PropertyMap key prefix which triggers the use of a COMM frame instead of a TXXX
+	   * frame for a non-standard key. In the current implementation, this is "COMMENT:".
+	   */
+	  static const String commentPrefix;
+	  /*!
+	   * The PropertyMap key prefix which triggers the use of a USLT frame instead of a TXXX
+	   * frame for a non-standard key. In the current implementation, this is "LYRICS:".
+	   */
+	  static const String lyricsPrefix;
+	  /*!
+	   * The PropertyMap key prefix which triggers the use of a WXXX frame instead of a TXX
+	   * frame for a non-standard key. In the current implementation, this is "URL:".
+	   */
+	  static const String urlPrefix;
 
 	protected:
 	  class Header;
@@ -5637,6 +5015,42 @@ namespace TagLib {
 	   */
 	  String::Type checkTextEncoding(const StringList &fields,
 									 String::Type encoding) const;
+
+	  /*!
+	   * Parses the contents of this frame as PropertyMap. If that fails, the returend
+	   * PropertyMap will be empty, and its unsupportedData() will contain this frame's
+	   * ID.
+	   * BIC: Will be a virtual function in future releases.
+	   */
+	  PropertyMap asProperties() const;
+
+	  /*!
+	   * Returns an appropriate ID3 frame ID for the given free-form tag key. This method
+	   * will return ByteVector::null if no specialized translation is found.
+	   */
+	  static ByteVector keyToFrameID(const String &);
+
+	  /*!
+	   * Returns a free-form tag name for the given ID3 frame ID. Note that this does not work
+	   * for general frame IDs such as TXXX or WXXX; in such a case String::null is returned.
+	   */
+	  static String frameIDToKey(const ByteVector &);
+
+	  /*!
+	   * This helper function splits the PropertyMap \a original into three ProperytMaps
+	   * \a singleFrameProperties, \a tiplProperties, and \a tmclProperties, such that:
+	   * - \a singleFrameProperties contains only of keys which can be represented with
+	   *   exactly one ID3 frame per key. In the current implementation
+	   *   this is everything except for the fixed "involved people" keys and keys of the
+	   *   form "TextIdentificationFrame::instrumentPrefix" + "instrument", which are
+	   *   mapped to a TMCL frame.
+	   * - \a tiplProperties will consist of those keys that are present in
+	   *   TextIdentificationFrame::involvedPeopleMap()
+	   * - \a tmclProperties contains the "musician credits" keys which should be mapped
+	   *   to a TMCL frame
+	   */
+	  static void splitProperties(const PropertyMap &original, PropertyMap &singleFrameProperties,
+		  PropertyMap &tiplProperties, PropertyMap &tmclProperties);
 
 	private:
 	  Frame(const Frame &);
@@ -7244,6 +6658,23 @@ namespace TagLib {
 	  virtual Tag *tag() const;
 
 	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains more than one tag, only the
+	   * first one (in the order ID3v2, APE, ID3v1) will be converted to the
+	   * PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  void removeUnsupportedProperties(const StringList &properties);
+
+	  /*!
+	   * Implements the unified tag dictionary interface -- import function.
+	   * As with the export, only one tag is taken into account. If the file
+	   * has no tag at all, ID3v2 will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
+
+	  /*!
 	   * Returns the MPEG::Properties for this file.  If no audio properties
 	   * were read then this will return a null pointer.
 	   */
@@ -7697,6 +7128,21 @@ namespace TagLib {
 	  const FieldListMap &fieldListMap() const;
 
 	  /*!
+	   * Implements the unified property interface -- export function.
+	   * The result is a one-to-one match of the Xiph comment, since it is
+	   * completely compatible with the property interface (in fact, a Xiph
+	   * comment is nothing more than a map from tag names to list of values,
+	   * as is the dict interface).
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * The tags from the given map will be stored one-to-one in the file.
+	   */
+	  PropertyMap setProperties(const PropertyMap&);
+
+	  /*!
 	   * Returns the vendor ID of the Ogg Vorbis encoder.  libvorbis 1.0 as the
 	   * most common case always returns "Xiph.Org libVorbis I 20020717".
 	   */
@@ -7937,6 +7383,18 @@ namespace TagLib {
 	   * TagLib::File::tag().
 	   */
 	  virtual Ogg::XiphComment *tag() const;
+
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * This forwards directly to XiphComment::properties().
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified tag dictionary interface -- import function.
+	   * Like properties(), this is a forwarder to the file's XiphComment.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
 
 	  /*!
 	   * Returns the Vorbis::Properties for this file.  If no audio properties
@@ -8376,7 +7834,6 @@ namespace TagLib {
 namespace TagLib {
 
   class Tag;
-
   namespace ID3v2 { class FrameFactory; class Tag; }
   namespace ID3v1 { class Tag; }
   namespace Ogg { class XiphComment; }
@@ -8457,6 +7914,23 @@ namespace TagLib {
 	   * \see XiphComment()
 	   */
 	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains more than one tag (e.g. XiphComment and ID3v1),
+	   * only the first one (in the order XiphComment, ID3v2, ID3v1) will be
+	   * converted to the PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  void removeUnsupportedProperties(const StringList &);
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * As with the export, only one tag is taken into account. If the file
+	   * has no tag at all, a XiphComment will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
 
 	  /*!
 	   * Returns the FLAC::Properties for this file.  If no audio properties
@@ -8911,6 +8385,8 @@ namespace TagLib {
 	   * Returns the version of the bitstream (SV4-SV7)
 	   */
 	  int mpcVersion() const;
+	  uint totalFrames() const;
+	  uint sampleFrames() const;
 
 	private:
 	  Properties(const Properties &);
@@ -9003,6 +8479,22 @@ namespace TagLib {
 	   * or a combination of the two.
 	   */
 	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains both an APE and an ID3v1 tag, only the APE
+	   * tag  will be converted to the PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  void removeUnsupportedProperties(const StringList &properties);
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * As with the export, only one tag is taken into account. If the file
+	   * has no tag at all, an APE tag will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
 
 	  /*!
 	   * Returns the MPC::Properties for this file.  If no audio properties
@@ -9812,6 +9304,7 @@ namespace TagLib {
 	   * Returns number of bits per sample.
 	   */
 	  int bitsPerSample() const;
+	  uint sampleFrames() const;
 
 	  /*!
 	   * Returns WavPack version.
@@ -9906,6 +9399,20 @@ namespace TagLib {
 	   * or a combination of the two.
 	   */
 	  virtual TagLib::Tag *tag() const;
+
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains both an APE and an ID3v1 tag, only APE
+	   * will be converted to the PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * As for the export, only one tag is taken into account. If the file
+	   * has no tag at all, APE will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap&);
 
 	  /*!
 	   * Returns the MPC::Properties for this file.  If no audio properties
@@ -10483,6 +9990,20 @@ namespace TagLib {
 	  virtual TagLib::Tag *tag() const;
 
 	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains both ID3v1 and v2 tags, only ID3v2 will be
+	   * converted to the PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * As with the export, only one tag is taken into account. If the file
+	   * has no tag at all, ID3v2 will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
+
+	  /*!
 	   * Returns the TrueAudio::Properties for this file.  If no audio properties
 	   * were read then this will return a null pointer.
 	   */
@@ -10875,7 +10396,7 @@ namespace TagLib {
 
 	  void updateGenre(TextIdentificationFrame *frame) const;
 
-	  static FrameFactory *factory;
+	  static FrameFactory factory;
 
 	  class FrameFactoryPrivate;
 	  FrameFactoryPrivate *d;
@@ -11114,6 +10635,56 @@ namespace TagLib {
 	  void removeFrames(const ByteVector &id);
 
 	  /*!
+	   * Implements the unified property interface -- export function.
+	   * This function does some work to translate the hard-specified ID3v2
+	   * frame types into a free-form string-to-stringlist PropertyMap:
+	   *  - if ID3v2 frame ID is known by Frame::frameIDToKey(), the returned
+	   *    key is used
+	   *  - if the frame ID is "TXXX" (user text frame), the description() is
+	   *    used as key
+	   *  - if the frame ID is "WXXX" (user url frame),
+	   *    - if the description is empty or "URL", the key "URL" is used
+	   *    - otherwise, the key "URL:<description>" is used;
+	   *  - if the frame ID is "COMM" (comments frame),
+	   *    - if the description is empty or "COMMENT", the key "COMMENT"
+	   *      is used
+	   *    - otherwise, the key "COMMENT:<description>" is used;
+	   *  - if the frame ID is "USLT" (unsynchronized lyrics),
+	   *    - if the description is empty or "LYRICS", the key "LYRICS" is used
+	   *    - otherwise, the key "LYRICS:<description>" is used;
+	   *  - if the frame ID is "TIPL" (involved peoples list), and if all the
+	   *    roles defined in the frame are known in TextIdentificationFrame::involvedPeopleMap(),
+	   *    then "<role>=<name>" will be contained in the returned obejct for each
+	   *  - if the frame ID is "TMCL" (musician credit list), then
+	   *    "PERFORMER:<instrument>=<name>" will be contained in the returned
+	   *    PropertyMap for each defined musician
+	   *  In any other case, the unsupportedData() of the returned object will contain
+	   *  the frame's ID and, in case of a frame ID which is allowed to appear more than
+	   *  once, the description, separated by a "/".
+	   *
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Removes unsupported frames given by \a properties. The elements of
+	   * \a properties must be taken from properties().unsupportedData(); they
+	   * are of one of the following forms:
+	   *  - a four-character frame ID, if the ID3 specification allows only one
+	   *    frame with that ID (thus, the frame is uniquely determined)
+	   *  - frameID + "/" + description(), when the ID is one of "TXXX", "WXXX",
+	   *    "COMM", or "USLT",
+	   *  - "UNKNOWN/" + frameID, for frames that could not be parsed by TagLib.
+	   *    In that case, *all* unknown frames with the given ID will be removed.
+	   */
+	  void removeUnsupportedProperties(const StringList &properties);
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * See the comments in properties().
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
+
+	  /*!
 	   * Render the tag back to binary data, suitable to be written to disk.
 	   */
 	  ByteVector render() const;
@@ -11298,6 +10869,18 @@ namespace TagLib {
 		 * Returns the Tag for this file.
 		 */
 		virtual ID3v2::Tag *tag() const;
+
+		/*!
+		 * Implements the unified property interface -- export function.
+		 * This method forwards to ID3v2::Tag::properties().
+		 */
+		PropertyMap properties() const;
+
+		/*!
+		 * Implements the unified property interface -- import function.
+		 * This method forwards to ID3v2::Tag::setProperties().
+		 */
+		PropertyMap setProperties(const PropertyMap &);
 
 		/*!
 		 * Returns the AIFF::Properties for this file.  If no audio properties
@@ -11495,6 +11078,18 @@ namespace TagLib {
 		virtual ID3v2::Tag *tag() const;
 
 		/*!
+		 * Implements the unified property interface -- export function.
+		 * This method forwards to ID3v2::Tag::properties().
+		 */
+		PropertyMap properties() const;
+
+		/*!
+		 * Implements the unified property interface -- import function.
+		 * This method forwards to ID3v2::Tag::setProperties().
+		 */
+		PropertyMap setProperties(const PropertyMap &);
+
+		/*!
 		 * Returns the WAV::Properties for this file.  If no audio properties
 		 * were read then this will return a null pointer.
 		 */
@@ -11610,6 +11205,7 @@ namespace TagLib {
 	   * Returns number of bits per sample.
 	   */
 	  int bitsPerSample() const;
+	  uint sampleFrames() const;
 
 	  /*!
 	   * Returns APE version.
@@ -11710,6 +11306,25 @@ namespace TagLib {
 	   */
 	  virtual TagLib::Tag *tag() const;
 
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * If the file contains both an APE and an ID3v1 tag, only APE
+	   * will be converted to the PropertyMap.
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Removes unsupported properties. Forwards to the actual Tag's
+	   * removeUnsupportedProperties() function.
+	   */
+	  void removeUnsupportedProperties(const StringList &properties);
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * As for the export, only one tag is taken into account. If the file
+	   * has no tag at all, APE will be created.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
 	  /*!
 	   * Returns the APE::Properties for this file.  If no audio properties
 	   * were read then this will return a null pointer.
@@ -12013,6 +11628,22 @@ namespace TagLib {
 	   */
 	  void setTrackerName(const String &trackerName);
 
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * Since the module tag is very limited, the exported map is as well.
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * Because of the limitations of the module file tag, any tags besides
+	   * COMMENT, TITLE and, if it is an XM file, TRACKERNAME, will be
+	   * returened. Additionally, if the map contains tags with multiple values,
+	   * all but the first will be contained in the returned map of unsupported
+	   * properties.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
+
 	private:
 	  Tag(const Tag &);
 	  Tag &operator=(const Tag &);
@@ -12123,6 +11754,17 @@ namespace TagLib {
 
 	  Mod::Tag *tag() const;
 
+	  /*!
+	   * Implements the unified property interface -- export function.
+	   * Forwards to Mod::Tag::properties().
+	   */
+	  PropertyMap properties() const;
+
+	  /*!
+	   * Implements the unified property interface -- import function.
+	   * Forwards to Mod::Tag::setProperties().
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
 	  /*!
 	   * Returns the Mod::Properties for this file. If no audio properties
 	   * were read then this will return a null pointer.
@@ -12291,6 +11933,18 @@ namespace TagLib {
 		virtual ~File();
 
 		Mod::Tag *tag() const;
+
+		/*!
+		 * Implements the unified property interface -- export function.
+		 * Forwards to Mod::Tag::properties().
+		 */
+		PropertyMap properties() const;
+
+		/*!
+		 * Implements the unified property interface -- import function.
+		 * Forwards to Mod::Tag::setProperties().
+		 */
+		PropertyMap setProperties(const PropertyMap &);
 
 		/*!
 		 * Returns the S3M::Properties for this file. If no audio properties
@@ -12473,6 +12127,18 @@ namespace TagLib {
 		Mod::Tag *tag() const;
 
 		/*!
+		 * Forwards to Mod::Tag::properties().
+		 * BIC: will be removed once File::toDict() is made virtual
+		 */
+		PropertyMap properties() const;
+
+		/*!
+		 * Forwards to Mod::Tag::setProperties().
+		 * BIC: will be removed once File::setProperties() is made virtual
+		 */
+		PropertyMap setProperties(const PropertyMap &);
+
+		/*!
 		 * Returns the IT::Properties for this file. If no audio properties
 		 * were read then this will return a null pointer.
 		 */
@@ -12630,6 +12296,18 @@ namespace TagLib {
 		Mod::Tag *tag() const;
 
 		/*!
+		 * Implements the unified property interface -- export function.
+		 * Forwards to Mod::Tag::properties().
+		 */
+		PropertyMap properties() const;
+
+		/*!
+		 * Implements the unified property interface -- import function.
+		 * Forwards to Mod::Tag::setProperties().
+		 */
+		PropertyMap setProperties(const PropertyMap &);
+
+		/*!
 		 * Returns the XM::Properties for this file. If no audio properties
 		 * were read then this will return a null pointer.
 		 */
@@ -12658,6 +12336,1145 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: xmfile.h ***/
+
+using namespace TagLib;
+
+class File::FilePrivate
+{
+public:
+  FilePrivate(IOStream *stream);
+
+  IOStream *stream;
+  bool valid;
+  static const uint bufferSize = 1024;
+};
+
+File::FilePrivate::FilePrivate(IOStream *stream) :
+  stream(stream),
+  valid(true)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+File::File(FileName fileName)
+{
+  IOStream *stream = new FileStream(fileName);
+  d = new FilePrivate(stream);
+}
+
+File::File(IOStream *stream)
+{
+  d = new FilePrivate(stream);
+}
+
+File::~File()
+{
+  if(d->stream)
+	delete d->stream;
+  delete d;
+}
+
+FileName File::name() const
+{
+  return d->stream->name();
+}
+
+PropertyMap File::properties() const
+{
+  // ugly workaround until this method is virtual
+  if(dynamic_cast<const APE::File* >(this))
+	return dynamic_cast<const APE::File* >(this)->properties();
+  if(dynamic_cast<const FLAC::File* >(this))
+	return dynamic_cast<const FLAC::File* >(this)->properties();
+  if(dynamic_cast<const IT::File* >(this))
+	return dynamic_cast<const IT::File* >(this)->properties();
+  if(dynamic_cast<const Mod::File* >(this))
+	return dynamic_cast<const Mod::File* >(this)->properties();
+  if(dynamic_cast<const MPC::File* >(this))
+	return dynamic_cast<const MPC::File* >(this)->properties();
+  if(dynamic_cast<const MPEG::File* >(this))
+	return dynamic_cast<const MPEG::File* >(this)->properties();
+  if(dynamic_cast<const Ogg::FLAC::File* >(this))
+	return dynamic_cast<const Ogg::FLAC::File* >(this)->properties();
+  if(dynamic_cast<const Ogg::Speex::File* >(this))
+	return dynamic_cast<const Ogg::Speex::File* >(this)->properties();
+  if(dynamic_cast<const Ogg::Vorbis::File* >(this))
+	return dynamic_cast<const Ogg::Vorbis::File* >(this)->properties();
+  if(dynamic_cast<const RIFF::AIFF::File* >(this))
+	return dynamic_cast<const RIFF::AIFF::File* >(this)->properties();
+  if(dynamic_cast<const RIFF::WAV::File* >(this))
+	return dynamic_cast<const RIFF::WAV::File* >(this)->properties();
+  if(dynamic_cast<const S3M::File* >(this))
+	return dynamic_cast<const S3M::File* >(this)->properties();
+  if(dynamic_cast<const TrueAudio::File* >(this))
+	return dynamic_cast<const TrueAudio::File* >(this)->properties();
+  if(dynamic_cast<const WavPack::File* >(this))
+	return dynamic_cast<const WavPack::File* >(this)->properties();
+  if(dynamic_cast<const XM::File* >(this))
+	return dynamic_cast<const XM::File* >(this)->properties();
+  // no specialized implementation available -> use generic one
+  // - ASF: ugly format, largely undocumented, not worth implementing
+  //   dict interface ...
+  // - MP4: taglib's MP4::Tag does not really support anything beyond
+  //   the basic implementation, therefor we use just the default Tag
+  //   interface
+  return tag()->properties();
+}
+
+void File::removeUnsupportedProperties(const StringList &properties)
+{
+  // here we only consider those formats that could possibly contain
+  // unsupported properties
+  if(dynamic_cast<APE::File* >(this))
+	dynamic_cast<APE::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<FLAC::File* >(this))
+	dynamic_cast<FLAC::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<MPC::File* >(this))
+	dynamic_cast<MPC::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<MPEG::File* >(this))
+	dynamic_cast<MPEG::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<Ogg::FLAC::File* >(this))
+	dynamic_cast<Ogg::FLAC::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<Ogg::Speex::File* >(this))
+	dynamic_cast<Ogg::Speex::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<Ogg::Vorbis::File* >(this))
+	dynamic_cast<Ogg::Vorbis::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<RIFF::AIFF::File* >(this))
+	dynamic_cast<RIFF::AIFF::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<RIFF::WAV::File* >(this))
+	dynamic_cast<RIFF::WAV::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<S3M::File* >(this))
+	dynamic_cast<S3M::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<TrueAudio::File* >(this))
+	dynamic_cast<TrueAudio::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<WavPack::File* >(this))
+	dynamic_cast<WavPack::File* >(this)->removeUnsupportedProperties(properties);
+  else if(dynamic_cast<XM::File* >(this))
+	dynamic_cast<XM::File* >(this)->removeUnsupportedProperties(properties);
+  else
+	tag()->removeUnsupportedProperties(properties);
+}
+
+PropertyMap File::setProperties(const PropertyMap &properties)
+{
+  if(dynamic_cast<APE::File* >(this))
+	return dynamic_cast<APE::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<FLAC::File* >(this))
+	return dynamic_cast<FLAC::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<IT::File* >(this))
+	return dynamic_cast<IT::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<Mod::File* >(this))
+	return dynamic_cast<Mod::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<MPC::File* >(this))
+	return dynamic_cast<MPC::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<MPEG::File* >(this))
+	return dynamic_cast<MPEG::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<Ogg::FLAC::File* >(this))
+	return dynamic_cast<Ogg::FLAC::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<Ogg::Speex::File* >(this))
+	return dynamic_cast<Ogg::Speex::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<Ogg::Vorbis::File* >(this))
+	return dynamic_cast<Ogg::Vorbis::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<RIFF::AIFF::File* >(this))
+	return dynamic_cast<RIFF::AIFF::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<RIFF::WAV::File* >(this))
+	return dynamic_cast<RIFF::WAV::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<S3M::File* >(this))
+	return dynamic_cast<S3M::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<TrueAudio::File* >(this))
+	return dynamic_cast<TrueAudio::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<WavPack::File* >(this))
+	return dynamic_cast<WavPack::File* >(this)->setProperties(properties);
+  else if(dynamic_cast<XM::File* >(this))
+	return dynamic_cast<XM::File* >(this)->setProperties(properties);
+  else
+	return tag()->setProperties(properties);
+}
+
+ByteVector File::readBlock(ulong length)
+{
+  return d->stream->readBlock(length);
+}
+
+void File::writeBlock(const ByteVector &data)
+{
+  d->stream->writeBlock(data);
+}
+
+long File::find(const ByteVector &pattern, long fromOffset, const ByteVector &before)
+{
+  if(!d->stream || pattern.size() > d->bufferSize)
+	  return -1;
+
+  // The position in the file that the current buffer starts at.
+
+  long bufferOffset = fromOffset;
+  ByteVector buffer;
+
+  // These variables are used to keep track of a partial match that happens at
+  // the end of a buffer.
+
+  int previousPartialMatch = -1;
+  int beforePreviousPartialMatch = -1;
+
+  // Save the location of the current read pointer.  We will restore the
+  // position using seek() before all returns.
+
+  long originalPosition = tell();
+
+  // Start the search at the offset.
+
+  seek(fromOffset);
+
+  // This loop is the crux of the find method.  There are three cases that we
+  // want to account for:
+  //
+  // (1) The previously searched buffer contained a partial match of the search
+  // pattern and we want to see if the next one starts with the remainder of
+  // that pattern.
+  //
+  // (2) The search pattern is wholly contained within the current buffer.
+  //
+  // (3) The current buffer ends with a partial match of the pattern.  We will
+  // note this for use in the next itteration, where we will check for the rest
+  // of the pattern.
+  //
+  // All three of these are done in two steps.  First we check for the pattern
+  // and do things appropriately if a match (or partial match) is found.  We
+  // then check for "before".  The order is important because it gives priority
+  // to "real" matches.
+
+  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
+
+	// (1) previous partial match
+
+	if(previousPartialMatch >= 0 && int(d->bufferSize) > previousPartialMatch) {
+	  const int patternOffset = (d->bufferSize - previousPartialMatch);
+	  if(buffer.containsAt(pattern, 0, patternOffset)) {
+		seek(originalPosition);
+		return bufferOffset - d->bufferSize + previousPartialMatch;
+	  }
+	}
+
+	if(!before.isNull() && beforePreviousPartialMatch >= 0 && int(d->bufferSize) > beforePreviousPartialMatch) {
+	  const int beforeOffset = (d->bufferSize - beforePreviousPartialMatch);
+	  if(buffer.containsAt(before, 0, beforeOffset)) {
+		seek(originalPosition);
+		return -1;
+	  }
+	}
+
+	// (2) pattern contained in current buffer
+
+	long location = buffer.find(pattern);
+	if(location >= 0) {
+	  seek(originalPosition);
+	  return bufferOffset + location;
+	}
+
+	if(!before.isNull() && buffer.find(before) >= 0) {
+	  seek(originalPosition);
+	  return -1;
+	}
+
+	// (3) partial match
+
+	previousPartialMatch = buffer.endsWithPartialMatch(pattern);
+
+	if(!before.isNull())
+	  beforePreviousPartialMatch = buffer.endsWithPartialMatch(before);
+
+	bufferOffset += d->bufferSize;
+  }
+
+  // Since we hit the end of the file, reset the status before continuing.
+
+  clear();
+
+  seek(originalPosition);
+
+  return -1;
+}
+
+long File::rfind(const ByteVector &pattern, long fromOffset, const ByteVector &before)
+{
+  if(!d->stream || pattern.size() > d->bufferSize)
+	  return -1;
+
+  // The position in the file that the current buffer starts at.
+
+  ByteVector buffer;
+
+  // These variables are used to keep track of a partial match that happens at
+  // the end of a buffer.
+
+  /*
+  int previousPartialMatch = -1;
+  int beforePreviousPartialMatch = -1;
+  */
+
+  // Save the location of the current read pointer.  We will restore the
+  // position using seek() before all returns.
+
+  long originalPosition = tell();
+
+  // Start the search at the offset.
+
+  long bufferOffset;
+  if(fromOffset == 0) {
+	seek(-1 * int(d->bufferSize), End);
+	bufferOffset = tell();
+  }
+  else {
+	seek(fromOffset + -1 * int(d->bufferSize), Beginning);
+	bufferOffset = tell();
+  }
+
+  // See the notes in find() for an explanation of this algorithm.
+
+  for(buffer = readBlock(d->bufferSize); buffer.size() > 0; buffer = readBlock(d->bufferSize)) {
+
+	// TODO: (1) previous partial match
+
+	// (2) pattern contained in current buffer
+
+	long location = buffer.rfind(pattern);
+	if(location >= 0) {
+	  seek(originalPosition);
+	  return bufferOffset + location;
+	}
+
+	if(!before.isNull() && buffer.find(before) >= 0) {
+	  seek(originalPosition);
+	  return -1;
+	}
+
+	// TODO: (3) partial match
+
+	bufferOffset -= d->bufferSize;
+	seek(bufferOffset);
+  }
+
+  // Since we hit the end of the file, reset the status before continuing.
+
+  clear();
+
+  seek(originalPosition);
+
+  return -1;
+}
+
+void File::insert(const ByteVector &data, ulong start, ulong replace)
+{
+  d->stream->insert(data, start, replace);
+}
+
+void File::removeBlock(ulong start, ulong length)
+{
+  d->stream->removeBlock(start, length);
+}
+
+bool File::readOnly() const
+{
+  return d->stream->readOnly();
+}
+
+bool File::isOpen() const
+{
+  return d->stream->isOpen();
+}
+
+bool File::isValid() const
+{
+  return isOpen() && d->valid;
+}
+
+void File::seek(long offset, Position p)
+{
+  d->stream->seek(offset, IOStream::Position(p));
+}
+
+void File::truncate(long length)
+{
+  d->stream->truncate(length);
+}
+
+void File::clear()
+{
+  d->stream->clear();
+}
+
+long File::tell() const
+{
+  return d->stream->tell();
+}
+
+long File::length()
+{
+  return d->stream->length();
+}
+
+bool File::isReadable(const char *file)
+{
+  return access(file, R_OK) == 0;
+}
+
+bool File::isWritable(const char *file)
+{
+  return access(file, W_OK) == 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected members
+////////////////////////////////////////////////////////////////////////////////
+
+TagLib::uint File::bufferSize()
+{
+  return FilePrivate::bufferSize;
+}
+
+void File::setValid(bool valid)
+{
+  d->valid = valid;
+}
+
+/*** End of inlined file: tfile.cpp ***/
+
+
+/*** Start of inlined file: tag.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+using namespace TagLib;
+
+class Tag::TagPrivate
+{
+
+};
+
+Tag::Tag()
+{
+
+}
+
+Tag::~Tag()
+{
+
+}
+
+bool Tag::isEmpty() const
+{
+  return (title().isEmpty() &&
+		  artist().isEmpty() &&
+		  album().isEmpty() &&
+		  comment().isEmpty() &&
+		  genre().isEmpty() &&
+		  year() == 0 &&
+		  track() == 0);
+}
+
+PropertyMap Tag::properties() const
+{
+  PropertyMap map;
+  if(!(title().isNull()))
+	map["TITLE"].append(title());
+  if(!(artist().isNull()))
+	map["ARTIST"].append(artist());
+  if(!(album().isNull()))
+	map["ALBUM"].append(album());
+  if(!(comment().isNull()))
+	map["COMMENT"].append(comment());
+  if(!(genre().isNull()))
+	map["GENRE"].append(genre());
+  if(!(year() == 0))
+	map["DATE"].append(String::number(year()));
+  if(!(track() == 0))
+	map["TRACKNUMBER"].append(String::number(track()));
+  return map;
+}
+
+void Tag::removeUnsupportedProperties(const StringList&)
+{
+}
+
+PropertyMap Tag::setProperties(const PropertyMap &origProps)
+{
+  PropertyMap properties(origProps);
+  properties.removeEmpty();
+  StringList oneValueSet;
+  // can this be simplified by using some preprocessor defines / function pointers?
+  if(properties.contains("TITLE")) {
+	setTitle(properties["TITLE"].front());
+	oneValueSet.append("TITLE");
+  } else
+	setTitle(String::null);
+
+  if(properties.contains("ARTIST")) {
+	setArtist(properties["ARTIST"].front());
+	oneValueSet.append("ARTIST");
+  } else
+	setArtist(String::null);
+
+  if(properties.contains("ALBUM")) {
+	setAlbum(properties["ALBUM"].front());
+	oneValueSet.append("ALBUM");
+  } else
+	setAlbum(String::null);
+
+  if(properties.contains("COMMENT")) {
+	setComment(properties["COMMENT"].front());
+	oneValueSet.append("COMMENT");
+  } else
+	setComment(String::null);
+
+  if(properties.contains("GENRE")) {
+	setGenre(properties["GENRE"].front());
+	oneValueSet.append("GENRE");
+  } else
+	setGenre(String::null);
+
+  if(properties.contains("DATE")) {
+	bool ok;
+	int date = properties["DATE"].front().toInt(&ok);
+	if(ok) {
+	  setYear(date);
+	  oneValueSet.append("DATE");
+	} else
+	  setYear(0);
+  }
+  else
+	setYear(0);
+
+  if(properties.contains("TRACKNUMBER")) {
+	bool ok;
+	int track = properties["TRACKNUMBER"].front().toInt(&ok);
+	if(ok) {
+	  setTrack(track);
+	  oneValueSet.append("TRACKNUMBER");
+	} else
+	  setTrack(0);
+  }
+  else
+	setYear(0);
+
+  // for each tag that has been set above, remove the first entry in the corresponding
+  // value list. The others will be returned as unsupported by this format.
+  for(StringList::Iterator it = oneValueSet.begin(); it != oneValueSet.end(); ++it) {
+	if(properties[*it].size() == 1)
+	  properties.erase(*it);
+	else
+	  properties[*it].erase( properties[*it].begin() );
+  }
+  return properties;
+}
+
+void Tag::duplicate(const Tag *source, Tag *target, bool overwrite) // static
+{
+  if(overwrite) {
+	target->setTitle(source->title());
+	target->setArtist(source->artist());
+	target->setAlbum(source->album());
+	target->setComment(source->comment());
+	target->setGenre(source->genre());
+	target->setYear(source->year());
+	target->setTrack(source->track());
+  }
+  else {
+	if(target->title().isEmpty())
+	  target->setTitle(source->title());
+	if(target->artist().isEmpty())
+	  target->setArtist(source->artist());
+	if(target->album().isEmpty())
+	  target->setAlbum(source->album());
+	if(target->comment().isEmpty())
+	  target->setComment(source->comment());
+	if(target->genre().isEmpty())
+	  target->setGenre(source->genre());
+	if(target->year() <= 0)
+	  target->setYear(source->year());
+	if(target->track() <= 0)
+	  target->setTrack(source->track());
+  }
+}
+
+/*** End of inlined file: tag.cpp ***/
+
+
+/*** Start of inlined file: tagunion.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: tagunion.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_TAGUNION_H
+#define TAGLIB_TAGUNION_H
+
+#ifndef DO_NOT_DOCUMENT
+
+namespace TagLib {
+
+  /*!
+   * \internal
+   */
+
+  class TagUnion : public Tag
+  {
+  public:
+
+	enum AccessType { Read, Write };
+
+	/*!
+	 * Creates a TagLib::Tag that is the union of \a first, \a second, and
+	 * \a third.  The TagUnion takes ownership of these tags and will handle
+	 * their deletion.
+	 */
+	TagUnion(Tag *first = 0, Tag *second = 0, Tag *third = 0);
+
+	virtual ~TagUnion();
+
+	Tag *operator[](int index) const;
+	Tag *tag(int index) const;
+
+	void set(int index, Tag *tag);
+
+	virtual String title() const;
+	virtual String artist() const;
+	virtual String album() const;
+	virtual String comment() const;
+	virtual String genre() const;
+	virtual uint year() const;
+	virtual uint track() const;
+
+	virtual void setTitle(const String &s);
+	virtual void setArtist(const String &s);
+	virtual void setAlbum(const String &s);
+	virtual void setComment(const String &s);
+	virtual void setGenre(const String &s);
+	virtual void setYear(uint i);
+	virtual void setTrack(uint i);
+	virtual bool isEmpty() const;
+
+	template <class T> T *access(int index, bool create)
+	{
+	  if(!create || tag(index))
+		return static_cast<T *>(tag(index));
+
+	  set(index, new T);
+	  return static_cast<T *>(tag(index));
+	}
+
+  private:
+	TagUnion(const Tag &);
+	TagUnion &operator=(const Tag &);
+
+	class TagUnionPrivate;
+	TagUnionPrivate *d;
+  };
+}
+
+#endif
+#endif
+
+/*** End of inlined file: tagunion.h ***/
+
+using namespace TagLib;
+
+#define stringUnion(method)                                          \
+  if(tag(0) && !tag(0)->method().isEmpty())                          \
+	return tag(0)->method();                                         \
+  if(tag(1) && !tag(1)->method().isEmpty())                          \
+	return tag(1)->method();                                         \
+  if(tag(2) && !tag(2)->method().isEmpty())                          \
+	return tag(2)->method();                                         \
+  return String::null                                                \
+
+#define numberUnion(method)                                          \
+  if(tag(0) && tag(0)->method() > 0)                                 \
+	return tag(0)->method();                                         \
+  if(tag(1) && tag(1)->method() > 0)                                 \
+	return tag(1)->method();                                         \
+  if(tag(2) && tag(2)->method() > 0)                                 \
+	return tag(2)->method();                                         \
+  return 0
+
+#define setUnion(method, value)                                      \
+  if(tag(0))                                                         \
+	tag(0)->set##method(value);                                      \
+  if(tag(1))                                                         \
+	tag(1)->set##method(value);                                      \
+  if(tag(2))                                                         \
+	tag(2)->set##method(value);                                      \
+
+class TagUnion::TagUnionPrivate
+{
+public:
+  TagUnionPrivate() : tags(3, static_cast<Tag *>(0))
+  {
+
+  }
+
+  ~TagUnionPrivate()
+  {
+	delete tags[0];
+	delete tags[1];
+	delete tags[2];
+  }
+
+  std::vector<Tag *> tags;
+};
+
+TagUnion::TagUnion(Tag *first, Tag *second, Tag *third)
+{
+  d = new TagUnionPrivate;
+
+  d->tags[0] = first;
+  d->tags[1] = second;
+  d->tags[2] = third;
+}
+
+TagUnion::~TagUnion()
+{
+  delete d;
+}
+
+Tag *TagUnion::operator[](int index) const
+{
+  return tag(index);
+}
+
+Tag *TagUnion::tag(int index) const
+{
+  return d->tags[index];
+}
+
+void TagUnion::set(int index, Tag *tag)
+{
+  delete d->tags[index];
+  d->tags[index] = tag;
+}
+
+String TagUnion::title() const
+{
+  stringUnion(title);
+}
+
+String TagUnion::artist() const
+{
+  stringUnion(artist);
+}
+
+String TagUnion::album() const
+{
+  stringUnion(album);
+}
+
+String TagUnion::comment() const
+{
+  stringUnion(comment);
+}
+
+String TagUnion::genre() const
+{
+  stringUnion(genre);
+}
+
+TagLib::uint TagUnion::year() const
+{
+  numberUnion(year);
+}
+
+TagLib::uint TagUnion::track() const
+{
+  numberUnion(track);
+}
+
+void TagUnion::setTitle(const String &s)
+{
+  setUnion(Title, s);
+}
+
+void TagUnion::setArtist(const String &s)
+{
+  setUnion(Artist, s);
+}
+
+void TagUnion::setAlbum(const String &s)
+{
+  setUnion(Album, s);
+}
+
+void TagUnion::setComment(const String &s)
+{
+  setUnion(Comment, s);
+}
+
+void TagUnion::setGenre(const String &s)
+{
+  setUnion(Genre, s);
+}
+
+void TagUnion::setYear(uint i)
+{
+  setUnion(Year, i);
+}
+
+void TagUnion::setTrack(uint i)
+{
+  setUnion(Track, i);
+}
+
+bool TagUnion::isEmpty() const
+{
+  if(d->tags[0] && !d->tags[0]->isEmpty())
+	return false;
+  if(d->tags[1] && !d->tags[1]->isEmpty())
+	return false;
+  if(d->tags[2] && !d->tags[2]->isEmpty())
+	return false;
+
+  return true;
+}
+
+/*** End of inlined file: tagunion.cpp ***/
+
+
+/*** Start of inlined file: fileref.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+
+/*** Start of inlined file: fileref.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_FILEREF_H
+#define TAGLIB_FILEREF_H
+
+namespace TagLib {
+
+  class Tag;
+
+  //! This class provides a simple abstraction for creating and handling files
+
+  /*!
+   * FileRef exists to provide a minimal, generic and value-based wrapper around
+   * a File.  It is lightweight and implicitly shared, and as such suitable for
+   * pass-by-value use.  This hides some of the uglier details of TagLib::File
+   * and the non-generic portions of the concrete file implementations.
+   *
+   * This class is useful in a "simple usage" situation where it is desirable
+   * to be able to get and set some of the tag information that is similar
+   * across file types.
+   *
+   * Also note that it is probably a good idea to plug this into your mime
+   * type system rather than using the constructor that accepts a file name using
+   * the FileTypeResolver.
+   *
+   * \see FileTypeResolver
+   * \see addFileTypeResolver()
+   */
+
+  class TAGLIB_EXPORT FileRef
+  {
+  public:
+
+  //! A class for pluggable file type resolution.
+
+  /*!
+   * This class is used to add extend TagLib's very basic file name based file
+   * type resolution.
+   *
+   * This can be accomplished with:
+   *
+   * \code
+   *
+   * class MyFileTypeResolver : FileTypeResolver
+   * {
+   *   TagLib::File *createFile(TagLib::FileName *fileName, bool, AudioProperties::ReadStyle)
+   *   {
+   *     if(someCheckForAnMP3File(fileName))
+   *       return new TagLib::MPEG::File(fileName);
+   *     return 0;
+   *   }
+   * }
+   *
+   * FileRef::addFileTypeResolver(new MyFileTypeResolver);
+   *
+   * \endcode
+   *
+   * Naturally a less contrived example would be slightly more complex.  This
+   * can be used to plug in mime-type detection systems or to add new file types
+   * to TagLib.
+   */
+
+	class TAGLIB_EXPORT FileTypeResolver
+	{
+	  TAGLIB_IGNORE_MISSING_DESTRUCTOR
+	public:
+	  /*!
+	   * This method must be overridden to provide an additional file type
+	   * resolver.  If the resolver is able to determine the file type it should
+	   * return a valid File object; if not it should return 0.
+	   *
+	   * \note The created file is then owned by the FileRef and should not be
+	   * deleted.  Deletion will happen automatically when the FileRef passes
+	   * out of scope.
+	   */
+	  virtual File *createFile(FileName fileName,
+							   bool readAudioProperties = true,
+							   AudioProperties::ReadStyle
+							   audioPropertiesStyle = AudioProperties::Average) const = 0;
+	};
+
+	/*!
+	 * Creates a null FileRef.
+	 */
+	FileRef();
+
+	/*!
+	 * Create a FileRef from \a fileName.  If \a readAudioProperties is true then
+	 * the audio properties will be read using \a audioPropertiesStyle.  If
+	 * \a readAudioProperties is false then \a audioPropertiesStyle will be
+	 * ignored.
+	 *
+	 * Also see the note in the class documentation about why you may not want to
+	 * use this method in your application.
+	 */
+	explicit FileRef(FileName fileName,
+					 bool readAudioProperties = true,
+					 AudioProperties::ReadStyle
+					 audioPropertiesStyle = AudioProperties::Average);
+
+	/*!
+	 * Contruct a FileRef using \a file.  The FileRef now takes ownership of the
+	 * pointer and will delete the File when it passes out of scope.
+	 */
+	explicit FileRef(File *file);
+
+	/*!
+	 * Make a copy of \a ref.
+	 */
+	FileRef(const FileRef &ref);
+
+	/*!
+	 * Destroys this FileRef instance.
+	 */
+	virtual ~FileRef();
+
+	/*!
+	 * Returns a pointer to represented file's tag.
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 *
+	 * \warning Do not cast it to any subclasses of \class Tag.
+	 * Use tag returning methods of appropriate subclasses of \class File instead.
+	 *
+	 * \see File::tag()
+	 */
+	Tag *tag() const;
+
+	/*!
+	 * Returns the audio properties for this FileRef.  If no audio properties
+	 * were read then this will returns a null pointer.
+	 */
+	AudioProperties *audioProperties() const;
+
+	/*!
+	 * Returns a pointer to the file represented by this handler class.
+	 *
+	 * As a general rule this call should be avoided since if you need to work
+	 * with file objects directly, you are probably better served instantiating
+	 * the File subclasses (i.e. MPEG::File) manually and working with their APIs.
+	 *
+	 * This <i>handle</i> exists to provide a minimal, generic and value-based
+	 * wrapper around a File.  Accessing the file directly generally indicates
+	 * a moving away from this simplicity (and into things beyond the scope of
+	 * FileRef).
+	 *
+	 * \warning This pointer will become invalid when this FileRef and all
+	 * copies pass out of scope.
+	 */
+	File *file() const;
+
+	/*!
+	 * Saves the file.  Returns true on success.
+	 */
+	bool save();
+
+	/*!
+	 * Adds a FileTypeResolver to the list of those used by TagLib.  Each
+	 * additional FileTypeResolver is added to the front of a list of resolvers
+	 * that are tried.  If the FileTypeResolver returns zero the next resolver
+	 * is tried.
+	 *
+	 * Returns a pointer to the added resolver (the same one that's passed in --
+	 * this is mostly so that static inialializers have something to use for
+	 * assignment).
+	 *
+	 * \see FileTypeResolver
+	 */
+	static const FileTypeResolver *addFileTypeResolver(const FileTypeResolver *resolver);
+
+	/*!
+	 * As is mentioned elsewhere in this class's documentation, the default file
+	 * type resolution code provided by TagLib only works by comparing file
+	 * extensions.
+	 *
+	 * This method returns the list of file extensions that are used by default.
+	 *
+	 * The extensions are all returned in lowercase, though the comparison used
+	 * by TagLib for resolution is case-insensitive.
+	 *
+	 * \note This does not account for any additional file type resolvers that
+	 * are plugged in.  Also note that this is not intended to replace a propper
+	 * mime-type resolution system, but is just here for reference.
+	 *
+	 * \see FileTypeResolver
+	 */
+	static StringList defaultFileExtensions();
+
+	/*!
+	 * Returns true if the file (and as such other pointers) are null.
+	 */
+	bool isNull() const;
+
+	/*!
+	 * Assign the file pointed to by \a ref to this FileRef.
+	 */
+	FileRef &operator=(const FileRef &ref);
+
+	/*!
+	 * Returns true if this FileRef and \a ref point to the same File object.
+	 */
+	bool operator==(const FileRef &ref) const;
+
+	/*!
+	 * Returns true if this FileRef and \a ref do not point to the same File
+	 * object.
+	 */
+	bool operator!=(const FileRef &ref) const;
+
+	/*!
+	 * A simple implementation of file type guessing.  If \a readAudioProperties
+	 * is true then the audio properties will be read using
+	 * \a audioPropertiesStyle.  If \a readAudioProperties is false then
+	 * \a audioPropertiesStyle will be ignored.
+	 *
+	 * \note You generally shouldn't use this method, but instead the constructor
+	 * directly.
+	 *
+	 * \deprecated
+	 */
+	static File *create(FileName fileName,
+						bool readAudioProperties = true,
+						AudioProperties::ReadStyle audioPropertiesStyle = AudioProperties::Average);
+
+  private:
+	class FileRefPrivate;
+	FileRefPrivate *d;
+  };
+
+} // namespace TagLib
+
+#endif
+
+/*** End of inlined file: fileref.h ***/
 
 using namespace TagLib;
 
@@ -12934,1102 +13751,7 @@ AudioProperties::AudioProperties(ReadStyle)
 
 /*** End of inlined file: audioproperties.cpp ***/
 
-// these two don't compile unless they come early
-
-/*** Start of inlined file: mp4atom.cpp ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-
-/*** Start of inlined file: mp4atom.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-// This file is not part of the public API!
-
-#ifndef DO_NOT_DOCUMENT
-
-#ifndef TAGLIB_MP4ATOM_H
-#define TAGLIB_MP4ATOM_H
-
-namespace TagLib {
-
-  namespace MP4 {
-
-	class Atom;
-	typedef TagLib::List<Atom *> AtomList;
-
-	enum AtomDataType
-	{
-	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
-	  TypeUTF8      = 1,  // without any count or null terminator
-	  TypeUTF16     = 2,  // also known as UTF-16BE
-	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
-	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
-	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
-	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
-	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
-	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
-	  TypeGIF       = 12, // (deprecated) a GIF image
-	  TypeJPEG      = 13, // a JPEG image
-	  TypePNG       = 14, // a PNG image
-	  TypeURL       = 15, // absolute, in UTF-8 characters
-	  TypeDuration  = 16, // in milliseconds, 32-bit integer
-	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
-	  TypeGenred    = 18, // a list of enumerated values
-	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
-	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
-	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
-	  TypeBMP       = 27, // Windows bitmap image
-	  TypeUndefined = 255 // undefined
-	};
-
-	struct AtomData {
-	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
-	  AtomDataType type;
-	  int locale;
-	  ByteVector data;
-	};
-
-	typedef TagLib::List<AtomData> AtomDataList;
-
-	class Atom
-	{
-	public:
-		Atom(File *file);
-		~Atom();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
-		AtomList findall(const char *name, bool recursive = false);
-		long offset;
-		long length;
-		TagLib::ByteVector name;
-		AtomList children;
-	private:
-		static const int numContainers = 11;
-		static const char *containers[11];
-	};
-
-	//! Root-level atoms
-	class Atoms
-	{
-	public:
-		Atoms(File *file);
-		~Atoms();
-		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
-		AtomList atoms;
-	};
-
-  }
-
-}
-
-#endif
-
-#endif
-
-/*** End of inlined file: mp4atom.h ***/
-
-using namespace TagLib;
-
-const char *MP4::Atom::containers[11] = {
-	"moov", "udta", "mdia", "meta", "ilst",
-	"stbl", "minf", "moof", "traf", "trak",
-	"stsd"
-};
-
-MP4::Atom::Atom(File *file)
-{
-  offset = file->tell();
-  ByteVector header = file->readBlock(8);
-  if (header.size() != 8) {
-	// The atom header must be 8 bytes long, otherwise there is either
-	// trailing garbage or the file is truncated
-	debug("MP4: Couldn't read 8 bytes of data for atom header");
-	length = 0;
-	file->seek(0, File::End);
-	return;
-  }
-
-  length = header.mid(0, 4).toUInt();
-
-  if (length == 1) {
-	long long longLength = file->readBlock(8).toLongLong();
-	if (longLength >= 8 && longLength <= 0xFFFFFFFF) {
-		// The atom has a 64-bit length, but it's actually a 32-bit value
-		length = (long)longLength;
-	}
-	else {
-		debug("MP4: 64-bit atoms are not supported");
-		length = 0;
-		file->seek(0, File::End);
-		return;
-	}
-  }
-  if (length < 8) {
-	debug("MP4: Invalid atom size");
-	length = 0;
-	file->seek(0, File::End);
-	return;
-  }
-
-  name = header.mid(4, 4);
-
-  for(int i = 0; i < numContainers; i++) {
-	if(name == containers[i]) {
-	  if(name == "meta") {
-		file->seek(4, File::Current);
-	  }
-	  else if(name == "stsd") {
-		file->seek(8, File::Current);
-	  }
-	  while(file->tell() < offset + length) {
-		MP4::Atom *child = new MP4::Atom(file);
-		children.append(child);
-		if (child->length == 0)
-		  return;
-	  }
-	  return;
-	}
-  }
-
-  file->seek(offset + length);
-}
-
-MP4::Atom::~Atom()
-{
-  for(unsigned int i = 0; i < children.size(); i++) {
-	delete children[i];
-  }
-  children.clear();
-}
-
-MP4::Atom *
-MP4::Atom::find(const char *name1, const char *name2, const char *name3, const char *name4)
-{
-  if(name1 == 0) {
-	return this;
-  }
-  for(unsigned int i = 0; i < children.size(); i++) {
-	if(children[i]->name == name1) {
-	  return children[i]->find(name2, name3, name4);
-	}
-  }
-  return 0;
-}
-
-MP4::AtomList
-MP4::Atom::findall(const char *name, bool recursive)
-{
-  MP4::AtomList result;
-  for(unsigned int i = 0; i < children.size(); i++) {
-	if(children[i]->name == name) {
-	  result.append(children[i]);
-	}
-	if(recursive) {
-	  result.append(children[i]->findall(name, recursive));
-	}
-  }
-  return result;
-}
-
-bool
-MP4::Atom::path(MP4::AtomList &path, const char *name1, const char *name2, const char *name3)
-{
-  path.append(this);
-  if(name1 == 0) {
-	return true;
-  }
-  for(unsigned int i = 0; i < children.size(); i++) {
-	if(children[i]->name == name1) {
-	  return children[i]->path(path, name2, name3);
-	}
-  }
-  return false;
-}
-
-MP4::Atoms::Atoms(File *file)
-{
-  file->seek(0, File::End);
-  long end = file->tell();
-  file->seek(0);
-  while(file->tell() + 8 <= end) {
-	MP4::Atom *atom = new MP4::Atom(file);
-	atoms.append(atom);
-	if (atom->length == 0)
-	  break;
-  }
-}
-
-MP4::Atoms::~Atoms()
-{
-  for(unsigned int i = 0; i < atoms.size(); i++) {
-	delete atoms[i];
-  }
-  atoms.clear();
-}
-
-MP4::Atom *
-MP4::Atoms::find(const char *name1, const char *name2, const char *name3, const char *name4)
-{
-  for(unsigned int i = 0; i < atoms.size(); i++) {
-	if(atoms[i]->name == name1) {
-	  return atoms[i]->find(name2, name3, name4);
-	}
-  }
-  return 0;
-}
-
-MP4::AtomList
-MP4::Atoms::path(const char *name1, const char *name2, const char *name3, const char *name4)
-{
-  MP4::AtomList path;
-  for(unsigned int i = 0; i < atoms.size(); i++) {
-	if(atoms[i]->name == name1) {
-	  if(!atoms[i]->path(path, name2, name3, name4)) {
-		path.clear();
-	  }
-	  return path;
-	}
-  }
-  return path;
-}
-
-/*** End of inlined file: mp4atom.cpp ***/
-
-
-
-/*** Start of inlined file: apetag.cpp ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifdef __SUNPRO_CC
-// Sun Studio finds multiple specializations of Map because
-// it considers specializations with and without class types
-// to be different; this define forces Map to use only the
-// specialization with the class keyword.
-#define WANT_CLASS_INSTANTIATION_OF_MAP (1)
-#endif
-
-
-/*** Start of inlined file: apetag.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APETAG_H
-#define TAGLIB_APETAG_H
-
-
-/*** Start of inlined file: apeitem.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEITEM_H
-#define TAGLIB_APEITEM_H
-
-namespace TagLib {
-
-  namespace APE {
-
-	//! An implementation of APE-items
-
-	/*!
-	 * This class provides the features of items in the APEv2 standard.
-	 */
-	class TAGLIB_EXPORT Item
-	{
-	public:
-	  /*!
-	   * Enum of types an Item can have. The value of 3 is reserved.
-	   */
-	  enum ItemTypes {
-		//! Item contains text information coded in UTF-8
-		Text = 0,
-		//! Item contains binary information
-		Binary = 1,
-		//! Item is a locator of external stored information
-		Locator = 2
-	  };
-	  /*!
-	   * Constructs an empty item.
-	   */
-	  Item();
-
-	  /*!
-	   * Constructs an item with \a key and \a value.
-	   */
-	  // BIC: Remove this, StringList has a constructor from a single string
-	  Item(const String &key, const String &value);
-
-	  /*!
-	   * Constructs an item with \a key and \a values.
-	   */
-	  Item(const String &key, const StringList &values);
-
-	  /*!
-	   * Construct an item as a copy of \a item.
-	   */
-	  Item(const Item &item);
-
-	  /*!
-	   * Destroys the item.
-	   */
-	  virtual ~Item();
-
-	  /*!
-	   * Copies the contents of \a item into this item.
-	   */
-	  Item &operator=(const Item &item);
-
-	  /*!
-	   * Returns the key.
-	   */
-	  String key() const;
-
-	  /*!
-	   * Returns the binary value.
-	   *
-	   * \deprecated This will be removed in the next binary incompatible version
-	   * as it is not kept in sync with the things that are set using setValue()
-	   * and friends.
-	   */
-	  ByteVector value() const;
-
-	  /*!
-	   * Sets the key for the item to \a key.
-	   */
-	  void setKey(const String &key);
-
-	  /*!
-	   * Sets the value of the item to \a value and clears any previous contents.
-	   *
-	   * \see toString()
-	   */
-	  void setValue(const String &value);
-
-	  /*!
-	   * Sets the value of the item to the list of values in \a value and clears
-	   * any previous contents.
-	   *
-	   * \see toStringList()
-	   */
-	  void setValues(const StringList &values);
-
-	  /*!
-	   * Appends \a value to create (or extend) the current list of values.
-	   *
-	   * \see toString()
-	   */
-	  void appendValue(const String &value);
-
-	  /*!
-	   * Appends \a values to extend the current list of values.
-	   *
-	   * \see toStringList()
-	   */
-	  void appendValues(const StringList &values);
-
-	  /*!
-	   * Returns the size of the full item.
-	   */
-	  int size() const;
-
-	  /*!
-	   * Returns the value as a single string. In case of multiple strings,
-	   * the first is returned.
-	   */
-	  String toString() const;
-
-	  /*!
-	   * \deprecated
-	   * \see values
-	   */
-	  StringList toStringList() const;
-
-	  /*!
-	   * Returns the list of values.
-	   */
-	  StringList values() const;
-
-	  /*!
-	   * Render the item to a ByteVector.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Parse the item from the ByteVector \a data.
-	   */
-	  void parse(const ByteVector& data);
-
-	  /*!
-	   * Set the item to read-only.
-	   */
-	  void setReadOnly(bool readOnly);
-
-	  /*!
-	   * Return true if the item is read-only.
-	   */
-	  bool isReadOnly() const;
-
-	  /*!
-	   * Sets the type of the item to \a type.
-	   *
-	   * \see ItemTypes
-	   */
-	  void setType(ItemTypes type);
-
-	  /*!
-	   * Returns the type of the item.
-	   */
-	  ItemTypes type() const;
-
-	  /*!
-	   * Returns if the item has any real content.
-	   */
-	  bool isEmpty() const;
-
-	private:
-	  class ItemPrivate;
-	  ItemPrivate *d;
-	};
-  }
-
-}
-
-#endif
-
-/*** End of inlined file: apeitem.h ***/
-
-namespace TagLib {
-
-  class File;
-
-  //! An implementation of the APE tagging format
-
-  namespace APE {
-
-	class Footer;
-
-	/*!
-	 * A mapping between a list of item names, or keys, and the associated item.
-	 *
-	 * \see APE::Tag::itemListMap()
-	 */
-	typedef Map<const String, Item> ItemListMap;
-
-	//! An APE tag implementation
-
-	class TAGLIB_EXPORT Tag : public TagLib::Tag
-	{
-	public:
-	  /*!
-	   * Create an APE tag with default values.
-	   */
-	  Tag();
-
-	  /*!
-	   * Create an APE tag and parse the data in \a file with APE footer at
-	   * \a tagOffset.
-	   */
-	  Tag(TagLib::File *file, long footerLocation);
-
-	  /*!
-	   * Destroys this Tag instance.
-	   */
-	  virtual ~Tag();
-
-	  /*!
-	   * Renders the in memory values to a ByteVector suitable for writing to
-	   * the file.
-	   */
-	  ByteVector render() const;
-
-	  /*!
-	   * Returns the string "APETAGEX" suitable for usage in locating the tag in a
-	   * file.
-	   */
-	  static ByteVector fileIdentifier();
-
-	  // Reimplementations.
-
-	  virtual String title() const;
-	  virtual String artist() const;
-	  virtual String album() const;
-	  virtual String comment() const;
-	  virtual String genre() const;
-	  virtual uint year() const;
-	  virtual uint track() const;
-
-	  virtual void setTitle(const String &s);
-	  virtual void setArtist(const String &s);
-	  virtual void setAlbum(const String &s);
-	  virtual void setComment(const String &s);
-	  virtual void setGenre(const String &s);
-	  virtual void setYear(uint i);
-	  virtual void setTrack(uint i);
-
-	  /*!
-	   * Returns a pointer to the tag's footer.
-	   */
-	  Footer *footer() const;
-
-	  /*!
-	   * Returns a reference to the item list map.  This is an ItemListMap of
-	   * all of the items in the tag.
-	   *
-	   * This is the most powerfull structure for accessing the items of the tag.
-	   *
-	   * APE tags are case-insensitive, all keys in this map have been converted
-	   * to upper case.
-	   *
-	   * \warning You should not modify this data structure directly, instead
-	   * use setItem() and removeItem().
-	   */
-	  const ItemListMap &itemListMap() const;
-
-	  /*!
-	   * Removes the \a key item from the tag
-	   */
-	  void removeItem(const String &key);
-
-	  /*!
-	   * Adds to the item specified by \a key the data \a value.  If \a replace
-	   * is true, then all of the other values on the same key will be removed
-	   * first.
-	   */
-	  void addValue(const String &key, const String &value, bool replace = true);
-
-	  /*!
-	   * Sets the \a key item to the value of \a item. If an item with the \a key is already
-	   * present, it will be replaced.
-	   */
-	  void setItem(const String &key, const Item &item);
-
-	  /*!
-	   * Returns true if the tag does not contain any data.
-	   */
-	  bool isEmpty() const;
-
-	protected:
-
-	  /*!
-	   * Reads from the file specified in the constructor.
-	   */
-	  void read();
-
-	  /*!
-	   * Parses the body of the tag in \a data.
-	   */
-	  void parse(const ByteVector &data);
-
-	private:
-	  Tag(const Tag &);
-	  Tag &operator=(const Tag &);
-
-	  class TagPrivate;
-	  TagPrivate *d;
-	};
-  }
-}
-
-#endif
-
-/*** End of inlined file: apetag.h ***/
-
-
-/*** Start of inlined file: apefooter.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_APEFOOTER_H
-#define TAGLIB_APEFOOTER_H
-
-namespace TagLib {
-
-  namespace APE {
-
-	//! An implementation of APE footers
-
-	/*!
-	 * This class implements APE footers (and headers). It attempts to follow, both
-	 * semantically and programatically, the structure specified in
-	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
-	 * headers specified there.
-	 */
-
-	class TAGLIB_EXPORT Footer
-	{
-	public:
-	  /*!
-	   * Constructs an empty APE footer.
-	   */
-	  Footer();
-
-	  /*!
-	   * Constructs an APE footer based on \a data.  parse() is called
-	   * immediately.
-	   */
-	  Footer(const ByteVector &data);
-
-	  /*!
-	   * Destroys the footer.
-	   */
-	  virtual ~Footer();
-
-	  /*!
-	   * Returns the version number.  (Note: This is the 1000 or 2000.)
-	   */
-	  uint version() const;
-
-	  /*!
-	   * Returns true if a header is present in the tag.
-	   */
-	  bool headerPresent() const;
-
-	  /*!
-	   * Returns true if a footer is present in the tag.
-	   */
-	  bool footerPresent() const;
-
-	  /*!
-	   * Returns true this is actually the header.
-	   */
-	  bool isHeader() const;
-
-	  /*!
-	   * Sets whether the header should be rendered or not
-	   */
-	  void setHeaderPresent(bool b) const;
-
-	  /*!
-	   * Returns the number of items in the tag.
-	   */
-	  uint itemCount() const;
-
-	  /*!
-	   * Set the item count to \a s.
-	   * \see itemCount()
-	   */
-	  void setItemCount(uint s);
-
-	  /*!
-	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
-	   * The size of the \e entire tag will be this plus the header size, if present.
-	   *
-	   * \see completeTagSize()
-	   */
-	  uint tagSize() const;
-
-	  /*!
-	   * Returns the tag size, including if present, the header
-	   * size.
-	   *
-	   * \see tagSize()
-	   */
-	  uint completeTagSize() const;
-
-	  /*!
-	   * Set the tag size to \a s.
-	   * \see tagSize()
-	   */
-	  void setTagSize(uint s);
-
-	  /*!
-	   * Returns the size of the footer.  Presently this is always 32 bytes.
-	   */
-	  static uint size();
-
-	  /*!
-	   * Returns the string used to identify an APE tag inside of a file.
-	   * Presently this is always "APETAGEX".
-	   */
-	  static ByteVector fileIdentifier();
-
-	  /*!
-	   * Sets the data that will be used as the footer.  32 bytes,
-	   * starting from \a data will be used.
-	   */
-	  void setData(const ByteVector &data);
-
-	  /*!
-	   * Renders the footer back to binary format.
-	   */
-	  ByteVector renderFooter() const;
-
-	  /*!
-	   * Renders the header corresponding to the footer. If headerPresent is
-	   * set to false, it returns an empty ByteVector.
-	   */
-	  ByteVector renderHeader() const;
-
-	protected:
-	  /*!
-	   * Called by setData() to parse the footer data.  It makes this information
-	   * available through the public API.
-	   */
-	  void parse(const ByteVector &data);
-
-	  /*!
-	   * Called by renderFooter and renderHeader
-	   */
-	  ByteVector render(bool isHeader) const;
-
-	private:
-	  Footer(const Footer &);
-	  Footer &operator=(const Footer &);
-
-	  class FooterPrivate;
-	  FooterPrivate *d;
-	};
-
-  }
-}
-
-#endif
-
-/*** End of inlined file: apefooter.h ***/
-
-namespace TagLib
-{
-
-class APE::Tag::TagPrivate
-{
-public:
-  TagPrivate() : file(0), footerLocation(-1), tagLength(0) {}
-
-  TagLib::File *file;
-  long footerLocation;
-  long tagLength;
-
-  Footer footer;
-
-  ItemListMap itemListMap;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// public methods
-////////////////////////////////////////////////////////////////////////////////
-
-APE::Tag::Tag() : TagLib::Tag()
-{
-  d = new TagPrivate;
-}
-
-APE::Tag::Tag(TagLib::File *file, long footerLocation) : TagLib::Tag()
-{
-  d = new TagPrivate;
-  d->file = file;
-  d->footerLocation = footerLocation;
-
-  read();
-}
-
-APE::Tag::~Tag()
-{
-  delete d;
-}
-
-ByteVector APE::Tag::fileIdentifier()
-{
-  return ByteVector::fromCString("APETAGEX");
-}
-
-String APE::Tag::title() const
-{
-  if(d->itemListMap["TITLE"].isEmpty())
-	return String::null;
-  return d->itemListMap["TITLE"].toString();
-}
-
-String APE::Tag::artist() const
-{
-  if(d->itemListMap["ARTIST"].isEmpty())
-	return String::null;
-  return d->itemListMap["ARTIST"].toString();
-}
-
-String APE::Tag::album() const
-{
-  if(d->itemListMap["ALBUM"].isEmpty())
-	return String::null;
-  return d->itemListMap["ALBUM"].toString();
-}
-
-String APE::Tag::comment() const
-{
-  if(d->itemListMap["COMMENT"].isEmpty())
-	return String::null;
-  return d->itemListMap["COMMENT"].toString();
-}
-
-String APE::Tag::genre() const
-{
-  if(d->itemListMap["GENRE"].isEmpty())
-	return String::null;
-  return d->itemListMap["GENRE"].toString();
-}
-
-TagLib::uint APE::Tag::year() const
-{
-  if(d->itemListMap["YEAR"].isEmpty())
-	return 0;
-  return d->itemListMap["YEAR"].toString().toInt();
-}
-
-TagLib::uint APE::Tag::track() const
-{
-  if(d->itemListMap["TRACK"].isEmpty())
-	return 0;
-  return d->itemListMap["TRACK"].toString().toInt();
-}
-
-void APE::Tag::setTitle(const String &s)
-{
-  addValue("TITLE", s, true);
-}
-
-void APE::Tag::setArtist(const String &s)
-{
-  addValue("ARTIST", s, true);
-}
-
-void APE::Tag::setAlbum(const String &s)
-{
-  addValue("ALBUM", s, true);
-}
-
-void APE::Tag::setComment(const String &s)
-{
-  addValue("COMMENT", s, true);
-}
-
-void APE::Tag::setGenre(const String &s)
-{
-  addValue("GENRE", s, true);
-}
-
-void APE::Tag::setYear(uint i)
-{
-  if(i <= 0)
-	removeItem("YEAR");
-  else
-	addValue("YEAR", String::number(i), true);
-}
-
-void APE::Tag::setTrack(uint i)
-{
-  if(i <= 0)
-	removeItem("TRACK");
-  else
-	addValue("TRACK", String::number(i), true);
-}
-
-APE::Footer *APE::Tag::footer() const
-{
-  return &d->footer;
-}
-
-const APE::ItemListMap& APE::Tag::itemListMap() const
-{
-  return d->itemListMap;
-}
-
-void APE::Tag::removeItem(const String &key)
-{
-  Map<const String, Item>::Iterator it = d->itemListMap.find(key.upper());
-  if(it != d->itemListMap.end())
-	d->itemListMap.erase(it);
-}
-
-void APE::Tag::addValue(const String &key, const String &value, bool replace)
-{
-  if(replace)
-	removeItem(key);
-  if(!value.isEmpty()) {
-	if(d->itemListMap.contains(key) || !replace)
-	  d->itemListMap[key.upper()].appendValue(value);
-	else
-	  setItem(key, Item(key, value));
-  }
-}
-
-void APE::Tag::setItem(const String &key, const Item &item)
-{
-  d->itemListMap.insert(key.upper(), item);
-}
-
-bool APE::Tag::isEmpty() const
-{
-  return d->itemListMap.isEmpty();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// protected methods
-////////////////////////////////////////////////////////////////////////////////
-
-void APE::Tag::read()
-{
-  if(d->file && d->file->isValid()) {
-
-	d->file->seek(d->footerLocation);
-	d->footer.setData(d->file->readBlock(Footer::size()));
-
-	if(d->footer.tagSize() <= Footer::size() ||
-	   d->footer.tagSize() > uint(d->file->length()))
-	  return;
-
-	d->file->seek(d->footerLocation + Footer::size() - d->footer.tagSize());
-	parse(d->file->readBlock(d->footer.tagSize() - Footer::size()));
-  }
-}
-
-ByteVector APE::Tag::render() const
-{
-  ByteVector data;
-  uint itemCount = 0;
-
-  {
-	for(Map<const String, Item>::ConstIterator it = d->itemListMap.begin();
-		it != d->itemListMap.end(); ++it)
-	{
-	  data.append(it->second.render());
-	  itemCount++;
-	}
-  }
-
-  d->footer.setItemCount(itemCount);
-  d->footer.setTagSize(data.size() + Footer::size());
-  d->footer.setHeaderPresent(true);
-
-  return d->footer.renderHeader() + data + d->footer.renderFooter();
-}
-
-void APE::Tag::parse(const ByteVector &data)
-{
-  uint pos = 0;
-
-  // 11 bytes is the minimum size for an APE item
-
-  for(uint i = 0; i < d->footer.itemCount() && pos <= data.size() - 11; i++) {
-	APE::Item item;
-	item.parse(data.mid(pos));
-
-	d->itemListMap.insert(item.key().upper(), item);
-
-	pos += item.size();
-  }
-}
-
-}
-
-/*** End of inlined file: apetag.cpp ***/
+//#include "mp4/mp4atom.cpp"
 
 
 /*** Start of inlined file: mpegfile.cpp ***/
@@ -14231,6 +13953,579 @@ namespace TagLib {
 
 /*** End of inlined file: id3v1tag.h ***/
 
+
+/*** Start of inlined file: apefooter.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEFOOTER_H
+#define TAGLIB_APEFOOTER_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	//! An implementation of APE footers
+
+	/*!
+	 * This class implements APE footers (and headers). It attempts to follow, both
+	 * semantically and programatically, the structure specified in
+	 * the APE v2.0 standard.  The API is based on the properties of APE footer and
+	 * headers specified there.
+	 */
+
+	class TAGLIB_EXPORT Footer
+	{
+	public:
+	  /*!
+	   * Constructs an empty APE footer.
+	   */
+	  Footer();
+
+	  /*!
+	   * Constructs an APE footer based on \a data.  parse() is called
+	   * immediately.
+	   */
+	  Footer(const ByteVector &data);
+
+	  /*!
+	   * Destroys the footer.
+	   */
+	  virtual ~Footer();
+
+	  /*!
+	   * Returns the version number.  (Note: This is the 1000 or 2000.)
+	   */
+	  uint version() const;
+
+	  /*!
+	   * Returns true if a header is present in the tag.
+	   */
+	  bool headerPresent() const;
+
+	  /*!
+	   * Returns true if a footer is present in the tag.
+	   */
+	  bool footerPresent() const;
+
+	  /*!
+	   * Returns true this is actually the header.
+	   */
+	  bool isHeader() const;
+
+	  /*!
+	   * Sets whether the header should be rendered or not
+	   */
+	  void setHeaderPresent(bool b) const;
+
+	  /*!
+	   * Returns the number of items in the tag.
+	   */
+	  uint itemCount() const;
+
+	  /*!
+	   * Set the item count to \a s.
+	   * \see itemCount()
+	   */
+	  void setItemCount(uint s);
+
+	  /*!
+	   * Returns the tag size in bytes.  This is the size of the frame content and footer.
+	   * The size of the \e entire tag will be this plus the header size, if present.
+	   *
+	   * \see completeTagSize()
+	   */
+	  uint tagSize() const;
+
+	  /*!
+	   * Returns the tag size, including if present, the header
+	   * size.
+	   *
+	   * \see tagSize()
+	   */
+	  uint completeTagSize() const;
+
+	  /*!
+	   * Set the tag size to \a s.
+	   * \see tagSize()
+	   */
+	  void setTagSize(uint s);
+
+	  /*!
+	   * Returns the size of the footer.  Presently this is always 32 bytes.
+	   */
+	  static uint size();
+
+	  /*!
+	   * Returns the string used to identify an APE tag inside of a file.
+	   * Presently this is always "APETAGEX".
+	   */
+	  static ByteVector fileIdentifier();
+
+	  /*!
+	   * Sets the data that will be used as the footer.  32 bytes,
+	   * starting from \a data will be used.
+	   */
+	  void setData(const ByteVector &data);
+
+	  /*!
+	   * Renders the footer back to binary format.
+	   */
+	  ByteVector renderFooter() const;
+
+	  /*!
+	   * Renders the header corresponding to the footer. If headerPresent is
+	   * set to false, it returns an empty ByteVector.
+	   */
+	  ByteVector renderHeader() const;
+
+	protected:
+	  /*!
+	   * Called by setData() to parse the footer data.  It makes this information
+	   * available through the public API.
+	   */
+	  void parse(const ByteVector &data);
+
+	  /*!
+	   * Called by renderFooter and renderHeader
+	   */
+	  ByteVector render(bool isHeader) const;
+
+	private:
+	  Footer(const Footer &);
+	  Footer &operator=(const Footer &);
+
+	  class FooterPrivate;
+	  FooterPrivate *d;
+	};
+
+  }
+}
+
+#endif
+
+/*** End of inlined file: apefooter.h ***/
+
+
+/*** Start of inlined file: apetag.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APETAG_H
+#define TAGLIB_APETAG_H
+
+
+/*** Start of inlined file: apeitem.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_APEITEM_H
+#define TAGLIB_APEITEM_H
+
+namespace TagLib {
+
+  namespace APE {
+
+	//! An implementation of APE-items
+
+	/*!
+	 * This class provides the features of items in the APEv2 standard.
+	 */
+	class TAGLIB_EXPORT Item
+	{
+	public:
+	  /*!
+	   * Enum of types an Item can have. The value of 3 is reserved.
+	   */
+	  enum ItemTypes {
+		//! Item contains text information coded in UTF-8
+		Text = 0,
+		//! Item contains binary information
+		Binary = 1,
+		//! Item is a locator of external stored information
+		Locator = 2
+	  };
+	  /*!
+	   * Constructs an empty item.
+	   */
+	  Item();
+
+	  /*!
+	   * Constructs a text item with \a key and \a value.
+	   */
+	  // BIC: Remove this, StringList has a constructor from a single string
+	  Item(const String &key, const String &value);
+
+	  /*!
+	   * Constructs a text item with \a key and \a values.
+	   */
+	  Item(const String &key, const StringList &values);
+
+	  /*!
+	   * Constructs an item with \a key and \a value.
+	   * If \a binary is true a Binary item will be created, otherwise \a value will be interpreted as text
+	   */
+	  Item(const String &key, const ByteVector &value, bool binary);
+
+	  /*!
+	   * Construct an item as a copy of \a item.
+	   */
+	  Item(const Item &item);
+
+	  /*!
+	   * Destroys the item.
+	   */
+	  virtual ~Item();
+
+	  /*!
+	   * Copies the contents of \a item into this item.
+	   */
+	  Item &operator=(const Item &item);
+
+	  /*!
+	   * Returns the key.
+	   */
+	  String key() const;
+
+	  /*!
+	   * Returns the binary value.
+	   * If the item type is not \a Binary, the returned contents are undefined
+	   */
+	  ByteVector binaryData() const;
+
+	 /*!
+	  * Set the binary value to \a value
+	  * The item's type will also be set to \a Binary
+	  */
+	  void setBinaryData(const ByteVector &value);
+
+#ifndef DO_NOT_DOCUMENT
+	  /* Remove in next binary incompatible release */
+	  ByteVector value() const;
+#endif
+
+	  /*!
+	   * Sets the key for the item to \a key.
+	   */
+	  void setKey(const String &key);
+
+	  /*!
+	   * Sets the text value of the item to \a value and clears any previous contents.
+	   *
+	   * \see toString()
+	   */
+	  void setValue(const String &value);
+
+	  /*!
+	   * Sets the text value of the item to the list of values in \a value and clears
+	   * any previous contents.
+	   *
+	   * \see toStringList()
+	   */
+	  void setValues(const StringList &values);
+
+	  /*!
+	   * Appends \a value to create (or extend) the current list of text values.
+	   *
+	   * \see toString()
+	   */
+	  void appendValue(const String &value);
+
+	  /*!
+	   * Appends \a values to extend the current list of text values.
+	   *
+	   * \see toStringList()
+	   */
+	  void appendValues(const StringList &values);
+
+	  /*!
+	   * Returns the size of the full item.
+	   */
+	  int size() const;
+
+	  /*!
+	   * Returns the value as a single string. In case of multiple strings,
+	   * the first is returned.
+	   */
+	  String toString() const;
+
+#ifndef DO_NOT_DOCUMENT
+	  /* Remove in next binary incompatible release */
+	  StringList toStringList() const;
+#endif
+
+	  /*!
+	   * Returns the list of text values.
+	   */
+	  StringList values() const;
+
+	  /*!
+	   * Render the item to a ByteVector.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Parse the item from the ByteVector \a data.
+	   */
+	  void parse(const ByteVector& data);
+
+	  /*!
+	   * Set the item to read-only.
+	   */
+	  void setReadOnly(bool readOnly);
+
+	  /*!
+	   * Return true if the item is read-only.
+	   */
+	  bool isReadOnly() const;
+
+	  /*!
+	   * Sets the type of the item to \a type.
+	   *
+	   * \see ItemTypes
+	   */
+	  void setType(ItemTypes type);
+
+	  /*!
+	   * Returns the type of the item.
+	   */
+	  ItemTypes type() const;
+
+	  /*!
+	   * Returns if the item has any real content.
+	   */
+	  bool isEmpty() const;
+
+	private:
+	  class ItemPrivate;
+	  ItemPrivate *d;
+	};
+  }
+
+}
+
+#endif
+
+/*** End of inlined file: apeitem.h ***/
+
+namespace TagLib {
+
+  class File;
+
+  //! An implementation of the APE tagging format
+
+  namespace APE {
+
+	class Footer;
+
+	/*!
+	 * A mapping between a list of item names, or keys, and the associated item.
+	 *
+	 * \see APE::Tag::itemListMap()
+	 */
+	typedef Map<const String, Item> ItemListMap;
+
+	//! An APE tag implementation
+
+	class TAGLIB_EXPORT Tag : public TagLib::Tag
+	{
+	public:
+	  /*!
+	   * Create an APE tag with default values.
+	   */
+	  Tag();
+
+	  /*!
+	   * Create an APE tag and parse the data in \a file with APE footer at
+	   * \a tagOffset.
+	   */
+	  Tag(TagLib::File *file, long footerLocation);
+
+	  /*!
+	   * Destroys this Tag instance.
+	   */
+	  virtual ~Tag();
+
+	  /*!
+	   * Renders the in memory values to a ByteVector suitable for writing to
+	   * the file.
+	   */
+	  ByteVector render() const;
+
+	  /*!
+	   * Returns the string "APETAGEX" suitable for usage in locating the tag in a
+	   * file.
+	   */
+	  static ByteVector fileIdentifier();
+
+	  // Reimplementations.
+
+	  virtual String title() const;
+	  virtual String artist() const;
+	  virtual String album() const;
+	  virtual String comment() const;
+	  virtual String genre() const;
+	  virtual uint year() const;
+	  virtual uint track() const;
+
+	  virtual void setTitle(const String &s);
+	  virtual void setArtist(const String &s);
+	  virtual void setAlbum(const String &s);
+	  virtual void setComment(const String &s);
+	  virtual void setGenre(const String &s);
+	  virtual void setYear(uint i);
+	  virtual void setTrack(uint i);
+
+	  /*!
+	   * Implements the unified tag dictionary interface -- export function.
+	   * APE tags are perfectly compatible with the dictionary interface because they
+	   * support both arbitrary tag names and multiple values. Currently only
+	   * APE items of type *Text* are handled by the dictionary interface; all *Binary*
+	   * and *Locator* items will be put into the unsupportedData list and can be
+	   * deleted on request using removeUnsupportedProperties(). The same happens
+	   * to Text items if their key is invalid for PropertyMap (which should actually
+	   * never happen).
+	   *
+	   * The only conversion done by this export function is to rename the APE tags
+	   * TRACK to TRACKNUMBER, YEAR to DATE, and ALBUM ARTIST to ALBUMARTIST, respectively,
+	   * in order to be compliant with the names used in other formats.
+	   */
+	  PropertyMap properties() const;
+
+	  void removeUnsupportedProperties(const StringList &properties);
+
+	  /*!
+	   * Implements the unified tag dictionary interface -- import function. The same
+	   * comments as for the export function apply.
+	   */
+	  PropertyMap setProperties(const PropertyMap &);
+
+	  /*!
+	   * Returns a pointer to the tag's footer.
+	   */
+	  Footer *footer() const;
+
+	  /*!
+	   * Returns a reference to the item list map.  This is an ItemListMap of
+	   * all of the items in the tag.
+	   *
+	   * This is the most powerfull structure for accessing the items of the tag.
+	   *
+	   * APE tags are case-insensitive, all keys in this map have been converted
+	   * to upper case.
+	   *
+	   * \warning You should not modify this data structure directly, instead
+	   * use setItem() and removeItem().
+	   */
+	  const ItemListMap &itemListMap() const;
+
+	  /*!
+	   * Removes the \a key item from the tag
+	   */
+	  void removeItem(const String &key);
+
+	  /*!
+	   * Adds to the text item specified by \a key the data \a value.  If \a replace
+	   * is true, then all of the other values on the same key will be removed
+	   * first.  If a binary item exists for \a key it will be removed first.
+	   */
+	  void addValue(const String &key, const String &value, bool replace = true);
+
+	 /*!
+	  * Set the binary data for the key specified by \a item to \a value
+	  * This will convert the item to type \a Binary if it isn't already and
+	  * all of the other values on the same key will be removed.
+	  */
+	  void setData(const String &key, const ByteVector &value);
+
+	  /*!
+	   * Sets the \a key item to the value of \a item. If an item with the \a key is already
+	   * present, it will be replaced.
+	   */
+	  void setItem(const String &key, const Item &item);
+
+	  /*!
+	   * Returns true if the tag does not contain any data.
+	   */
+	  bool isEmpty() const;
+
+	protected:
+
+	  /*!
+	   * Reads from the file specified in the constructor.
+	   */
+	  void read();
+
+	  /*!
+	   * Parses the body of the tag in \a data.
+	   */
+	  void parse(const ByteVector &data);
+
+	private:
+	  Tag(const Tag &);
+	  Tag &operator=(const Tag &);
+
+	  class TagPrivate;
+	  TagPrivate *d;
+	};
+  }
+}
+
+#endif
+
+/*** End of inlined file: apetag.h ***/
+
 #include <bitset>
 
 using namespace TagLib;
@@ -14328,6 +14623,40 @@ MPEG::File::~File()
 TagLib::Tag *MPEG::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap MPEG::File::properties() const
+{
+  // once Tag::properties() is virtual, this case distinction could actually be done
+  // within TagUnion.
+  if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(ID3v2Index, false)->properties();
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(APEIndex, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(ID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+void MPEG::File::removeUnsupportedProperties(const StringList &properties)
+{
+  if(d->hasID3v2)
+	d->tag.access<ID3v2::Tag>(ID3v2Index, false)->removeUnsupportedProperties(properties);
+  else if(d->hasAPE)
+	d->tag.access<APE::Tag>(APEIndex, false)->removeUnsupportedProperties(properties);
+  else if(d->hasID3v1)
+	d->tag.access<ID3v1::Tag>(ID3v1Index, false)->removeUnsupportedProperties(properties);
+}
+PropertyMap MPEG::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(ID3v2Index, false)->setProperties(properties);
+  else if(d->hasAPE)
+	return d->tag.access<APE::Tag>(APEIndex, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(ID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<ID3v2::Tag>(ID3v2Index, true)->setProperties(properties);
 }
 
 MPEG::Properties *MPEG::File::audioProperties() const
@@ -16283,6 +16612,17 @@ namespace TagLib {
 	  void setTextEncoding(String::Type encoding);
 
 	  /*!
+	   * Parses this frame as PropertyMap with a single key.
+	   * - if description() is empty or "COMMENT", the key will be "COMMENT"
+	   * - if description() is not a valid PropertyMap key, the frame will be
+	   *   marked unsupported by an entry "COMM/<description>" in the unsupportedData()
+	   *   attribute of the returned map.
+	   * - otherwise, the key will be "COMMENT:<description>"
+	   * - The single value will be the frame's text().
+	   */
+	  PropertyMap asProperties() const;
+
+	  /*!
 	   * Comments each have a unique description.  This searches for a comment
 	   * frame with the decription \a d and returns a pointer to it.  If no
 	   * frame is found that matches the given description null is returned.
@@ -16615,6 +16955,7 @@ namespace TagLib {
   namespace ID3v2 {
 
 	class Tag;
+	typedef Map<String, String> KeyConversionMap;
 
 	//! An ID3v2 text identification frame implementation
 
@@ -16703,6 +17044,20 @@ namespace TagLib {
 	  explicit TextIdentificationFrame(const ByteVector &data);
 
 	  /*!
+	   * This is a special factory method to create a TIPL (involved people list)
+	   * frame from the given \a properties. Will parse key=[list of values] data
+	   * into the TIPL format as specified in the ID3 standard.
+	   */
+	  static TextIdentificationFrame *createTIPLFrame(const PropertyMap &properties);
+
+	  /*!
+	   * This is a special factory method to create a TMCL (musician credits list)
+	   * frame from the given \a properties. Will parse key=[list of values] data
+	   * into the TMCL format as specified in the ID3 standard, where key should be
+	   * of the form instrumentPrefix:instrument.
+	   */
+	  static TextIdentificationFrame *createTMCLFrame(const PropertyMap &properties);
+	  /*!
 	   * Destroys this TextIdentificationFrame instance.
 	   */
 	  virtual ~TextIdentificationFrame();
@@ -16752,6 +17107,14 @@ namespace TagLib {
 	   */
 	  StringList fieldList() const;
 
+	  /*!
+	   * Returns a KeyConversionMap mapping a role as it would be  used in a PropertyMap
+	   * to the corresponding key used in a TIPL ID3 frame to describe that role.
+	   */
+	  static const KeyConversionMap &involvedPeopleMap();
+
+	  PropertyMap asProperties() const;
+
 	protected:
 	  // Reimplementations.
 
@@ -16767,6 +17130,16 @@ namespace TagLib {
 	  TextIdentificationFrame(const TextIdentificationFrame &);
 	  TextIdentificationFrame &operator=(const TextIdentificationFrame &);
 
+	  /*!
+	   * Parses the special structure of a TIPL frame
+	   * Only the whitelisted roles "ARRANGER", "ENGINEER", "PRODUCER",
+	   * "DJMIXER" (ID3: "DJ-MIX") and "MIXER" (ID3: "MIX") are allowed.
+	   */
+	  PropertyMap makeTIPLProperties() const;
+	  /*!
+	   * Parses the special structure of a TMCL frame.
+	   */
+	  PropertyMap makeTMCLProperties() const;
 	  class TextIdentificationFramePrivate;
 	  TextIdentificationFramePrivate *d;
 	};
@@ -16797,6 +17170,12 @@ namespace TagLib {
 	   */
 	  explicit UserTextIdentificationFrame(const ByteVector &data);
 
+	  /*!
+	   * Creates a user defined text identification frame with the given \a description
+	   * and \a values.
+	   */
+	  UserTextIdentificationFrame(const String &description, const StringList &values, String::Type encoding = String::UTF8);
+
 	  virtual String toString() const;
 
 	  /*!
@@ -16814,6 +17193,21 @@ namespace TagLib {
 	  StringList fieldList() const;
 	  void setText(const String &text);
 	  void setText(const StringList &fields);
+
+	  /*!
+	   * A UserTextIdentificationFrame is parsed into a PropertyMap as follows:
+	   * - the key is the frame's description, uppercased
+	   * - if the description contains '::', only the substring after that
+	   *   separator is considered as key (compatibility with exfalso)
+	   * - if the above rules don't yield a valid key (e.g. containing non-ASCII
+	   *   characters), the returned map will contain an entry "TXXX/<description>"
+	   *   in its unsupportedData() list.
+	   * - The values will be copies of the fieldList().
+	   * - If the description() appears as value in fieldList(), it will be omitted
+	   *   in the value list, in order to be compatible with TagLib which copies
+	   *   the description() into the fieldList().
+	   */
+	  PropertyMap asProperties() const;
 
 	  /*!
 	   * Searches for the user defined text frame with the description \a description
@@ -17260,6 +17654,7 @@ namespace TagLib {
 
 	  virtual void setText(const String &s);
 	  virtual String toString() const;
+	  PropertyMap asProperties() const;
 
 	protected:
 	  virtual void parseFields(const ByteVector &data);
@@ -17341,6 +17736,22 @@ namespace TagLib {
 	   * Sets the description of the frame to \a s.  \a s must be unique.
 	   */
 	  void setDescription(const String &s);
+
+	  /*!
+	   * Parses the UserUrlLinkFrame as PropertyMap. The description() is taken as key,
+	   * and the URL as single value.
+	   * - if description() is empty, the key will be "URL".
+	   * - otherwise, if description() is not a valid key (e.g. containing non-ASCII
+	   *   characters), the returned map will contain an entry "WXXX/<description>"
+	   *   in its unsupportedData() list.
+	   */
+	  PropertyMap asProperties() const;
+
+	  /*!
+	   * Searches for the user defined url frame with the description \a description
+	   * in \a tag.  This returns null if no matching frames were found.
+	   */
+	  static UserUrlLinkFrame *find(Tag *tag, const String &description);
 
 	protected:
 	  virtual void parseFields(const ByteVector &data);
@@ -17493,6 +17904,27 @@ namespace TagLib {
 	   * \see render()
 	   */
 	  void setTextEncoding(String::Type encoding);
+
+	  /*! Parses this frame as PropertyMap with a single key.
+	   * - if description() is empty or "LYRICS", the key will be "LYRICS"
+	   * - if description() is not a valid PropertyMap key, the frame will be
+	   *   marked unsupported by an entry "USLT/<description>" in the unsupportedData()
+	   *   attribute of the returned map.
+	   * - otherwise, the key will be "LYRICS:<description>"
+	   * - The single value will be the frame's text().
+	   * Note that currently the language() field is not supported by the PropertyMap
+	   * interface.
+	   */
+	  PropertyMap asProperties() const;
+
+	  /*!
+	   * LyricsFrames each have a unique description.  This searches for a lyrics
+	   * frame with the decription \a d and returns a pointer to it.  If no
+	   * frame is found that matches the given description null is returned.
+	   *
+	   * \see description()
+	   */
+	  static UnsynchronizedLyricsFrame *findByDescription(const Tag *tag, const String &d);
 
 	protected:
 	  // Reimplementations.
@@ -17774,7 +18206,7 @@ public:
   }
 };
 
-FrameFactory *FrameFactory::factory = 0;
+FrameFactory FrameFactory::factory;
 
 ////////////////////////////////////////////////////////////////////////////////
 // public members
@@ -17782,9 +18214,7 @@ FrameFactory *FrameFactory::factory = 0;
 
 FrameFactory *FrameFactory::instance()
 {
-  if(!factory)
-	factory = new FrameFactory;
-  return factory;
+  return &factory;
 }
 
 Frame *FrameFactory::createFrame(const ByteVector &data, bool synchSafeInts) const
@@ -18172,7 +18602,7 @@ void FrameFactory::updateGenre(TextIdentificationFrame *frame) const
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <ostream>
+#include <iostream>
 
 using namespace TagLib;
 using namespace ID3v2;
@@ -18701,9 +19131,99 @@ void ID3v2::Tag::removeFrame(Frame *frame, bool del)
 
 void ID3v2::Tag::removeFrames(const ByteVector &id)
 {
-	FrameList l = d->frameListMap[id];
-	for(FrameList::Iterator it = l.begin(); it != l.end(); ++it)
-	  removeFrame(*it, true);
+  FrameList l = d->frameListMap[id];
+  for(FrameList::Iterator it = l.begin(); it != l.end(); ++it)
+	removeFrame(*it, true);
+}
+
+PropertyMap ID3v2::Tag::properties() const
+{
+  PropertyMap properties;
+  for(FrameList::ConstIterator it = frameList().begin(); it != frameList().end(); ++it) {
+	PropertyMap props = (*it)->asProperties();
+	properties.merge(props);
+  }
+  return properties;
+}
+
+void ID3v2::Tag::removeUnsupportedProperties(const StringList &properties)
+{
+  for(StringList::ConstIterator it = properties.begin(); it != properties.end(); ++it){
+	if(it->startsWith("UNKNOWN/")) {
+	  String frameID = it->substr(String("UNKNOWN/").size());
+	  if(frameID.size() != 4)
+		continue; // invalid specification
+	  ByteVector id = frameID.data(String::Latin1);
+	  // delete all unknown frames of given type
+	  FrameList l = frameList(id);
+	  for(FrameList::ConstIterator fit = l.begin(); fit != l.end(); fit++)
+		if (dynamic_cast<const UnknownFrame *>(*fit) != NULL)
+		  removeFrame(*fit);
+	} else if(it->size() == 4){
+	  ByteVector id = it->data(String::Latin1);
+	  removeFrames(id);
+	} else {
+	  ByteVector id = it->substr(0,4).data(String::Latin1);
+	  if(it->size() <= 5)
+		continue; // invalid specification
+	  String description = it->substr(5);
+	  Frame *frame;
+	  if(id == "TXXX")
+		frame = UserTextIdentificationFrame::find(this, description);
+	  else if(id == "WXXX")
+		frame = UserUrlLinkFrame::find(this, description);
+	  else if(id == "COMM")
+		frame = CommentsFrame::findByDescription(this, description);
+	  else if(id == "USLT")
+		frame = UnsynchronizedLyricsFrame::findByDescription(this, description);
+	  if(frame)
+		removeFrame(frame);
+	}
+  }
+}
+
+PropertyMap ID3v2::Tag::setProperties(const PropertyMap &origProps)
+{
+  FrameList framesToDelete;
+  // we split up the PropertyMap into the "normal" keys and the "complicated" ones,
+  // which are those according to TIPL or TMCL frames.
+  PropertyMap properties;
+  PropertyMap tiplProperties;
+  PropertyMap tmclProperties;
+  Frame::splitProperties(origProps, properties, tiplProperties, tmclProperties);
+  for(FrameListMap::ConstIterator it = frameListMap().begin(); it != frameListMap().end(); ++it){
+	for(FrameList::ConstIterator lit = it->second.begin(); lit != it->second.end(); ++lit){
+	  PropertyMap frameProperties = (*lit)->asProperties();
+	  if(it->first == "TIPL") {
+		if (tiplProperties != frameProperties)
+		  framesToDelete.append(*lit);
+		else
+		  tiplProperties.erase(frameProperties);
+	  } else if(it->first == "TMCL") {
+		if (tmclProperties != frameProperties)
+		  framesToDelete.append(*lit);
+		else
+		  tmclProperties.erase(frameProperties);
+	  } else if(!properties.contains(frameProperties))
+		framesToDelete.append(*lit);
+	  else
+		properties.erase(frameProperties);
+	}
+  }
+  for(FrameList::ConstIterator it = framesToDelete.begin(); it != framesToDelete.end(); ++it)
+	removeFrame(*it);
+
+  // now create remaining frames:
+  // start with the involved people list (TIPL)
+  if(!tiplProperties.isEmpty())
+	  addFrame(TextIdentificationFrame::createTIPLFrame(tiplProperties));
+  // proceed with the musician credit list (TMCL)
+  if(!tmclProperties.isEmpty())
+	  addFrame(TextIdentificationFrame::createTMCLFrame(tmclProperties));
+  // now create the "one key per frame" frames
+  for(PropertyMap::ConstIterator it = properties.begin(); it != properties.end(); ++it)
+	addFrame(Frame::createTextualFrame(it->first, it->second));
+  return PropertyMap(); // ID3 implements the complete PropertyMap interface, so an empty map is returned
 }
 
 ByteVector ID3v2::Tag::render() const
@@ -18992,7 +19512,7 @@ void ID3v2::Tag::setTextFrame(const ByteVector &id, const String &value)
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <ostream>
+#include <iostream>
 #include <bitset>
 
 using namespace TagLib;
@@ -19293,9 +19813,55 @@ ByteVector Frame::textDelimiter(String::Type t)
   return d;
 }
 
+const String Frame::instrumentPrefix("PERFORMER:");
+const String Frame::commentPrefix("COMMENT:");
+const String Frame::lyricsPrefix("LYRICS:");
+const String Frame::urlPrefix("URL:");
+
 ////////////////////////////////////////////////////////////////////////////////
 // public members
 ////////////////////////////////////////////////////////////////////////////////
+
+Frame *Frame::createTextualFrame(const String &key, const StringList &values) //static
+{
+  // check if the key is contained in the key<=>frameID mapping
+  ByteVector frameID = keyToFrameID(key);
+  if(!frameID.isNull()) {
+	if(frameID[0] == 'T'){ // text frame
+	  TextIdentificationFrame *frame = new TextIdentificationFrame(frameID, String::UTF8);
+	  frame->setText(values);
+	  return frame;
+	} else if(values.size() == 1){  // URL frame (not WXXX); support only one value
+		UrlLinkFrame* frame = new UrlLinkFrame(frameID);
+		frame->setUrl(values.front());
+		return frame;
+	}
+  }
+  // now we check if it's one of the "special" cases:
+  // -LYRICS: depending on the number of values, use USLT or TXXX (with description=LYRICS)
+  if((key == "LYRICS" || key.startsWith(lyricsPrefix)) && values.size() == 1){
+	UnsynchronizedLyricsFrame *frame = new UnsynchronizedLyricsFrame();
+	frame->setDescription(key == "LYRICS" ? key : key.substr(lyricsPrefix.size()));
+	frame->setText(values.front());
+	return frame;
+  }
+  // -URL: depending on the number of values, use WXXX or TXXX (with description=URL)
+  if((key == "URL" || key.startsWith(urlPrefix)) && values.size() == 1){
+	UserUrlLinkFrame *frame = new UserUrlLinkFrame(String::UTF8);
+	frame->setDescription(key == "URL" ? key : key.substr(urlPrefix.size()));
+	frame->setUrl(values.front());
+	return frame;
+  }
+  // -COMMENT: depending on the number of values, use COMM or TXXX (with description=COMMENT)
+  if((key == "COMMENT" || key.startsWith(commentPrefix)) && values.size() == 1){
+	CommentsFrame *frame = new CommentsFrame(String::UTF8);
+	frame->setDescription(key == "COMMENT" ? key : key.substr(commentPrefix.size()));
+	frame->setText(values.front());
+	return frame;
+  }
+  // if non of the above cases apply, we use a TXXX frame with the key as description
+  return new UserTextIdentificationFrame(key, values, String::UTF8);
+}
 
 Frame::~Frame()
 {
@@ -19458,6 +20024,163 @@ String::Type Frame::checkEncoding(const StringList &fields, String::Type encodin
 String::Type Frame::checkTextEncoding(const StringList &fields, String::Type encoding) const
 {
   return checkEncoding(fields, encoding, header()->version());
+}
+
+static const TagLib::uint frameTranslationSize = 51;
+static const char *frameTranslation[][2] = {
+  // Text information frames
+  { "TALB", "ALBUM"},
+  { "TBPM", "BPM" },
+  { "TCOM", "COMPOSER" },
+  { "TCON", "GENRE" },
+  { "TCOP", "COPYRIGHT" },
+  { "TDEN", "ENCODINGTIME" },
+  { "TDLY", "PLAYLISTDELAY" },
+  { "TDOR", "ORIGINALDATE" },
+  { "TDRC", "DATE" },
+  // { "TRDA", "DATE" }, // id3 v2.3, replaced by TDRC in v2.4
+  // { "TDAT", "DATE" }, // id3 v2.3, replaced by TDRC in v2.4
+  // { "TYER", "DATE" }, // id3 v2.3, replaced by TDRC in v2.4
+  // { "TIME", "DATE" }, // id3 v2.3, replaced by TDRC in v2.4
+  { "TDRL", "RELEASEDATE" },
+  { "TDTG", "TAGGINGDATE" },
+  { "TENC", "ENCODEDBY" },
+  { "TEXT", "LYRICIST" },
+  { "TFLT", "FILETYPE" },
+  //{ "TIPL", "INVOLVEDPEOPLE" }, handled separately
+  { "TIT1", "CONTENTGROUP" },
+  { "TIT2", "TITLE"},
+  { "TIT3", "SUBTITLE" },
+  { "TKEY", "INITIALKEY" },
+  { "TLAN", "LANGUAGE" },
+  { "TLEN", "LENGTH" },
+  //{ "TMCL", "MUSICIANCREDITS" }, handled separately
+  { "TMED", "MEDIATYPE" },
+  { "TMOO", "MOOD" },
+  { "TOAL", "ORIGINALALBUM" },
+  { "TOFN", "ORIGINALFILENAME" },
+  { "TOLY", "ORIGINALLYRICIST" },
+  { "TOPE", "ORIGINALARTIST" },
+  { "TOWN", "OWNER" },
+  { "TPE1", "ARTIST"},
+  { "TPE2", "ALBUMARTIST" }, // id3's spec says 'PERFORMER', but most programs use 'ALBUMARTIST'
+  { "TPE3", "CONDUCTOR" },
+  { "TPE4", "REMIXER" }, // could also be ARRANGER
+  { "TPOS", "DISCNUMBER" },
+  { "TPRO", "PRODUCEDNOTICE" },
+  { "TPUB", "PUBLISHER" },
+  { "TRCK", "TRACKNUMBER" },
+  { "TRSN", "RADIOSTATION" },
+  { "TRSO", "RADIOSTATIONOWNER" },
+  { "TSOA", "ALBUMSORT" },
+  { "TSOP", "ARTISTSORT" },
+  { "TSOT", "TITLESORT" },
+  { "TSO2", "ALBUMARTISTSORT" }, // non-standard, used by iTunes
+  { "TSRC", "ISRC" },
+  { "TSSE", "ENCODING" },
+  // URL frames
+  { "WCOP", "COPYRIGHTURL" },
+  { "WOAF", "FILEWEBPAGE" },
+  { "WOAR", "ARTISTWEBPAGE" },
+  { "WOAS", "AUDIOSOURCEWEBPAGE" },
+  { "WORS", "RADIOSTATIONWEBPAGE" },
+  { "WPAY", "PAYMENTWEBPAGE" },
+  { "WPUB", "PUBLISHERWEBPAGE" },
+  //{ "WXXX", "URL"}, handled specially
+  // Other frames
+  { "COMM", "COMMENT" },
+  //{ "USLT", "LYRICS" }, handled specially
+};
+
+Map<ByteVector, String> &idMap()
+{
+  static Map<ByteVector, String> m;
+  if(m.isEmpty())
+	for(size_t i = 0; i < frameTranslationSize; ++i)
+	  m[frameTranslation[i][0]] = frameTranslation[i][1];
+  return m;
+}
+
+// list of deprecated frames and their successors
+static const TagLib::uint deprecatedFramesSize = 4;
+static const char *deprecatedFrames[][2] = {
+  {"TRDA", "TDRC"}, // 2.3 -> 2.4 (http://en.wikipedia.org/wiki/ID3)
+  {"TDAT", "TDRC"}, // 2.3 -> 2.4
+  {"TYER", "TDRC"}, // 2.3 -> 2.4
+  {"TIME", "TDRC"}, // 2.3 -> 2.4
+};
+
+Map<ByteVector,ByteVector> &deprecationMap()
+{
+  static Map<ByteVector,ByteVector> depMap;
+  if(depMap.isEmpty())
+	for(TagLib::uint i = 0; i < deprecatedFramesSize; ++i)
+	  depMap[deprecatedFrames[i][0]] = deprecatedFrames[i][1];
+  return depMap;
+}
+
+String Frame::frameIDToKey(const ByteVector &id)
+{
+  Map<ByteVector, String> &m = idMap();
+  if(m.contains(id))
+	return m[id];
+  if(deprecationMap().contains(id))
+	return m[deprecationMap()[id]];
+  return String::null;
+}
+
+ByteVector Frame::keyToFrameID(const String &s)
+{
+  static Map<String, ByteVector> m;
+  if(m.isEmpty())
+	for(size_t i = 0; i < frameTranslationSize; ++i)
+	  m[frameTranslation[i][1]] = frameTranslation[i][0];
+  if(m.contains(s.upper()))
+	return m[s];
+  return ByteVector::null;
+}
+
+PropertyMap Frame::asProperties() const
+{
+  if(dynamic_cast< const UnknownFrame *>(this)) {
+	PropertyMap m;
+	m.unsupportedData().append("UNKNOWN/" + frameID());
+	return m;
+  }
+  const ByteVector &id = frameID();
+  // workaround until this function is virtual
+  if(id == "TXXX")
+	return dynamic_cast< const UserTextIdentificationFrame* >(this)->asProperties();
+  else if(id[0] == 'T')
+	return dynamic_cast< const TextIdentificationFrame* >(this)->asProperties();
+  else if(id == "WXXX")
+	return dynamic_cast< const UserUrlLinkFrame* >(this)->asProperties();
+  else if(id[0] == 'W')
+	return dynamic_cast< const UrlLinkFrame* >(this)->asProperties();
+  else if(id == "COMM")
+	return dynamic_cast< const CommentsFrame* >(this)->asProperties();
+  else if(id == "USLT")
+	return dynamic_cast< const UnsynchronizedLyricsFrame* >(this)->asProperties();
+  PropertyMap m;
+  m.unsupportedData().append(id);
+  return m;
+}
+
+void Frame::splitProperties(const PropertyMap &original, PropertyMap &singleFrameProperties,
+		  PropertyMap &tiplProperties, PropertyMap &tmclProperties)
+{
+
+  singleFrameProperties.clear();
+  tiplProperties.clear();
+  tmclProperties.clear();
+  for(PropertyMap::ConstIterator it = original.begin(); it != original.end(); ++it) {
+	if(TextIdentificationFrame::involvedPeopleMap().contains(it->first))
+	  tiplProperties.insert(it->first, it->second);
+	else if(it->first.startsWith(TextIdentificationFrame::instrumentPrefix))
+	  tmclProperties.insert(it->first, it->second);
+	else
+	  singleFrameProperties.insert(it->first, it->second);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -20217,6 +20940,19 @@ String::Type CommentsFrame::textEncoding() const
 void CommentsFrame::setTextEncoding(String::Type encoding)
 {
   d->textEncoding = encoding;
+}
+
+PropertyMap CommentsFrame::asProperties() const
+{
+  String key = PropertyMap::prepareKey(description());
+  PropertyMap map;
+  if(key.isEmpty() || key == "COMMENT")
+	map.insert("COMMENT", text());
+  else if(key.isNull())
+	map.unsupportedData().append(L"COMM/" + description());
+  else
+	map.insert("COMMENT:" + key, text());
+  return map;
 }
 
 CommentsFrame *CommentsFrame::findByDescription(const ID3v2::Tag *tag, const String &d) // static
@@ -20993,6 +21729,32 @@ TextIdentificationFrame::TextIdentificationFrame(const ByteVector &data) :
   setData(data);
 }
 
+TextIdentificationFrame *TextIdentificationFrame::createTIPLFrame(const PropertyMap &properties) // static
+{
+  TextIdentificationFrame *frame = new TextIdentificationFrame("TIPL");
+  StringList l;
+  for(PropertyMap::ConstIterator it = properties.begin(); it != properties.end(); ++it){
+	l.append(it->first);
+	l.append(it->second.toString(",")); // comma-separated list of names
+  }
+  frame->setText(l);
+  return frame;
+}
+
+TextIdentificationFrame *TextIdentificationFrame::createTMCLFrame(const PropertyMap &properties) // static
+{
+  TextIdentificationFrame *frame = new TextIdentificationFrame("TMCL");
+  StringList l;
+  for(PropertyMap::ConstIterator it = properties.begin(); it != properties.end(); ++it){
+	if(!it->first.startsWith(instrumentPrefix)) // should not happen
+	  continue;
+	l.append(it->first.substr(instrumentPrefix.size()));
+	l.append(it->second.toString(","));
+  }
+  frame->setText(l);
+  return frame;
+}
+
 TextIdentificationFrame::~TextIdentificationFrame()
 {
   delete d;
@@ -21026,6 +21788,61 @@ String::Type TextIdentificationFrame::textEncoding() const
 void TextIdentificationFrame::setTextEncoding(String::Type encoding)
 {
   d->textEncoding = encoding;
+}
+
+// array of allowed TIPL prefixes and their corresponding key value
+static const TagLib::uint involvedPeopleSize = 5;
+static const char* involvedPeople[][2] = {
+	{"ARRANGER", "ARRANGER"},
+	{"ENGINEER", "ENGINEER"},
+	{"PRODUCER", "PRODUCER"},
+	{"DJ-MIX", "DJMIXER"},
+	{"MIX", "MIXER"},
+};
+
+const KeyConversionMap &TextIdentificationFrame::involvedPeopleMap() // static
+{
+  static KeyConversionMap m;
+  if(m.isEmpty())
+	for(uint i = 0; i < involvedPeopleSize; ++i)
+	  m.insert(involvedPeople[i][1], involvedPeople[i][0]);
+  return m;
+}
+
+PropertyMap TextIdentificationFrame::asProperties() const
+{
+  if(frameID() == "TIPL")
+	return makeTIPLProperties();
+  if(frameID() == "TMCL")
+	return makeTMCLProperties();
+  PropertyMap map;
+  String tagName = frameIDToKey(frameID());
+  if(tagName.isNull()) {
+	map.unsupportedData().append(frameID());
+	return map;
+  }
+  StringList values = fieldList();
+  if(tagName == "GENRE") {
+	// Special case: Support ID3v1-style genre numbers. They are not officially supported in
+	// ID3v2, however it seems that still a lot of programs use them.
+	for(StringList::Iterator it = values.begin(); it != values.end(); ++it) {
+	  bool ok = false;
+	  int test = it->toInt(&ok); // test if the genre value is an integer
+	  if(ok)
+		*it = ID3v1::genre(test);
+	}
+  } else if(tagName == "DATE") {
+	for(StringList::Iterator it = values.begin(); it != values.end(); ++it) {
+	  // ID3v2 specifies ISO8601 timestamps which contain a 'T' as separator between date and time.
+	  // Since this is unusual in other formats, the T is removed.
+	  int tpos = it->find("T");
+	  if(tpos != -1)
+		(*it)[tpos] = ' ';
+	}
+  }
+  PropertyMap ret;
+  ret.insert(tagName, values);
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21106,6 +21923,55 @@ TextIdentificationFrame::TextIdentificationFrame(const ByteVector &data, Header 
   parseFields(fieldData(data));
 }
 
+PropertyMap TextIdentificationFrame::makeTIPLProperties() const
+{
+  PropertyMap map;
+  if(fieldList().size() % 2 != 0){
+	// according to the ID3 spec, TIPL must contain an even number of entries
+	map.unsupportedData().append(frameID());
+	return map;
+  }
+  StringList l = fieldList();
+  for(StringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	bool found = false;
+	for(uint i = 0; i < involvedPeopleSize; ++i)
+	  if(*it == involvedPeople[i][0]) {
+		map.insert(involvedPeople[i][1], (++it)->split(","));
+		found = true;
+		break;
+	  }
+	if(!found){
+	  // invalid involved role -> mark whole frame as unsupported in order to be consisten with writing
+	  map.clear();
+	  map.unsupportedData().append(frameID());
+	  return map;
+	}
+  }
+  return map;
+}
+
+PropertyMap TextIdentificationFrame::makeTMCLProperties() const
+{
+  PropertyMap map;
+  if(fieldList().size() % 2 != 0){
+	// according to the ID3 spec, TMCL must contain an even number of entries
+	map.unsupportedData().append(frameID());
+	return map;
+  }
+  StringList l = fieldList();
+  for(StringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	String instrument = PropertyMap::prepareKey(*it);
+	if(instrument.isNull()) {
+	  // instrument is not a valid key -> frame unsupported
+	  map.clear();
+	  map.unsupportedData().append(frameID());
+	  return map;
+	}
+	map.insert(L"PERFORMER:" + instrument, (++it)->split(","));
+  }
+  return map;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // UserTextIdentificationFrame public members
 ////////////////////////////////////////////////////////////////////////////////
@@ -21124,6 +21990,14 @@ UserTextIdentificationFrame::UserTextIdentificationFrame(const ByteVector &data)
   TextIdentificationFrame(data)
 {
   checkFields();
+}
+
+UserTextIdentificationFrame::UserTextIdentificationFrame(const String &description, const StringList &values, String::Type encoding) :
+	TextIdentificationFrame("TXXX", encoding),
+	d(0)
+{
+  setDescription(description);
+  setText(values);
 }
 
 String UserTextIdentificationFrame::toString() const
@@ -21171,6 +22045,23 @@ void UserTextIdentificationFrame::setDescription(const String &s)
 	l[0] = s;
 
   TextIdentificationFrame::setText(l);
+}
+
+PropertyMap UserTextIdentificationFrame::asProperties() const
+{
+  String tagName = description();
+
+  PropertyMap map;
+  String key = map.prepareKey(tagName);
+  if(key.isNull()) // this frame's description is not a valid PropertyMap key -> add to unsupported list
+	map.unsupportedData().append(L"TXXX/" + description());
+  else {
+	StringList v = fieldList();
+	for(StringList::ConstIterator it = v.begin(); it != v.end(); ++it)
+	  if(*it != description())
+		map.insert(key, *it);
+  }
+  return map;
 }
 
 UserTextIdentificationFrame *UserTextIdentificationFrame::find(
@@ -21505,6 +22396,30 @@ void UnsynchronizedLyricsFrame::setTextEncoding(String::Type encoding)
   d->textEncoding = encoding;
 }
 
+PropertyMap UnsynchronizedLyricsFrame::asProperties() const
+{
+  PropertyMap map;
+  String key = PropertyMap::prepareKey(description());
+  if(key.isEmpty() || key.upper() == "LYRICS")
+	map.insert("LYRICS", text());
+  else if(key.isNull())
+	map.unsupportedData().append(L"USLT/" + description());
+  else
+	map.insert("LYRICS:" + key, text());
+  return map;
+}
+
+UnsynchronizedLyricsFrame *UnsynchronizedLyricsFrame::findByDescription(const ID3v2::Tag *tag, const String &d) // static
+{
+  ID3v2::FrameList lyrics = tag->frameList("USLT");
+
+  for(ID3v2::FrameList::ConstIterator it = lyrics.begin(); it != lyrics.end(); ++it){
+	UnsynchronizedLyricsFrame *frame = dynamic_cast<UnsynchronizedLyricsFrame *>(*it);
+	if(frame && frame->description() == d)
+	  return frame;
+  }
+  return 0;
+}
 ////////////////////////////////////////////////////////////////////////////////
 // protected members
 ////////////////////////////////////////////////////////////////////////////////
@@ -21628,6 +22543,18 @@ String UrlLinkFrame::toString() const
   return url();
 }
 
+PropertyMap UrlLinkFrame::asProperties() const
+{
+  String key = frameIDToKey(frameID());
+  PropertyMap map;
+  if(key.isNull())
+	// unknown W*** frame - this normally shouldn't happen
+	map.unsupportedData().append(frameID());
+  else
+	map.insert(key, url());
+  return map;
+}
+
 void UrlLinkFrame::parseFields(const ByteVector &data)
 {
   d->url = String(data);
@@ -21686,6 +22613,30 @@ String UserUrlLinkFrame::description() const
 void UserUrlLinkFrame::setDescription(const String &s)
 {
   d->description = s;
+}
+
+PropertyMap UserUrlLinkFrame::asProperties() const
+{
+  PropertyMap map;
+  String key = PropertyMap::prepareKey(description());
+  if(key.isEmpty() || key.upper() == "URL")
+	map.insert("URL", url());
+  else if(key.isNull())
+	map.unsupportedData().append(L"WXXX/" + description());
+  else
+	map.insert("URL:" + key, url());
+  return map;
+}
+
+UserUrlLinkFrame *UserUrlLinkFrame::find(ID3v2::Tag *tag, const String &description) // static
+{
+  FrameList l = tag->frameList("WXXX");
+  for(FrameList::Iterator it = l.begin(); it != l.end(); ++it) {
+	UserUrlLinkFrame *f = dynamic_cast<UserUrlLinkFrame *>(*it);
+	if(f && f->description() == description)
+	  return f;
+  }
+  return 0;
 }
 
 void UserUrlLinkFrame::parseFields(const ByteVector &data)
@@ -23787,6 +24738,44 @@ const Ogg::FieldListMap &Ogg::XiphComment::fieldListMap() const
   return d->fieldListMap;
 }
 
+PropertyMap Ogg::XiphComment::properties() const
+{
+  return d->fieldListMap;
+}
+
+PropertyMap Ogg::XiphComment::setProperties(const PropertyMap &properties)
+{
+  // check which keys are to be deleted
+  StringList toRemove;
+  for(FieldListMap::ConstIterator it = d->fieldListMap.begin(); it != d->fieldListMap.end(); ++it)
+	if (!properties.contains(it->first))
+	  toRemove.append(it->first);
+
+  for(StringList::ConstIterator it = toRemove.begin(); it != toRemove.end(); ++it)
+	  removeField(*it);
+
+  // now go through keys in \a properties and check that the values match those in the xiph comment */
+  PropertyMap::ConstIterator it = properties.begin();
+  for(; it != properties.end(); ++it)
+  {
+	if(!d->fieldListMap.contains(it->first) || !(it->second == d->fieldListMap[it->first])) {
+	  const StringList &sl = it->second;
+	  if(sl.size() == 0)
+		// zero size string list -> remove the tag with all values
+		removeField(it->first);
+	  else {
+		// replace all strings in the list for the tag
+		StringList::ConstIterator valueIterator = sl.begin();
+		addField(it->first, *valueIterator, true);
+		++valueIterator;
+		for(; valueIterator != sl.end(); ++valueIterator)
+		  addField(it->first, *valueIterator, false);
+	  }
+	}
+  }
+  return PropertyMap();
+}
+
 String Ogg::XiphComment::vendorID() const
 {
   return d->vendorID;
@@ -24006,6 +24995,16 @@ Vorbis::File::~File()
 Ogg::XiphComment *Vorbis::File::tag() const
 {
   return d->comment;
+}
+
+PropertyMap Vorbis::File::properties() const
+{
+  return d->comment->properties();
+}
+
+PropertyMap Vorbis::File::setProperties(const PropertyMap &properties)
+{
+  return d->comment->setProperties(properties);
 }
 
 Vorbis::Properties *Vorbis::File::audioProperties() const
@@ -24325,7 +25324,7 @@ using namespace TagLib;
 
 namespace
 {
-  enum { flacXiphIndex = 0, flacID3v2Index = 1, flacID3v1Index = 2 };
+  enum { FlacXiphIndex = 0, FlacID3v2Index = 1, FlacID3v1Index = 2 };
   enum { MinPaddingLength = 4096 };
   enum { LastBlockFlag = 0x80 };
 }
@@ -24418,6 +25417,41 @@ FLAC::File::~File()
 TagLib::Tag *FLAC::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap FLAC::File::properties() const
+{
+  // once Tag::properties() is virtual, this case distinction could actually be done
+  // within TagUnion.
+  if(d->hasXiphComment)
+	return d->tag.access<Ogg::XiphComment>(FlacXiphIndex, false)->properties();
+  if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(FlacID3v2Index, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(FlacID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+void FLAC::File::removeUnsupportedProperties(const StringList &unsupported)
+{
+  if(d->hasXiphComment)
+	d->tag.access<Ogg::XiphComment>(FlacXiphIndex, false)->removeUnsupportedProperties(unsupported);
+  if(d->hasID3v2)
+	d->tag.access<ID3v2::Tag>(FlacID3v2Index, false)->removeUnsupportedProperties(unsupported);
+  if(d->hasID3v1)
+	d->tag.access<ID3v1::Tag>(FlacID3v1Index, false)->removeUnsupportedProperties(unsupported);
+}
+
+PropertyMap FLAC::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasXiphComment)
+	return d->tag.access<Ogg::XiphComment>(FlacXiphIndex, false)->setProperties(properties);
+  else if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(FlacID3v2Index, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(FlacID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<Ogg::XiphComment>(FlacXiphIndex, true)->setProperties(properties);
 }
 
 FLAC::Properties *FLAC::File::audioProperties() const
@@ -24520,21 +25554,21 @@ bool FLAC::File::save()
 
 ID3v2::Tag *FLAC::File::ID3v2Tag(bool create)
 {
-  if(!create || d->tag[flacID3v2Index])
-	return static_cast<ID3v2::Tag *>(d->tag[flacID3v2Index]);
+  if(!create || d->tag[FlacID3v2Index])
+	return static_cast<ID3v2::Tag *>(d->tag[FlacID3v2Index]);
 
-  d->tag.set(flacID3v2Index, new ID3v2::Tag);
-  return static_cast<ID3v2::Tag *>(d->tag[flacID3v2Index]);
+  d->tag.set(FlacID3v2Index, new ID3v2::Tag);
+  return static_cast<ID3v2::Tag *>(d->tag[FlacID3v2Index]);
 }
 
 ID3v1::Tag *FLAC::File::ID3v1Tag(bool create)
 {
-  return d->tag.access<ID3v1::Tag>(flacID3v1Index, create);
+  return d->tag.access<ID3v1::Tag>(FlacID3v1Index, create);
 }
 
 Ogg::XiphComment *FLAC::File::xiphComment(bool create)
 {
-  return d->tag.access<Ogg::XiphComment>(flacXiphIndex, create);
+  return d->tag.access<Ogg::XiphComment>(FlacXiphIndex, create);
 }
 
 void FLAC::File::setID3v2FrameFactory(const ID3v2::FrameFactory *factory)
@@ -24554,12 +25588,12 @@ void FLAC::File::read(bool readProperties, Properties::ReadStyle propertiesStyle
 
   if(d->ID3v2Location >= 0) {
 
-	d->tag.set(flacID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
+	d->tag.set(FlacID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
 
 	d->ID3v2OriginalSize = ID3v2Tag()->header()->completeTagSize();
 
 	if(ID3v2Tag()->header()->tagSize() <= 0)
-	  d->tag.set(flacID3v2Index, 0);
+	  d->tag.set(FlacID3v2Index, 0);
 	else
 	  d->hasID3v2 = true;
   }
@@ -24569,7 +25603,7 @@ void FLAC::File::read(bool readProperties, Properties::ReadStyle propertiesStyle
   d->ID3v1Location = findID3v1();
 
   if(d->ID3v1Location >= 0) {
-	d->tag.set(flacID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->tag.set(FlacID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
 	d->hasID3v1 = true;
   }
 
@@ -24581,9 +25615,9 @@ void FLAC::File::read(bool readProperties, Properties::ReadStyle propertiesStyle
 	return;
 
   if(d->hasXiphComment)
-	d->tag.set(flacXiphIndex, new Ogg::XiphComment(xiphCommentData()));
+	d->tag.set(FlacXiphIndex, new Ogg::XiphComment(xiphCommentData()));
   else
-	d->tag.set(flacXiphIndex, new Ogg::XiphComment);
+	d->tag.set(FlacXiphIndex, new Ogg::XiphComment);
 
   if(readProperties)
 	d->properties = new Properties(streamInfoData(), streamLength(), propertiesStyle);
@@ -25595,7 +26629,7 @@ using namespace TagLib;
 
 namespace
 {
-  enum { mpcAPEIndex, mpcID3v1Index };
+  enum { MPCAPEIndex, MPCID3v1Index };
 }
 
 class MPC::File::FilePrivate
@@ -25668,6 +26702,33 @@ MPC::File::~File()
 TagLib::Tag *MPC::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap MPC::File::properties() const
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(MPCAPEIndex, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(MPCID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+void MPC::File::removeUnsupportedProperties(const StringList &properties)
+{
+  if(d->hasAPE)
+	d->tag.access<APE::Tag>(MPCAPEIndex, false)->removeUnsupportedProperties(properties);
+  if(d->hasID3v1)
+	d->tag.access<ID3v1::Tag>(MPCID3v1Index, false)->removeUnsupportedProperties(properties);
+}
+
+PropertyMap MPC::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(MPCAPEIndex, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(MPCID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<APE::Tag>(APE, true)->setProperties(properties);
 }
 
 MPC::Properties *MPC::File::audioProperties() const
@@ -25753,18 +26814,18 @@ bool MPC::File::save()
 
 ID3v1::Tag *MPC::File::ID3v1Tag(bool create)
 {
-  return d->tag.access<ID3v1::Tag>(mpcID3v1Index, create);
+  return d->tag.access<ID3v1::Tag>(MPCID3v1Index, create);
 }
 
 APE::Tag *MPC::File::APETag(bool create)
 {
-  return d->tag.access<APE::Tag>(mpcAPEIndex, create);
+  return d->tag.access<APE::Tag>(MPCAPEIndex, create);
 }
 
 void MPC::File::strip(int tags)
 {
   if(tags & ID3v1) {
-	d->tag.set(mpcID3v1Index, 0);
+	d->tag.set(MPCID3v1Index, 0);
 	APETag(true);
   }
 
@@ -25774,7 +26835,7 @@ void MPC::File::strip(int tags)
   }
 
   if(tags & APE) {
-	d->tag.set(mpcAPEIndex, 0);
+	d->tag.set(MPCAPEIndex, 0);
 
 	if(!ID3v1Tag())
 	  APETag(true);
@@ -25797,7 +26858,7 @@ void MPC::File::read(bool readProperties, Properties::ReadStyle /* propertiesSty
   d->ID3v1Location = findID3v1();
 
   if(d->ID3v1Location >= 0) {
-	d->tag.set(mpcID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->tag.set(MPCID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
 	d->hasID3v1 = true;
   }
 
@@ -25808,7 +26869,7 @@ void MPC::File::read(bool readProperties, Properties::ReadStyle /* propertiesSty
   d->APELocation = findAPE();
 
   if(d->APELocation >= 0) {
-	d->tag.set(mpcAPEIndex, new APE::Tag(this, d->APELocation));
+	d->tag.set(MPCAPEIndex, new APE::Tag(this, d->APELocation));
 
 	d->APESize = APETag()->footer()->completeTagSize();
 	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
@@ -25926,7 +26987,9 @@ public:
 	length(0),
 	bitrate(0),
 	sampleRate(0),
-	channels(0) {}
+	channels(0),
+	totalFrames(0),
+	sampleFrames(0) {}
 
   ByteVector data;
   long streamLength;
@@ -25936,6 +26999,8 @@ public:
   int bitrate;
   int sampleRate;
   int channels;
+  uint totalFrames;
+  uint sampleFrames;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25978,6 +27043,16 @@ int MPC::Properties::mpcVersion() const
   return d->version;
 }
 
+uint MPC::Properties::totalFrames() const
+{
+  return d->totalFrames;
+}
+
+uint MPC::Properties::sampleFrames() const
+{
+  return d->sampleFrames;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // private members
 ////////////////////////////////////////////////////////////////////////////////
@@ -25991,14 +27066,21 @@ void MPC::Properties::read()
 
   d->version = d->data[3] & 15;
 
-  unsigned int frames;
-
   if(d->version >= 7) {
-	frames = d->data.mid(4, 4).toUInt(false);
+	d->totalFrames = d->data.mid(4, 4).toUInt(false);
 
 	std::bitset<32> flags(TAGLIB_CONSTRUCT_BITSET(d->data.mid(8, 4).toUInt(false)));
 	d->sampleRate = sftable[flags[17] * 2 + flags[16]];
 	d->channels = 2;
+
+	uint gapless = d->data.mid(5, 4).toUInt(false);
+	bool trueGapless = (gapless >> 31) & 0x0001;
+	if(trueGapless) {
+	  uint lastFrameSamples = (gapless >> 20) & 0x07FF;
+	  d->sampleFrames = d->totalFrames * 1152 - lastFrameSamples;
+	}
+	else
+	  d->sampleFrames = d->totalFrames * 1152 - 576;
   }
   else {
 	uint headerData = d->data.mid(0, 4).toUInt(false);
@@ -26009,14 +27091,14 @@ void MPC::Properties::read()
 	d->channels = 2;
 
 	if(d->version >= 5)
-	  frames = d->data.mid(4, 4).toUInt(false);
+	  d->totalFrames = d->data.mid(4, 4).toUInt(false);
 	else
-	  frames = d->data.mid(6, 2).toUInt(false);
+	  d->totalFrames = d->data.mid(6, 2).toUInt(false);
+
+	d->sampleFrames = d->totalFrames * 1152 - 576;
   }
 
-  uint samples = frames * 1152 - 576;
-
-  d->length = d->sampleRate > 0 ? (samples + (d->sampleRate / 2)) / d->sampleRate : 0;
+  d->length = d->sampleRate > 0 ? (d->sampleFrames + (d->sampleRate / 2)) / d->sampleRate : 0;
 
   if(!d->bitrate)
 	d->bitrate = d->length > 0 ? ((d->streamLength * 8L) / d->length) / 1000 : 0;
@@ -26274,7 +27356,307 @@ MP4::File::save()
 
 /*** End of inlined file: mp4file.cpp ***/
 
-//#include "mp4/mp4atom.cpp"
+
+/*** Start of inlined file: mp4atom.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+
+/*** Start of inlined file: mp4atom.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+// This file is not part of the public API!
+
+#ifndef DO_NOT_DOCUMENT
+
+#ifndef TAGLIB_MP4ATOM_H
+#define TAGLIB_MP4ATOM_H
+
+namespace TagLib {
+
+  namespace MP4 {
+
+	class Atom;
+	typedef TagLib::List<Atom *> AtomList;
+
+	enum AtomDataType
+	{
+	  TypeImplicit  = 0,  // for use with tags for which no type needs to be indicated because only one type is allowed
+	  TypeUTF8      = 1,  // without any count or null terminator
+	  TypeUTF16     = 2,  // also known as UTF-16BE
+	  TypeSJIS      = 3,  // deprecated unless it is needed for special Japanese characters
+	  TypeHTML      = 6,  // the HTML file header specifies which HTML version
+	  TypeXML       = 7,  // the XML header must identify the DTD or schemas
+	  TypeUUID      = 8,  // also known as GUID; stored as 16 bytes in binary (valid as an ID)
+	  TypeISRC      = 9,  // stored as UTF-8 text (valid as an ID)
+	  TypeMI3P      = 10, // stored as UTF-8 text (valid as an ID)
+	  TypeGIF       = 12, // (deprecated) a GIF image
+	  TypeJPEG      = 13, // a JPEG image
+	  TypePNG       = 14, // a PNG image
+	  TypeURL       = 15, // absolute, in UTF-8 characters
+	  TypeDuration  = 16, // in milliseconds, 32-bit integer
+	  TypeDateTime  = 17, // in UTC, counting seconds since midnight, January 1, 1904; 32 or 64-bits
+	  TypeGenred    = 18, // a list of enumerated values
+	  TypeInteger   = 21, // a signed big-endian integer with length one of { 1,2,3,4,8 } bytes
+	  TypeRIAAPA    = 24, // RIAA parental advisory; { -1=no, 1=yes, 0=unspecified }, 8-bit ingteger
+	  TypeUPC       = 25, // Universal Product Code, in text UTF-8 format (valid as an ID)
+	  TypeBMP       = 27, // Windows bitmap image
+	  TypeUndefined = 255 // undefined
+	};
+
+	struct AtomData {
+	  AtomData(AtomDataType type, ByteVector data) : type(type), locale(0), data(data) {}
+	  AtomDataType type;
+	  int locale;
+	  ByteVector data;
+	};
+
+	typedef TagLib::List<AtomData> AtomDataList;
+
+	class Atom
+	{
+	public:
+		Atom(File *file);
+		~Atom();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		bool path(AtomList &path, const char *name1, const char *name2 = 0, const char *name3 = 0);
+		AtomList findall(const char *name, bool recursive = false);
+		long offset;
+		long length;
+		TagLib::ByteVector name;
+		AtomList children;
+	private:
+		static const int numContainers = 11;
+		static const char *containers[11];
+	};
+
+	//! Root-level atoms
+	class Atoms
+	{
+	public:
+		Atoms(File *file);
+		~Atoms();
+		Atom *find(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList path(const char *name1, const char *name2 = 0, const char *name3 = 0, const char *name4 = 0);
+		AtomList atoms;
+	};
+
+  }
+
+}
+
+#endif
+
+#endif
+
+/*** End of inlined file: mp4atom.h ***/
+
+using namespace TagLib;
+
+const char *MP4::Atom::containers[11] = {
+	"moov", "udta", "mdia", "meta", "ilst",
+	"stbl", "minf", "moof", "traf", "trak",
+	"stsd"
+};
+
+MP4::Atom::Atom(File *file)
+{
+  offset = file->tell();
+  ByteVector header = file->readBlock(8);
+  if (header.size() != 8) {
+	// The atom header must be 8 bytes long, otherwise there is either
+	// trailing garbage or the file is truncated
+	debug("MP4: Couldn't read 8 bytes of data for atom header");
+	length = 0;
+	file->seek(0, File::End);
+	return;
+  }
+
+  length = header.mid(0, 4).toUInt();
+
+  if (length == 1) {
+	long long longLength = file->readBlock(8).toLongLong();
+	if (longLength >= 8 && longLength <= 0xFFFFFFFF) {
+		// The atom has a 64-bit length, but it's actually a 32-bit value
+		length = (long)longLength;
+	}
+	else {
+		debug("MP4: 64-bit atoms are not supported");
+		length = 0;
+		file->seek(0, File::End);
+		return;
+	}
+  }
+  if (length < 8) {
+	debug("MP4: Invalid atom size");
+	length = 0;
+	file->seek(0, File::End);
+	return;
+  }
+
+  name = header.mid(4, 4);
+
+  for(int i = 0; i < numContainers; i++) {
+	if(name == containers[i]) {
+	  if(name == "meta") {
+		file->seek(4, File::Current);
+	  }
+	  else if(name == "stsd") {
+		file->seek(8, File::Current);
+	  }
+	  while(file->tell() < offset + length) {
+		MP4::Atom *child = new MP4::Atom(file);
+		children.append(child);
+		if (child->length == 0)
+		  return;
+	  }
+	  return;
+	}
+  }
+
+  file->seek(offset + length);
+}
+
+MP4::Atom::~Atom()
+{
+  for(unsigned int i = 0; i < children.size(); i++) {
+	delete children[i];
+  }
+  children.clear();
+}
+
+MP4::Atom *
+MP4::Atom::find(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  if(name1 == 0) {
+	return this;
+  }
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name1) {
+	  return children[i]->find(name2, name3, name4);
+	}
+  }
+  return 0;
+}
+
+MP4::AtomList
+MP4::Atom::findall(const char *name, bool recursive)
+{
+  MP4::AtomList result;
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name) {
+	  result.append(children[i]);
+	}
+	if(recursive) {
+	  result.append(children[i]->findall(name, recursive));
+	}
+  }
+  return result;
+}
+
+bool
+MP4::Atom::path(MP4::AtomList &path, const char *name1, const char *name2, const char *name3)
+{
+  path.append(this);
+  if(name1 == 0) {
+	return true;
+  }
+  for(unsigned int i = 0; i < children.size(); i++) {
+	if(children[i]->name == name1) {
+	  return children[i]->path(path, name2, name3);
+	}
+  }
+  return false;
+}
+
+MP4::Atoms::Atoms(File *file)
+{
+  file->seek(0, File::End);
+  long end = file->tell();
+  file->seek(0);
+  while(file->tell() + 8 <= end) {
+	MP4::Atom *atom = new MP4::Atom(file);
+	atoms.append(atom);
+	if (atom->length == 0)
+	  break;
+  }
+}
+
+MP4::Atoms::~Atoms()
+{
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	delete atoms[i];
+  }
+  atoms.clear();
+}
+
+MP4::Atom *
+MP4::Atoms::find(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	if(atoms[i]->name == name1) {
+	  return atoms[i]->find(name2, name3, name4);
+	}
+  }
+  return 0;
+}
+
+MP4::AtomList
+MP4::Atoms::path(const char *name1, const char *name2, const char *name3, const char *name4)
+{
+  MP4::AtomList path;
+  for(unsigned int i = 0; i < atoms.size(); i++) {
+	if(atoms[i]->name == name1) {
+	  if(!atoms[i]->path(path, name2, name3, name4)) {
+		path.clear();
+	  }
+	  return path;
+	}
+  }
+  return path;
+}
+
+/*** End of inlined file: mp4atom.cpp ***/
+
 
 /*** Start of inlined file: mp4tag.cpp ***/
 /***************************************************************************
@@ -27135,7 +28517,6 @@ MP4::Tag::itemListMap()
 /*** End of inlined file: mp4tag.cpp ***/
 
 
-
 /*** Start of inlined file: mp4item.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -27716,7 +29097,363 @@ MP4::CoverArt::data() const
 
 /*** End of inlined file: mp4coverart.cpp ***/
 
-//#include "ape/apetag.cpp"
+
+/*** Start of inlined file: apetag.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifdef __SUNPRO_CC
+// Sun Studio finds multiple specializations of Map because
+// it considers specializations with and without class types
+// to be different; this define forces Map to use only the
+// specialization with the class keyword.
+#define WANT_CLASS_INSTANTIATION_OF_MAP (1)
+#endif
+
+using namespace TagLib;
+using namespace APE;
+
+class APE::Tag::TagPrivate
+{
+public:
+  TagPrivate() : file(0), footerLocation(-1), tagLength(0) {}
+
+  TagLib::File *file;
+  long footerLocation;
+  long tagLength;
+
+  Footer footer;
+
+  ItemListMap itemListMap;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// public methods
+////////////////////////////////////////////////////////////////////////////////
+
+APE::Tag::Tag() : TagLib::Tag()
+{
+  d = new TagPrivate;
+}
+
+APE::Tag::Tag(TagLib::File *file, long footerLocation) : TagLib::Tag()
+{
+  d = new TagPrivate;
+  d->file = file;
+  d->footerLocation = footerLocation;
+
+  read();
+}
+
+APE::Tag::~Tag()
+{
+  delete d;
+}
+
+ByteVector APE::Tag::fileIdentifier()
+{
+  return ByteVector::fromCString("APETAGEX");
+}
+
+String APE::Tag::title() const
+{
+  if(d->itemListMap["TITLE"].isEmpty())
+	return String::null;
+  return d->itemListMap["TITLE"].toString();
+}
+
+String APE::Tag::artist() const
+{
+  if(d->itemListMap["ARTIST"].isEmpty())
+	return String::null;
+  return d->itemListMap["ARTIST"].toString();
+}
+
+String APE::Tag::album() const
+{
+  if(d->itemListMap["ALBUM"].isEmpty())
+	return String::null;
+  return d->itemListMap["ALBUM"].toString();
+}
+
+String APE::Tag::comment() const
+{
+  if(d->itemListMap["COMMENT"].isEmpty())
+	return String::null;
+  return d->itemListMap["COMMENT"].toString();
+}
+
+String APE::Tag::genre() const
+{
+  if(d->itemListMap["GENRE"].isEmpty())
+	return String::null;
+  return d->itemListMap["GENRE"].toString();
+}
+
+TagLib::uint APE::Tag::year() const
+{
+  if(d->itemListMap["YEAR"].isEmpty())
+	return 0;
+  return d->itemListMap["YEAR"].toString().toInt();
+}
+
+TagLib::uint APE::Tag::track() const
+{
+  if(d->itemListMap["TRACK"].isEmpty())
+	return 0;
+  return d->itemListMap["TRACK"].toString().toInt();
+}
+
+void APE::Tag::setTitle(const String &s)
+{
+  addValue("TITLE", s, true);
+}
+
+void APE::Tag::setArtist(const String &s)
+{
+  addValue("ARTIST", s, true);
+}
+
+void APE::Tag::setAlbum(const String &s)
+{
+  addValue("ALBUM", s, true);
+}
+
+void APE::Tag::setComment(const String &s)
+{
+  addValue("COMMENT", s, true);
+}
+
+void APE::Tag::setGenre(const String &s)
+{
+  addValue("GENRE", s, true);
+}
+
+void APE::Tag::setYear(uint i)
+{
+  if(i <= 0)
+	removeItem("YEAR");
+  else
+	addValue("YEAR", String::number(i), true);
+}
+
+void APE::Tag::setTrack(uint i)
+{
+  if(i <= 0)
+	removeItem("TRACK");
+  else
+	addValue("TRACK", String::number(i), true);
+}
+
+// conversions of tag keys between what we use in PropertyMap and what's usual
+// for APE tags
+static const TagLib::uint keyConversionsSize = 5; //usual,         APE
+static const char *keyConversions[][2] =  {{"TRACKNUMBER", "TRACK"       },
+										   {"DATE",        "YEAR"        },
+										   {"ALBUMARTIST", "ALBUM ARTIST"},
+										   {"DISCNUMBER",  "DISC"        },
+										   {"REMIXER",     "MIXARTIST"   }};
+
+PropertyMap APE::Tag::properties() const
+{
+  PropertyMap properties;
+  ItemListMap::ConstIterator it = itemListMap().begin();
+  for(; it != itemListMap().end(); ++it) {
+	String tagName = PropertyMap::prepareKey(it->first);
+	// if the item is Binary or Locator, or if the key is an invalid string,
+	// add to unsupportedData
+	if(it->second.type() != Item::Text || tagName.isNull())
+	  properties.unsupportedData().append(it->first);
+	else {
+	  // Some tags need to be handled specially
+	  for(uint i = 0; i < keyConversionsSize; ++i)
+		if(tagName == keyConversions[i][1])
+		  tagName = keyConversions[i][0];
+		properties[tagName].append(it->second.toStringList());
+	}
+  }
+  return properties;
+}
+
+void APE::Tag::removeUnsupportedProperties(const StringList &properties)
+{
+  StringList::ConstIterator it = properties.begin();
+  for(; it != properties.end(); ++it)
+	removeItem(*it);
+}
+
+PropertyMap APE::Tag::setProperties(const PropertyMap &origProps)
+{
+  PropertyMap properties(origProps); // make a local copy that can be modified
+
+  // see comment in properties()
+  for(uint i = 0; i < keyConversionsSize; ++i)
+	if(properties.contains(keyConversions[i][0])) {
+	  properties.insert(keyConversions[i][1], properties[keyConversions[i][0]]);
+	  properties.erase(keyConversions[i][0]);
+	}
+
+  // first check if tags need to be removed completely
+  StringList toRemove;
+  ItemListMap::ConstIterator remIt = itemListMap().begin();
+  for(; remIt != itemListMap().end(); ++remIt) {
+	String key = PropertyMap::prepareKey(remIt->first);
+	// only remove if a) key is valid, b) type is text, c) key not contained in new properties
+	if(!key.isNull() && remIt->second.type() == APE::Item::Text && !properties.contains(key))
+	  toRemove.append(remIt->first);
+  }
+
+  for (StringList::Iterator removeIt = toRemove.begin(); removeIt != toRemove.end(); removeIt++)
+	removeItem(*removeIt);
+
+  // now sync in the "forward direction"
+  PropertyMap::ConstIterator it = properties.begin();
+  for(; it != properties.end(); ++it) {
+	const String &tagName = it->first;
+	if(!(itemListMap().contains(tagName)) || !(itemListMap()[tagName].values() == it->second)) {
+	  if(it->second.size() == 0)
+		removeItem(tagName);
+	  else {
+		StringList::ConstIterator valueIt = it->second.begin();
+		addValue(tagName, *valueIt, true);
+		++valueIt;
+		for(; valueIt != it->second.end(); ++valueIt)
+		  addValue(tagName, *valueIt, false);
+	  }
+	}
+  }
+  return PropertyMap();
+}
+
+APE::Footer *APE::Tag::footer() const
+{
+  return &d->footer;
+}
+
+const APE::ItemListMap& APE::Tag::itemListMap() const
+{
+  return d->itemListMap;
+}
+
+void APE::Tag::removeItem(const String &key)
+{
+  Map<const String, Item>::Iterator it = d->itemListMap.find(key.upper());
+  if(it != d->itemListMap.end())
+	d->itemListMap.erase(it);
+}
+
+void APE::Tag::addValue(const String &key, const String &value, bool replace)
+{
+  if(replace)
+	removeItem(key);
+  if(!key.isEmpty() && !value.isEmpty()) {
+	if(!replace && d->itemListMap.contains(key)) {
+	  // Text items may contain more than one value
+	  if(APE::Item::Text == d->itemListMap.begin()->second.type())
+		d->itemListMap[key.upper()].appendValue(value);
+	  // Binary or locator items may have only one value
+	  else
+		setItem(key, Item(key, value));
+	}
+	else
+	  setItem(key, Item(key, value));
+  }
+}
+
+void APE::Tag::setData(const String &key, const ByteVector &value)
+{
+  removeItem(key);
+  if(!key.isEmpty() && !value.isEmpty())
+	setItem(key, Item(key, value, true));
+}
+
+void APE::Tag::setItem(const String &key, const Item &item)
+{
+  if(!key.isEmpty())
+	d->itemListMap.insert(key.upper(), item);
+}
+
+bool APE::Tag::isEmpty() const
+{
+  return d->itemListMap.isEmpty();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected methods
+////////////////////////////////////////////////////////////////////////////////
+
+void APE::Tag::read()
+{
+  if(d->file && d->file->isValid()) {
+
+	d->file->seek(d->footerLocation);
+	d->footer.setData(d->file->readBlock(Footer::size()));
+
+	if(d->footer.tagSize() <= Footer::size() ||
+	   d->footer.tagSize() > uint(d->file->length()))
+	  return;
+
+	d->file->seek(d->footerLocation + Footer::size() - d->footer.tagSize());
+	parse(d->file->readBlock(d->footer.tagSize() - Footer::size()));
+  }
+}
+
+ByteVector APE::Tag::render() const
+{
+  ByteVector data;
+  uint itemCount = 0;
+
+  {
+	for(Map<const String, Item>::ConstIterator it = d->itemListMap.begin();
+		it != d->itemListMap.end(); ++it)
+	{
+	  data.append(it->second.render());
+	  itemCount++;
+	}
+  }
+
+  d->footer.setItemCount(itemCount);
+  d->footer.setTagSize(data.size() + Footer::size());
+  d->footer.setHeaderPresent(true);
+
+  return d->footer.renderHeader() + data + d->footer.renderFooter();
+}
+
+void APE::Tag::parse(const ByteVector &data)
+{
+  uint pos = 0;
+
+  // 11 bytes is the minimum size for an APE item
+
+  for(uint i = 0; i < d->footer.itemCount() && pos <= data.size() - 11; i++) {
+	APE::Item item;
+	item.parse(data.mid(pos));
+
+	d->itemListMap.insert(item.key().upper(), item);
+
+	pos += item.size();
+  }
+}
+
+/*** End of inlined file: apetag.cpp ***/
+
 
 /*** Start of inlined file: apefooter.cpp ***/
 /***************************************************************************
@@ -27739,10 +29476,11 @@ MP4::CoverArt::data() const
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <ostream>
+#include <iostream>
 #include <bitset>
 
 using namespace TagLib;
+using namespace APE;
 
 class APE::Footer::FooterPrivate
 {
@@ -27947,7 +29685,6 @@ ByteVector APE::Footer::render(bool isHeader) const
 /*** End of inlined file: apefooter.cpp ***/
 
 
-
 /*** Start of inlined file: apeitem.cpp ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -28003,6 +29740,18 @@ APE::Item::Item(const String &key, const StringList &values)
   d->text = values;
 }
 
+APE::Item::Item(const String &key, const ByteVector &value, bool binary)
+{
+  d = new ItemPrivate;
+  d->key = key;
+  if(binary) {
+	d->type = Binary;
+	d->value = value;
+  }
+  else
+	  d->text.append(value);
+}
+
 APE::Item::Item(const Item &item)
 {
   d = new ItemPrivate(*item.d);
@@ -28045,6 +29794,17 @@ String APE::Item::key() const
   return d->key;
 }
 
+ByteVector APE::Item::binaryData() const
+{
+  return d->value;
+}
+
+void APE::Item::setBinaryData(const ByteVector &value)
+{
+  d->type = Binary;
+  d->value = value;
+}
+
 ByteVector APE::Item::value() const
 {
   // This seems incorrect as it won't be actually rendering the value to keep it
@@ -28060,27 +29820,50 @@ void APE::Item::setKey(const String &key)
 
 void APE::Item::setValue(const String &value)
 {
+	d->type = Text;
 	d->text = value;
 }
 
 void APE::Item::setValues(const StringList &value)
 {
+	d->type = Text;
 	d->text = value;
 }
 
 void APE::Item::appendValue(const String &value)
 {
+	d->type = Text;
 	d->text.append(value);
 }
 
 void APE::Item::appendValues(const StringList &values)
 {
+	d->type = Text;
 	d->text.append(values);
 }
 
 int APE::Item::size() const
 {
-  return 8 + d->key.size() + 1 + d->value.size();
+  // SFB: Why is d->key.size() used when size() returns the length in UniChars and not UTF-8?
+  int result = 8 + d->key.size() /* d->key.data(String::UTF8).size() */ + 1;
+  switch (d->type) {
+	case Text:
+	  if(d->text.size()) {
+		StringList::ConstIterator it = d->text.begin();
+
+		result += it->data(String::UTF8).size();
+		it++;
+		for(; it != d->text.end(); ++it)
+		  result += 1 + it->data(String::UTF8).size();
+	  }
+	  break;
+
+	case Binary:
+	case Locator:
+	  result += d->value.size();
+	  break;
+  }
+  return result;
 }
 
 StringList APE::Item::toStringList() const
@@ -28102,12 +29885,12 @@ bool APE::Item::isEmpty() const
 {
   switch(d->type) {
 	case Text:
-	case Binary:
 	  if(d->text.isEmpty())
 		return true;
 	  if(d->text.size() == 1 && d->text.front().isEmpty())
 		return true;
 	  return false;
+	case Binary:
 	case Locator:
 	  return d->value.isEmpty();
 	default:
@@ -28134,7 +29917,7 @@ void APE::Item::parse(const ByteVector &data)
   setReadOnly(flags & 1);
   setType(ItemTypes((flags >> 1) & 3));
 
-  if(int(d->type) < 2)
+  if(Text == d->type)
 	d->text = StringList(ByteVectorList::split(d->value, '\0'), String::UTF8);
 }
 
@@ -28198,7 +29981,7 @@ using namespace TagLib;
 
 namespace
 {
-  enum { apeAPEIndex, apeID3v1Index };
+  enum { ApeAPEIndex, ApeID3v1Index };
 }
 
 class APE::File::FilePrivate
@@ -28259,6 +30042,33 @@ APE::File::~File()
 TagLib::Tag *APE::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap APE::File::properties() const
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(ApeAPEIndex, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(ApeID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+void APE::File::removeUnsupportedProperties(const StringList &properties)
+{
+  if(d->hasAPE)
+	d->tag.access<APE::Tag>(ApeAPEIndex, false)->removeUnsupportedProperties(properties);
+  if(d->hasID3v1)
+	d->tag.access<ID3v1::Tag>(ApeID3v1Index, false)->removeUnsupportedProperties(properties);
+}
+
+PropertyMap APE::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(ApeAPEIndex, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(ApeID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<APE::Tag>(ApeAPEIndex, true)->setProperties(properties);
 }
 
 APE::Properties *APE::File::audioProperties() const
@@ -28337,23 +30147,23 @@ bool APE::File::save()
 
 ID3v1::Tag *APE::File::ID3v1Tag(bool create)
 {
-  return d->tag.access<ID3v1::Tag>(apeID3v1Index, create);
+  return d->tag.access<ID3v1::Tag>(ApeID3v1Index, create);
 }
 
 APE::Tag *APE::File::APETag(bool create)
 {
-  return d->tag.access<APE::Tag>(apeAPEIndex, create);
+  return d->tag.access<APE::Tag>(ApeAPEIndex, create);
 }
 
 void APE::File::strip(int tags)
 {
   if(tags & ID3v1) {
-	d->tag.set(apeID3v1Index, 0);
+	d->tag.set(ApeID3v1Index, 0);
 	APETag(true);
   }
 
   if(tags & APE) {
-	d->tag.set(apeAPEIndex, 0);
+	d->tag.set(ApeAPEIndex, 0);
 
 	if(!ID3v1Tag())
 	  APETag(true);
@@ -28371,7 +30181,7 @@ void APE::File::read(bool readProperties, Properties::ReadStyle /* propertiesSty
   d->ID3v1Location = findID3v1();
 
   if(d->ID3v1Location >= 0) {
-	d->tag.set(apeID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->tag.set(ApeID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
 	d->hasID3v1 = true;
   }
 
@@ -28380,7 +30190,7 @@ void APE::File::read(bool readProperties, Properties::ReadStyle /* propertiesSty
   d->APELocation = findAPE();
 
   if(d->APELocation >= 0) {
-	d->tag.set(apeAPEIndex, new APE::Tag(this, d->APELocation));
+	d->tag.set(ApeAPEIndex, new APE::Tag(this, d->APELocation));
 	d->APESize = APETag()->footer()->completeTagSize();
 	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
 	d->hasAPE = true;
@@ -28466,6 +30276,7 @@ public:
 	channels(0),
 	version(0),
 	bitsPerSample(0),
+	sampleFrames(0),
 	file(file),
 	streamLength(streamLength) {}
 
@@ -28475,6 +30286,7 @@ public:
   int channels;
   int version;
   int bitsPerSample;
+  uint sampleFrames;
   File *file;
   long streamLength;
 };
@@ -28522,6 +30334,11 @@ int APE::Properties::version() const
 int APE::Properties::bitsPerSample() const
 {
   return d->bitsPerSample;
+}
+
+TagLib::uint APE::Properties::sampleFrames() const
+{
+  return d->sampleFrames;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28611,8 +30428,8 @@ void APE::Properties::analyzeCurrent()
   uint totalFrames = header.mid(12, 4).toUInt(false);
   uint blocksPerFrame = header.mid(4, 4).toUInt(false);
   uint finalFrameBlocks = header.mid(8, 4).toUInt(false);
-  uint totalBlocks = totalFrames > 0 ? (totalFrames -  1) * blocksPerFrame + finalFrameBlocks : 0;
-  d->length = d->sampleRate > 0 ? totalBlocks / d->sampleRate : 0;
+  d->sampleFrames = totalFrames > 0 ? (totalFrames -  1) * blocksPerFrame + finalFrameBlocks : 0;
+  d->length = d->sampleRate > 0 ? d->sampleFrames / d->sampleRate : 0;
   d->bitrate = d->length > 0 ? ((d->streamLength * 8L) / d->length) / 1000 : 0;
 }
 
@@ -28669,7 +30486,7 @@ using namespace TagLib;
 
 namespace
 {
-  enum { wavAPEIndex, wavID3v1Index };
+  enum { WavAPEIndex, WavID3v1Index };
 }
 
 class WavPack::File::FilePrivate
@@ -28730,6 +30547,25 @@ WavPack::File::~File()
 TagLib::Tag *WavPack::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap WavPack::File::properties() const
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(WavAPEIndex, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(WavID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+PropertyMap WavPack::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasAPE)
+	return d->tag.access<APE::Tag>(WavAPEIndex, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(WavID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<APE::Tag>(APE, true)->setProperties(properties);
 }
 
 WavPack::Properties *WavPack::File::audioProperties() const
@@ -28808,23 +30644,23 @@ bool WavPack::File::save()
 
 ID3v1::Tag *WavPack::File::ID3v1Tag(bool create)
 {
-  return d->tag.access<ID3v1::Tag>(wavID3v1Index, create);
+  return d->tag.access<ID3v1::Tag>(WavID3v1Index, create);
 }
 
 APE::Tag *WavPack::File::APETag(bool create)
 {
-  return d->tag.access<APE::Tag>(wavAPEIndex, create);
+  return d->tag.access<APE::Tag>(WavAPEIndex, create);
 }
 
 void WavPack::File::strip(int tags)
 {
   if(tags & ID3v1) {
-	d->tag.set(wavID3v1Index, 0);
+	d->tag.set(WavID3v1Index, 0);
 	APETag(true);
   }
 
   if(tags & APE) {
-	d->tag.set(wavAPEIndex, 0);
+	d->tag.set(WavAPEIndex, 0);
 
 	if(!ID3v1Tag())
 	  APETag(true);
@@ -28842,7 +30678,7 @@ void WavPack::File::read(bool readProperties, Properties::ReadStyle /* propertie
   d->ID3v1Location = findID3v1();
 
   if(d->ID3v1Location >= 0) {
-	d->tag.set(wavID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->tag.set(WavID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
 	d->hasID3v1 = true;
   }
 
@@ -28851,7 +30687,7 @@ void WavPack::File::read(bool readProperties, Properties::ReadStyle /* propertie
   d->APELocation = findAPE();
 
   if(d->APELocation >= 0) {
-	d->tag.set(wavAPEIndex, new APE::Tag(this, d->APELocation));
+	d->tag.set(WavAPEIndex, new APE::Tag(this, d->APELocation));
 	d->APESize = APETag()->footer()->completeTagSize();
 	d->APELocation = d->APELocation + APETag()->footer()->size() - d->APESize;
 	d->hasAPE = true;
@@ -28939,6 +30775,7 @@ public:
 	channels(0),
 	version(0),
 	bitsPerSample(0),
+	sampleFrames(0),
 	file(0) {}
 
   ByteVector data;
@@ -28950,6 +30787,7 @@ public:
   int channels;
   int version;
   int bitsPerSample;
+  uint sampleFrames;
   File *file;
 };
 
@@ -29006,6 +30844,11 @@ int WavPack::Properties::bitsPerSample() const
   return d->bitsPerSample;
 }
 
+uint WavPack::Properties::sampleFrames() const
+{
+  return d->sampleFrames;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // private members
 ////////////////////////////////////////////////////////////////////////////////
@@ -29052,6 +30895,7 @@ void WavPack::Properties::read()
 	}
   }
   d->length = d->sampleRate > 0 ? (samples + (d->sampleRate / 2)) / d->sampleRate : 0;
+  d->sampleFrames = samples;
 
   d->bitrate = d->length > 0 ? ((d->streamLength * 8L) / d->length) / 1000 : 0;
 }
@@ -29379,7 +31223,7 @@ using namespace TagLib;
 
 namespace
 {
-  enum { trueID3v2Index = 0, trueID3v1Index = 1 };
+  enum { TrueAudioID3v2Index = 0, TrueAudioID3v1Index = 1 };
 }
 
 class TrueAudio::File::FilePrivate
@@ -29464,6 +31308,27 @@ TagLib::Tag *TrueAudio::File::tag() const
   return &d->tag;
 }
 
+PropertyMap TrueAudio::File::properties() const
+{
+  // once Tag::properties() is virtual, this case distinction could actually be done
+  // within TagUnion.
+  if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(TrueAudioID3v2Index, false)->properties();
+  if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(TrueAudioID3v1Index, false)->properties();
+  return PropertyMap();
+}
+
+PropertyMap TrueAudio::File::setProperties(const PropertyMap &properties)
+{
+  if(d->hasID3v2)
+	return d->tag.access<ID3v2::Tag>(TrueAudioID3v2Index, false)->setProperties(properties);
+  else if(d->hasID3v1)
+	return d->tag.access<ID3v1::Tag>(TrueAudioID3v1Index, false)->setProperties(properties);
+  else
+	return d->tag.access<ID3v2::Tag>(TrueAudioID3v2Index, true)->setProperties(properties);
+}
+
 TrueAudio::Properties *TrueAudio::File::audioProperties() const
 {
   return d->properties;
@@ -29525,23 +31390,23 @@ bool TrueAudio::File::save()
 
 ID3v1::Tag *TrueAudio::File::ID3v1Tag(bool create)
 {
-  return d->tag.access<ID3v1::Tag>(trueID3v1Index, create);
+  return d->tag.access<ID3v1::Tag>(TrueAudioID3v1Index, create);
 }
 
 ID3v2::Tag *TrueAudio::File::ID3v2Tag(bool create)
 {
-  return d->tag.access<ID3v2::Tag>(trueID3v2Index, create);
+  return d->tag.access<ID3v2::Tag>(TrueAudioID3v2Index, create);
 }
 
 void TrueAudio::File::strip(int tags)
 {
   if(tags & ID3v1) {
-	d->tag.set(trueID3v1Index, 0);
+	d->tag.set(TrueAudioID3v1Index, 0);
 	ID3v2Tag(true);
   }
 
   if(tags & ID3v2) {
-	d->tag.set(trueID3v2Index, 0);
+	d->tag.set(TrueAudioID3v2Index, 0);
 
 	if(!ID3v1Tag())
 	  ID3v2Tag(true);
@@ -29560,12 +31425,12 @@ void TrueAudio::File::read(bool readProperties, Properties::ReadStyle /* propert
 
   if(d->ID3v2Location >= 0) {
 
-	d->tag.set(trueID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
+	d->tag.set(TrueAudioID3v2Index, new ID3v2::Tag(this, d->ID3v2Location, d->ID3v2FrameFactory));
 
 	d->ID3v2OriginalSize = ID3v2Tag()->header()->completeTagSize();
 
 	if(ID3v2Tag()->header()->tagSize() <= 0)
-	  d->tag.set(trueID3v2Index, 0);
+	  d->tag.set(TrueAudioID3v2Index, 0);
 	else
 	  d->hasID3v2 = true;
   }
@@ -29575,7 +31440,7 @@ void TrueAudio::File::read(bool readProperties, Properties::ReadStyle /* propert
   d->ID3v1Location = findID3v1();
 
   if(d->ID3v1Location >= 0) {
-	d->tag.set(trueID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
+	d->tag.set(TrueAudioID3v1Index, new ID3v1::Tag(this, d->ID3v1Location));
 	d->hasID3v1 = true;
   }
 
@@ -30097,10 +31962,18 @@ class ASF::File::HeaderExtensionObject : public ASF::File::BaseObject
 {
 public:
   List<ASF::File::BaseObject *> objects;
+  ~HeaderExtensionObject();
   ByteVector guid();
   void parse(ASF::File *file, uint size);
   ByteVector render(ASF::File *file);
 };
+
+ASF::File::HeaderExtensionObject::~HeaderExtensionObject()
+{
+  for(unsigned int i = 0; i < objects.size(); i++) {
+	delete objects[i];
+  }
+}
 
 void ASF::File::BaseObject::parse(ASF::File *file, unsigned int size)
 {
@@ -31548,6 +33421,16 @@ ID3v2::Tag *RIFF::AIFF::File::tag() const
   return d->tag;
 }
 
+PropertyMap RIFF::AIFF::File::properties() const
+{
+  return d->tag->properties();
+}
+
+PropertyMap RIFF::AIFF::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag->setProperties(properties);
+}
+
 RIFF::AIFF::Properties *RIFF::AIFF::File::audioProperties() const
 {
   return d->properties;
@@ -31821,6 +33704,16 @@ RIFF::WAV::File::~File()
 ID3v2::Tag *RIFF::WAV::File::tag() const
 {
   return d->tag;
+}
+
+PropertyMap RIFF::WAV::File::properties() const
+{
+  return d->tag->properties();
+}
+
+PropertyMap RIFF::WAV::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag->setProperties(properties);
 }
 
 RIFF::WAV::Properties *RIFF::WAV::File::audioProperties() const
@@ -32246,6 +34139,16 @@ Mod::Properties *Mod::File::audioProperties() const
   return &d->properties;
 }
 
+PropertyMap Mod::File::properties() const
+{
+  return d->tag.properties();
+}
+
+PropertyMap Mod::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag.setProperties(properties);
+}
+
 bool Mod::File::save()
 {
   if(readOnly()) {
@@ -32419,12 +34322,12 @@ String Mod::Tag::genre() const
   return String::null;
 }
 
-uint Mod::Tag::year() const
+TagLib::uint Mod::Tag::year() const
 {
   return 0;
 }
 
-uint Mod::Tag::track() const
+TagLib::uint Mod::Tag::track() const
 {
   return 0;
 }
@@ -32467,6 +34370,50 @@ void Mod::Tag::setTrack(uint)
 void Mod::Tag::setTrackerName(const String &trackerName)
 {
   d->trackerName = trackerName;
+}
+
+PropertyMap Mod::Tag::properties() const
+{
+  PropertyMap properties;
+  properties["TITLE"] = d->title;
+  properties["COMMENT"] = d->comment;
+  if(!(d->trackerName.isNull()))
+	properties["TRACKERNAME"] = d->trackerName;
+  return properties;
+}
+
+PropertyMap Mod::Tag::setProperties(const PropertyMap &origProps)
+{
+  PropertyMap properties(origProps);
+  properties.removeEmpty();
+  StringList oneValueSet;
+  if(properties.contains("TITLE")) {
+	d->title = properties["TITLE"].front();
+	oneValueSet.append("TITLE");
+  } else
+	d->title = String::null;
+
+  if(properties.contains("COMMENT")) {
+	d->comment = properties["COMMENT"].front();
+	oneValueSet.append("COMMENT");
+  } else
+	d->comment = String::null;
+
+  if(properties.contains("TRACKERNAME")) {
+	d->trackerName = properties["TRACKERNAME"].front();
+	oneValueSet.append("TRACKERNAME");
+  } else
+	d->trackerName = String::null;
+
+  // for each tag that has been set above, remove the first entry in the corresponding
+  // value list. The others will be returned as unsupported by this format.
+  for(StringList::Iterator it = oneValueSet.begin(); it != oneValueSet.end(); ++it) {
+	if(properties[*it].size() == 1)
+	  properties.erase(*it);
+	else
+	  properties[*it].erase( properties[*it].begin() );
+  }
+  return properties;
 }
 
 /*** End of inlined file: modtag.cpp ***/
@@ -32624,6 +34571,16 @@ S3M::File::~File()
 Mod::Tag *S3M::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap S3M::File::properties() const
+{
+  return d->tag.properties();
+}
+
+PropertyMap S3M::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag.setProperties(properties);
 }
 
 S3M::Properties *S3M::File::audioProperties() const
@@ -33049,6 +35006,16 @@ IT::File::~File()
 Mod::Tag *IT::File::tag() const
 {
   return &d->tag;
+}
+
+PropertyMap IT::File::properties() const
+{
+  return d->tag.properties();
+}
+
+PropertyMap IT::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag.setProperties(properties);
 }
 
 IT::Properties *IT::File::audioProperties() const
@@ -33920,6 +35887,16 @@ Mod::Tag *XM::File::tag() const
   return &d->tag;
 }
 
+PropertyMap XM::File::properties() const
+{
+  return d->tag.properties();
+}
+
+PropertyMap XM::File::setProperties(const PropertyMap &properties)
+{
+  return d->tag.setProperties(properties);
+}
+
 XM::Properties *XM::File::audioProperties() const
 {
   return &d->properties;
@@ -34500,7 +36477,7 @@ std::ostream &operator<<(std::ostream &s, const StringList &l)
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <ostream>
+#include <iostream>
 
 #include <string.h>
 
@@ -36381,4 +38358,9 @@ ConversionResult ConvertUTF8toUTF16 (
    --------------------------------------------------------------------- */
 
 /*** End of inlined file: unicode.cpp ***/
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#pragma pop_macro ("_CRT_SECURE_NO_WARNINGS")
+#endif
 

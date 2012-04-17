@@ -1,26 +1,38 @@
 # TagLib Amalgamation
 
-A distribution of the [TagLib](http://developer.kde.org/~wheeler/taglib.html) library in amalgamated source
-form. The amalgamation is built using the [Amalgamate](http://github.com/vinniefalco/Amalgamate/)
-Tool.
+A distribution of the [TagLib][1] library in amalgamated source code form.
 
-## How does this help?
+## What's an amalgamation?
 
-The amalgamated form of TagLib is designed to be added to your existing project or Makefile.
-This makes it easier to integrate into your application, and easier to redistribute if you
-are providing source code.
+An amalgamation is simply a collection of header and source files that have been
+concatenated together to form one or more very large files. In this form, they
+are easy to add to your existing project as source files (rather than linking
+as a library). They are also easier to redistribute if you are making an open
+source application and don't want to have any external dependencies.
 
-The standard distribution of TagLib contains many sources and headers, and arcane
-macros that need to be set up in order to function correctly when statically
-linked. This amalgamation eliminates those problems.
+## What is TagLib?
 
-## How do I use it?
+TagLib is a library for reading and editing the meta-data of several popular
+audio formats. Currently it supports both ID3v1 and ID3v2 for MP3 files, Ogg
+Vorbis comments and ID3 tags and Vorbis comments in FLAC, MPC, Speex, WavPack
+TrueAudio, WAV, AIFF, MP4 and ASF files. 
 
-- Add the directory named "Include" to your include paths.
-- Add the necessary .cpp files (or .mm files on OS X or iOS) from TagLibAmalgam.
-- Use #include "TagLibAmalgam/TagLibAmalgam.h" where you want to use TagLib.
-- Edit "TagLibConfig.h" to suit your needs.
+## How do I use this?
 
-### Terms and Conditions
-The amalgamation uses the same license as [TagLib](http://developer.kde.org/~wheeler/taglib.html)<br>
-The author hereby releases all his public TagLib changes to the public domain.
+Add TagLibAmalgam.cpp to your existing project, include TagLibAmalgam.h
+in the source files where you want to use TagLib, and that's it!
+
+The [TagLib Amalgamation][2] was built using the [TagLib Amalgamation Template][3].
+
+## License
+
+Copyright (c) 2002 Scott Wheeler, Lukas Lalinsky, Ismael Orenstein,
+Allan Sandfeld Jensen, Teemu Tervo, Mathias Panzenböck<br>
+TagLib is distributed under both the [GNU Lesser General Public License][4]
+(LGPL) and the [Mozilla Public License][5] (MPL).
+
+[1]: http://developer.kde.org/~wheeler/taglib.html "TagLib"
+[2]: https://github.com/vinniefalco/TagLibAmalgam/ "TagLib Amalgamation"
+[3]: https://github.com/vinniefalco/TagLibAmalgamTemplate/ "TagLib Amalgamation Template"
+[4]: http://www.gnu.org/licenses/gpl-2.0.html "GNU GPL v2"
+[5]: http://www.mozilla.org/MPL/ "MPL"

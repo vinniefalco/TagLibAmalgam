@@ -1,13 +1,29 @@
+/*
+  ==============================================================================
+
+  Copyright (c) 2002 Scott Wheeler, Lukas Lalinsky, Ismael Orenstein,
+  Allan Sandfeld Jensen, Teemu Tervo, Mathias Panzenbock
+
+  Official Project Location: http://developer.kde.org/~wheeler/taglib.html
+  Amalgamated Project Location: https://github.com/vinniefalco/TagLibAmalgam
+
+  ------------------------------------------------------------------------------
+
+  TagLib is distributed under the GNU Lesser General Public License (LGPL) and
+  Mozilla Public License (MPL). Essentially that means that it may be used in
+  proprietary applications, but if changes are made to TagLib they must be
+  contributed back to the project. Please review the licenses if you are
+  considering using TagLib in your project. See COPYING.MPL and COPYING.GPL for
+  more information on the licenses.
+
+  ==============================================================================
+*/
+
 #define TAGLIB_NO_CONFIG
 #define MAKE_TAGLIB_LIB
 #define TAGLIB_STATIC
 #define WITH_ASF
 #define WITH_MP4
-
-/*
- * This template is used to produce the amalgamated version of TagLib
- *
- */
 
 
 /*** Start of inlined file: tag.h ***/
@@ -358,7 +374,7 @@ namespace TagLib {
 #define TAGLIB_BYTEVECTOR_H
 
 #include <vector>
-#include <ostream>
+#include <iostream>
 
 namespace TagLib {
 
@@ -755,7 +771,7 @@ TAGLIB_EXPORT std::ostream &operator<<(std::ostream &s, const TagLib::ByteVector
 /*** End of inlined file: tbytevector.h ***/
 
 #include <string>
-#include <ostream>
+#include <iostream>
 
 /*!
  * \relates TagLib::String
@@ -1231,6 +1247,8 @@ namespace TagLib {
    * in TagLib::AudioProperties, TagLib::File and TagLib::FileRef.
    */
 
+  class PropertyMap;
+
   class TAGLIB_EXPORT Tag
   {
   public:
@@ -1239,6 +1257,32 @@ namespace TagLib {
 	 * Detroys this Tag instance.
 	 */
 	virtual ~Tag();
+
+	/*!
+	 * Exports the tags of the file as dictionary mapping (human readable) tag
+	 * names (Strings) to StringLists of tag values.
+	 * The default implementation in this class considers only the usual built-in
+	 * tags (artist, album, ...) and only one value per key.
+	 */
+	PropertyMap properties() const;
+
+	/*!
+	 * Removes unsupported properties, or a subset of them, from the tag.
+	 * The parameter \a properties must contain only entries from
+	 * properties().unsupportedData().
+	 * BIC: Will become virtual in future releases. Currently the non-virtual
+	 * standard implementation of TagLib::Tag does nothing, since there are
+	 * no unsupported elements.
+	 */
+	void removeUnsupportedProperties(const StringList& properties);
+
+	/*!
+	 * Sets the tags of this File to those specified in \a properties. This default
+	 * implementation sets only the tags for which setter methods exist in this class
+	 * (artist, album, ...), and only one value per key; the rest will be contained
+	 * in the returned PropertyMap.
+	 */
+	PropertyMap setProperties(const PropertyMap &properties);
 
 	/*!
 	 * Returns the track name; if no track name is present in the tag
@@ -1575,6 +1619,7 @@ namespace TagLib {
   class String;
   class Tag;
   class AudioProperties;
+  class PropertyMap;
 
   //! A file class with some useful methods for tag manipulation
 
@@ -1615,6 +1660,36 @@ namespace TagLib {
 	 */
 	virtual Tag *tag() const = 0;
 
+	/*!
+	 * Exports the tags of the file as dictionary mapping (human readable) tag
+	 * names (Strings) to StringLists of tag values. Calls the according specialization
+	 * in the File subclasses.
+	 * For each metadata object of the file that could not be parsed into the PropertyMap
+	 * format, the returend map's unsupportedData() list will contain one entry identifying
+	 * that object (e.g. the frame type for ID3v2 tags). Use removeUnsupportedProperties()
+	 * to remove (a subset of) them.
+	 * BIC: Will be made virtual in future releases.
+	 */
+	PropertyMap properties() const;
+
+	/*!
+	 * Removes unsupported properties, or a subset of them, from the file's metadata.
+	 * The parameter \a properties must contain only entries from
+	 * properties().unsupportedData().
+	 * BIC: Will be mad virtual in future releases.
+	 */
+	void removeUnsupportedProperties(const StringList& properties);
+
+	/*!
+	 * Sets the tags of this File to those specified in \a properties. Calls the
+	 * according specialization method in the subclasses of File to do the translation
+	 * into the format-specific details.
+	 * If some value(s) could not be written imported to the specific metadata format,
+	 * the returned PropertyMap will contain those value(s). Otherwise it will be empty,
+	 * indicating that no problems occured.
+	 * BIC: will become pure virtual in the future
+	 */
+	PropertyMap setProperties(const PropertyMap &properties);
 	/*!
 	 * Returns a pointer to this file's audio properties.  This should be
 	 * reimplemented in the concrete subclasses.  If no audio properties were
@@ -2052,6 +2127,11 @@ namespace TagLib {
 	 */
 	bool operator==(const List<T> &l) const;
 
+	/*!
+	 * Compares this list with \a l and returns true if the lists differ.
+	 */
+	bool operator!=(const List<T> &l) const;
+
   protected:
 	/*
 	 * If this List is being shared via implicit sharing, do a deep copy of the
@@ -2371,6 +2451,12 @@ bool List<T>::operator==(const List<T> &l) const
   return d->list == l.d->list;
 }
 
+template <class T>
+bool List<T>::operator!=(const List<T> &l) const
+{
+  return d->list != l.d->list;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // protected members
 ////////////////////////////////////////////////////////////////////////////////
@@ -2479,7 +2565,7 @@ namespace TagLib {
 
 /*** End of inlined file: tbytevectorlist.h ***/
 
-#include <ostream>
+#include <iostream>
 
 namespace TagLib {
 
