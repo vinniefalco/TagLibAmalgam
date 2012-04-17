@@ -22,7 +22,7 @@ TrueAudio, WAV, AIFF, MP4 and ASF files.
 Add TagLibAmalgam.cpp to your existing project, include TagLibAmalgam.h
 in the source files where you want to use TagLib, and that's it!
 
-The [TagLib Amalgamation][2] was built using the [TagLib Amalgamation Template][3].
+The [TagLib Amalgamation][2] was built using the [Amalgamate Templates][3].
 
 ## License
 
@@ -33,6 +33,6 @@ TagLib is distributed under both the [GNU Lesser General Public License][4]
 
 [1]: http://developer.kde.org/~wheeler/taglib.html "TagLib"
 [2]: https://github.com/vinniefalco/TagLibAmalgam/ "TagLib Amalgamation"
-[3]: https://github.com/vinniefalco/TagLibAmalgamTemplate/ "TagLib Amalgamation Template"
+[3]: https://github.com/vinniefalco/Amalgams/ "Amalgamate Templates"
 [4]: http://www.gnu.org/licenses/gpl-2.0.html "GNU GPL v2"
 [5]: http://www.mozilla.org/MPL/ "MPL"
