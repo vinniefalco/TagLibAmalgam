@@ -43,7 +43,46 @@
 //#include "TagLibConfig.h"
 
 
-/*** Start of inlined file: tstring.cpp ***/
+/*** Start of inlined file: tpropertymap.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: tpropertymap.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it  under the terms of the GNU Lesser General Public License version  *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
+ *   MA  02110-1301  USA                                                   *
+ ***************************************************************************/
+
+#ifndef PROPERTYMAP_H_
+#define PROPERTYMAP_H_
+
+
+/*** Start of inlined file: tmap.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Lesser General Public License version   *
@@ -64,77 +103,10 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
+#ifndef TAGLIB_MAP_H
+#define TAGLIB_MAP_H
 
-/*** Start of inlined file: tstring.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_STRING_H
-#define TAGLIB_STRING_H
-
-
-/*** Start of inlined file: taglib_export.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_EXPORT_H
-#define TAGLIB_EXPORT_H
-
-#if defined(TAGLIB_STATIC)
-#define TAGLIB_EXPORT
-#elif (defined(_WIN32) || defined(_WIN64))
-#ifdef MAKE_TAGLIB_LIB
-#define TAGLIB_EXPORT __declspec(dllexport)
-#else
-#define TAGLIB_EXPORT __declspec(dllimport)
-#endif
-#elif defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 1)
-#define TAGLIB_EXPORT __attribute__ ((visibility("default")))
-#else
-#define TAGLIB_EXPORT
-#endif
-
-#ifndef TAGLIB_NO_CONFIG
-#include "taglib_config.h"
-#endif
-
-#endif
-
-/*** End of inlined file: taglib_export.h ***/
+#include <map>
 
 
 /*** Start of inlined file: taglib.h ***/
@@ -361,6 +333,467 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: taglib.h ***/
+
+namespace TagLib {
+
+  //! A generic, implicitly shared map.
+
+  /*!
+   * This implements a standard map container that associates a key with a value
+   * and has fast key-based lookups.  This map is also implicitly shared making
+   * it suitable for pass-by-value usage.
+   */
+
+  template <class Key, class T> class Map
+  {
+  public:
+#ifndef DO_NOT_DOCUMENT
+#ifdef WANT_CLASS_INSTANTIATION_OF_MAP
+	// Some STL implementations get snippy over the use of the
+	// class keyword to distinguish different templates; Sun Studio
+	// in particular finds multiple specializations in certain rare
+	// cases and complains about that. GCC doesn't seem to mind,
+	// and uses the typedefs further below without the class keyword.
+	// Not all the specializations of Map can use the class keyword
+	// (when T is not actually a class type), so don't apply this
+	// generally.
+	typedef typename std::map<class Key, class T>::iterator Iterator;
+	typedef typename std::map<class Key, class T>::const_iterator ConstIterator;
+#else
+	typedef typename std::map<Key, T>::iterator Iterator;
+	typedef typename std::map<Key, T>::const_iterator ConstIterator;
+#endif
+#endif
+
+	/*!
+	 * Constructs an empty Map.
+	 */
+	Map();
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a m.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	Map(const Map<Key, T> &m);
+
+	/*!
+	 * Destroys this instance of the Map.
+	 */
+	virtual ~Map();
+
+	/*!
+	 * Returns an STL style iterator to the beginning of the map.  See
+	 * std::map::iterator for the semantics.
+	 */
+	Iterator begin();
+
+	/*!
+	 * Returns an STL style iterator to the beginning of the map.  See
+	 * std::map::const_iterator for the semantics.
+	 */
+	ConstIterator begin() const;
+
+	/*!
+	 * Returns an STL style iterator to the end of the map.  See
+	 * std::map::iterator for the semantics.
+	 */
+	Iterator end();
+
+	/*!
+	 * Returns an STL style iterator to the end of the map.  See
+	 * std::map::const_iterator for the semantics.
+	 */
+	ConstIterator end() const;
+
+	/*!
+	 * Inserts \a value under \a key in the map.  If a value for \a key already
+	 * exists it will be overwritten.
+	 */
+	Map<Key, T> &insert(const Key &key, const T &value);
+
+	/*!
+	 * Removes all of the elements from elements from the map.  This however
+	 * will not delete pointers if the mapped type is a pointer type.
+	 */
+	Map<Key, T> &clear();
+
+	/*!
+	 * The number of elements in the map.
+	 *
+	 * \see isEmpty()
+	 */
+	uint size() const;
+
+	/*!
+	 * Returns true if the map is empty.
+	 *
+	 * \see size()
+	 */
+	bool isEmpty() const;
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	Iterator find(const Key &key);
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	ConstIterator find(const Key &key) const;
+
+	/*!
+	 * Returns true if the map contains an instance of \a key.
+	 */
+	bool contains(const Key &key) const;
+
+	/*!
+	 * Erase the item at \a it from the list.
+	 */
+	Map<Key, T> &erase(Iterator it);
+
+	/*!
+	 * Erase the item with \a key from the list.
+	 */
+	Map<Key, T> &erase(const Key &key);
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note This has undefined behavior if the key is not present in the map.
+	 */
+	const T &operator[](const Key &key) const;
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note This has undefined behavior if the key is not present in the map.
+	 */
+	T &operator[](const Key &key);
+
+	/*!
+	 * Make a shallow, implicitly shared, copy of \a m.  Because this is
+	 * implicitly shared, this method is lightweight and suitable for
+	 * pass-by-value usage.
+	 */
+	Map<Key, T> &operator=(const Map<Key, T> &m);
+
+  protected:
+	/*
+	 * If this List is being shared via implicit sharing, do a deep copy of the
+	 * data and separate from the shared members.  This should be called by all
+	 * non-const subclass members.
+	 */
+	void detach();
+
+  private:
+#ifndef DO_NOT_DOCUMENT
+	template <class KeyP, class TP> class MapPrivate;
+	MapPrivate<Key, T> *d;
+#endif
+  };
+
+}
+
+// Since GCC doesn't support the "export" keyword, we have to include the
+// implementation.
+
+
+/*** Start of inlined file: tmap.tcc ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+namespace TagLib {
+
+////////////////////////////////////////////////////////////////////////////////
+// public members
+////////////////////////////////////////////////////////////////////////////////
+
+template <class Key, class T>
+template <class KeyP, class TP>
+class Map<Key, T>::MapPrivate : public RefCounter
+{
+public:
+  MapPrivate() : RefCounter() {}
+#ifdef WANT_CLASS_INSTANTIATION_OF_MAP
+  MapPrivate(const std::map<class KeyP, class TP>& m) : RefCounter(), map(m) {}
+  std::map<class KeyP, class TP> map;
+#else
+  MapPrivate(const std::map<KeyP, TP>& m) : RefCounter(), map(m) {}
+  std::map<KeyP, TP> map;
+#endif
+};
+
+template <class Key, class T>
+Map<Key, T>::Map()
+{
+  d = new MapPrivate<Key, T>;
+}
+
+template <class Key, class T>
+Map<Key, T>::Map(const Map<Key, T> &m) : d(m.d)
+{
+  d->ref();
+}
+
+template <class Key, class T>
+Map<Key, T>::~Map()
+{
+  if(d->deref())
+	delete(d);
+}
+
+template <class Key, class T>
+typename Map<Key, T>::Iterator Map<Key, T>::begin()
+{
+  detach();
+  return d->map.begin();
+}
+
+template <class Key, class T>
+typename Map<Key, T>::ConstIterator Map<Key, T>::begin() const
+{
+  return d->map.begin();
+}
+
+template <class Key, class T>
+typename Map<Key, T>::Iterator Map<Key, T>::end()
+{
+  detach();
+  return d->map.end();
+}
+
+template <class Key, class T>
+typename Map<Key, T>::ConstIterator Map<Key, T>::end() const
+{
+  return d->map.end();
+}
+
+template <class Key, class T>
+Map<Key, T> &Map<Key, T>::insert(const Key &key, const T &value)
+{
+  detach();
+  d->map[key] = value;
+  return *this;
+}
+
+template <class Key, class T>
+Map<Key, T> &Map<Key, T>::clear()
+{
+  detach();
+  d->map.clear();
+  return *this;
+}
+
+template <class Key, class T>
+bool Map<Key, T>::isEmpty() const
+{
+  return d->map.empty();
+}
+
+template <class Key, class T>
+typename Map<Key, T>::Iterator Map<Key, T>::find(const Key &key)
+{
+  detach();
+  return d->map.find(key);
+}
+
+template <class Key, class T>
+typename Map<Key,T>::ConstIterator Map<Key, T>::find(const Key &key) const
+{
+  return d->map.find(key);
+}
+
+template <class Key, class T>
+bool Map<Key, T>::contains(const Key &key) const
+{
+  return d->map.find(key) != d->map.end();
+}
+
+template <class Key, class T>
+Map<Key, T> &Map<Key,T>::erase(Iterator it)
+{
+  detach();
+  d->map.erase(it);
+  return *this;
+}
+
+template <class Key, class T>
+Map<Key, T> &Map<Key,T>::erase(const Key &key)
+{
+  detach();
+  Iterator it = d->map.find(key);
+  if(it != d->map.end())
+	d->map.erase(it);
+  return *this;
+}
+
+template <class Key, class T>
+TagLib::uint Map<Key, T>::size() const
+{
+  return d->map.size();
+}
+
+template <class Key, class T>
+const T &Map<Key, T>::operator[](const Key &key) const
+{
+  return d->map[key];
+}
+
+template <class Key, class T>
+T &Map<Key, T>::operator[](const Key &key)
+{
+  detach();
+  return d->map[key];
+}
+
+template <class Key, class T>
+Map<Key, T> &Map<Key, T>::operator=(const Map<Key, T> &m)
+{
+  if(&m == this)
+	return *this;
+
+  if(d->deref())
+	delete(d);
+  d = m.d;
+  d->ref();
+  return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// protected members
+////////////////////////////////////////////////////////////////////////////////
+
+template <class Key, class T>
+void Map<Key, T>::detach()
+{
+  if(d->count() > 1) {
+	d->deref();
+	d = new MapPrivate<Key, T>(d->map);
+  }
+}
+
+} // namespace TagLib
+
+/*** End of inlined file: tmap.tcc ***/
+
+#endif
+
+/*** End of inlined file: tmap.h ***/
+
+
+/*** Start of inlined file: tstringlist.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_STRINGLIST_H
+#define TAGLIB_STRINGLIST_H
+
+
+/*** Start of inlined file: tstring.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_STRING_H
+#define TAGLIB_STRING_H
+
+
+/*** Start of inlined file: taglib_export.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_EXPORT_H
+#define TAGLIB_EXPORT_H
+
+#if defined(TAGLIB_STATIC)
+#define TAGLIB_EXPORT
+#elif (defined(_WIN32) || defined(_WIN64))
+#ifdef MAKE_TAGLIB_LIB
+#define TAGLIB_EXPORT __declspec(dllexport)
+#else
+#define TAGLIB_EXPORT __declspec(dllimport)
+#endif
+#elif defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 1)
+#define TAGLIB_EXPORT __attribute__ ((visibility("default")))
+#else
+#define TAGLIB_EXPORT
+#endif
+
+#ifndef TAGLIB_NO_CONFIG
+#include "taglib_config.h"
+#endif
+
+#endif
+
+/*** End of inlined file: taglib_export.h ***/
 
 
 /*** Start of inlined file: tbytevector.h ***/
@@ -1250,256 +1683,6 @@ TAGLIB_EXPORT std::ostream &operator<<(std::ostream &s, const TagLib::String &st
 /*** End of inlined file: tstring.h ***/
 
 
-/*** Start of inlined file: unicode.h ***/
-#ifndef TAGLIB_UNICODE_H
-#define TAGLIB_UNICODE_H
-
-/*******************************************************************************
- *                                                                             *
- * THIS FILE IS INCLUDED IN TAGLIB, BUT IS NOT COPYRIGHTED BY THE TAGLIB       *
- * AUTHORS, NOT PART OF THE TAGLIB API AND COULD GO AWAY AT ANY POINT IN TIME. *
- * AS SUCH IT SHOULD BE CONSIERED FOR INTERNAL USE ONLY.                       *
- *                                                                             *
- *******************************************************************************/
-
-#ifndef DO_NOT_DOCUMENT  // tell Doxygen not to document this header
-
-/*
- * Copyright 2001 Unicode, Inc.
- *
- * Disclaimer
- *
- * This source code is provided as is by Unicode, Inc. No claims are
- * made as to fitness for any particular purpose. No warranties of any
- * kind are expressed or implied. The recipient agrees to determine
- * applicability of information provided. If this file has been
- * purchased on magnetic or optical media from Unicode, Inc., the
- * sole remedy for any claim will be exchange of defective media
- * within 90 days of receipt.
- *
- * Limitations on Rights to Redistribute This Code
- *
- * Unicode, Inc. hereby grants the right to freely use the information
- * supplied in this file in the creation of products supporting the
- * Unicode Standard, and to make copies of this file in any form
- * for internal or external distribution as long as this notice
- * remains attached.
- */
-
-/*
- * This file has been modified by Scott Wheeler <wheeler@kde.org> to remove
- * the UTF32 conversion functions and to place the appropriate functions
- * in their own C++ namespace.
- */
-
-/* ---------------------------------------------------------------------
-
-	Conversions between UTF32, UTF-16, and UTF-8.  Header file.
-
-	Several functions are included here, forming a complete set of
-	conversions between the three formats.  UTF-7 is not included
-	here, but is handled in a separate source file.
-
-	Each of these routines takes pointers to input buffers and output
-	buffers.  The input buffers are const.
-
-	Each routine converts the text between *sourceStart and sourceEnd,
-	putting the result into the buffer between *targetStart and
-	targetEnd. Note: the end pointers are *after* the last item: e.g.
-	*(sourceEnd - 1) is the last item.
-
-	The return result indicates whether the conversion was successful,
-	and if not, whether the problem was in the source or target buffers.
-	(Only the first encountered problem is indicated.)
-
-	After the conversion, *sourceStart and *targetStart are both
-	updated to point to the end of last text successfully converted in
-	the respective buffers.
-
-	Input parameters:
-	sourceStart - pointer to a pointer to the source buffer.
-		The contents of this are modified on return so that
-		it points at the next thing to be converted.
-	targetStart - similarly, pointer to pointer to the target buffer.
-	sourceEnd, targetEnd - respectively pointers to the ends of the
-		two buffers, for overflow checking only.
-
-	These conversion functions take a ConversionFlags argument. When this
-	flag is set to strict, both irregular sequences and isolated surrogates
-	will cause an error.  When the flag is set to lenient, both irregular
-	sequences and isolated surrogates are converted.
-
-	Whether the flag is strict or lenient, all illegal sequences will cause
-	an error return. This includes sequences such as: <F4 90 80 80>, <C0 80>,
-	or <A0> in UTF-8, and values above 0x10FFFF in UTF-32. Conformant code
-	must check for illegal sequences.
-
-	When the flag is set to lenient, characters over 0x10FFFF are converted
-	to the replacement character; otherwise (when the flag is set to strict)
-	they constitute an error.
-
-	Output parameters:
-	The value "sourceIllegal" is returned from some routines if the input
-	sequence is malformed.  When "sourceIllegal" is returned, the source
-	value will point to the illegal value that caused the problem. E.g.,
-	in UTF-8 when a sequence is malformed, it points to the start of the
-	malformed sequence.
-
-	Author: Mark E. Davis, 1994.
-	Rev History: Rick McGowan, fixes & updates May 2001.
-		 Fixes & updates, Sept 2001.
-
------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------
-	The following 4 definitions are compiler-specific.
-	The C standard does not guarantee that wchar_t has at least
-	16 bits, so wchar_t is no less portable than unsigned short!
-	All should be unsigned values to avoid sign extension during
-	bit mask & shift operations.
------------------------------------------------------------------------- */
-
-/* Some fundamental constants */
-#define UNI_REPLACEMENT_CHAR (UTF32)0x0000FFFD
-#define UNI_MAX_BMP (UTF32)0x0000FFFF
-#define UNI_MAX_UTF16 (UTF32)0x0010FFFF
-#define UNI_MAX_UTF32 (UTF32)0x7FFFFFFF
-
-namespace Unicode {
-
-typedef unsigned long	UTF32;	/* at least 32 bits */
-typedef unsigned short	UTF16;	/* at least 16 bits */
-typedef unsigned char	UTF8;	/* typically 8 bits */
-typedef unsigned char	Boolean; /* 0 or 1 */
-
-typedef enum {
-	conversionOK = 0,	/* conversion successful */
-	sourceExhausted = 1,	/* partial character in source, but hit end */
-	targetExhausted = 2,	/* insuff. room in target for conversion */
-	sourceIllegal = 3	/* source sequence is illegal/malformed */
-} ConversionResult;
-
-typedef enum {
-	strictConversion = 0,
-	lenientConversion
-} ConversionFlags;
-
-ConversionResult ConvertUTF8toUTF16 (
-		const UTF8** sourceStart, const UTF8* sourceEnd,
-		UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags);
-
-ConversionResult ConvertUTF16toUTF8 (
-		const UTF16** sourceStart, const UTF16* sourceEnd,
-		UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags);
-
-Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd);
-
-} // namespace Unicode
-
-/* --------------------------------------------------------------------- */
-
-#endif
-#endif
-
-/*** End of inlined file: unicode.h ***/
-
-
-/*** Start of inlined file: tdebug.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_DEBUG_H
-#define TAGLIB_DEBUG_H
-
-namespace TagLib {
-
-  class String;
-  class ByteVector;
-
-#ifndef DO_NOT_DOCUMENT
-#ifndef NDEBUG
-
-  /*!
-   * A simple function that prints debugging output to cerr if debugging is
-   * not disabled.
-   *
-   * \warning Do not use this outside of TagLib, it could lead to undefined
-   * symbols in your build if TagLib is built with NDEBUG defined and your
-   * application is not.
-   *
-   * \internal
-   */
-  void debug(const String &s);
-
-  /*!
-   * For debugging binary data.
-   *
-   * \warning Do not use this outside of TagLib, it could lead to undefined
-   * symbols in your build if TagLib is built with NDEBUG defined and your
-   * application is not.
-   *
-   * \internal
-   */
-  void debugData(const ByteVector &v);
-
-#else
-
-  // Define these to an empty statement if debugging is disabled.
-
-#define debug(x)
-#define debugData(x)
-
-#endif
-#endif
-}
-
-#endif
-
-/*** End of inlined file: tdebug.h ***/
-
-
-/*** Start of inlined file: tstringlist.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_STRINGLIST_H
-#define TAGLIB_STRINGLIST_H
-
-
 /*** Start of inlined file: tlist.h ***/
 /***************************************************************************
  *   This library is free software; you can redistribute it and/or modify  *
@@ -2245,6 +2428,594 @@ std::ostream &operator<<(std::ostream &s, const TagLib::StringList &l);
 #endif
 
 /*** End of inlined file: tstringlist.h ***/
+
+namespace TagLib {
+
+  typedef Map<String,StringList> SimplePropertyMap;
+
+  //! A map for format-independent <key,valuelist> tag representations.
+
+  /*!
+   * This map implements a generic representation of textual audio metadata
+   * ("tags") realized as pairs of a case-insensitive key
+   * and a nonempty list of corresponding values, each value being an an arbitrary
+   * unicode String.
+   * The key has the same restrictions as in the vorbis comment specification,
+   * i.e. it must contain at least one character; all printable ASCII characters
+   * except '=' and '~' are allowed.
+   *
+   * In order to be safe with other formats, keep these additional restrictions in mind:
+   *
+   * - APE only allows keys from 2 to 16 printable ASCII characters (including space),
+   *   with the exception of these strings: ID3, TAG, OggS, MP+
+   *
+   */
+
+  class TAGLIB_EXPORT PropertyMap: public SimplePropertyMap
+  {
+  public:
+
+	typedef SimplePropertyMap::Iterator Iterator;
+	typedef SimplePropertyMap::ConstIterator ConstIterator;
+
+	PropertyMap();
+
+	PropertyMap(const PropertyMap &m);
+
+	/*!
+	 * Creates a PropertyMap initialized from a SimplePropertyMap. Copies all
+	 * entries from \a m that have valid keys.
+	 * Invalid keys will be appended to the unsupportedData() list.
+	 */
+	PropertyMap(const SimplePropertyMap &m);
+
+	virtual ~PropertyMap();
+
+	/*!
+	 * Inserts \a values under \a key in the map.  If \a key already exists,
+	 * then \values will be appended to the existing StringList.
+	 * The returned value indicates success, i.e. whether \a key is a
+	 * valid key.
+	 */
+	bool insert(const String &key, const StringList &values);
+
+	/*!
+	 * Replaces any existing values for \a key with the given \a values,
+	 * and simply insert them if \a key did not exist before.
+	 * The returned value indicates success, i.e. whether \a key is a
+	 * valid key.
+	 */
+	bool replace(const String &key, const StringList &values);
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	Iterator find(const String &key);
+
+	/*!
+	 * Find the first occurrence of \a key.
+	 */
+	ConstIterator find(const String &key) const;
+
+	/*!
+	 * Returns true if the map contains values for \a key.
+	 */
+	bool contains(const String &key) const;
+
+	/*!
+	 * Returns true if this map contains all keys of \a other
+	 * and the values coincide for that keys. Does not take
+	 * the unsupportedData list into account.
+	 */
+	bool contains(const PropertyMap &other) const;
+
+	/*!
+	 * Erase the \a key and its values from the map.
+	 */
+	PropertyMap &erase(const String &key);
+
+	/*!
+	 * Erases from this map all keys that appear in \a other.
+	 */
+	PropertyMap &erase(const PropertyMap &other);
+
+	/*!
+	 * Merge the contents of \a other into this PropertyMap.
+	 * If a key is contained in both maps, the values of the second
+	 * are appended to that of the first.
+	 * The unsupportedData() lists are concatenated as well.
+	 */
+	PropertyMap &merge(const PropertyMap &other);
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note: This has undefined behavior if the key is not valid or not
+	 * present in the map.
+	 */
+	const StringList &operator[](const String &key) const;
+
+	/*!
+	 * Returns a reference to the value associated with \a key.
+	 *
+	 * \note: This has undefined behavior if the key is not valid or not
+	 * present in the map.
+	 */
+	StringList &operator[](const String &key);
+
+	/*!
+	 * Returns true if and only if \other has the same contents as this map.
+	 */
+	bool operator==(const PropertyMap &other) const;
+
+	/*!
+	 * Returns false if and only \other has the same contents as this map.
+	 */
+	bool operator!=(const PropertyMap &other) const;
+
+	/*!
+	 * If a PropertyMap is read from a File object using File::properties(),
+	 * the StringList returned from this function will represent metadata
+	 * that could not be parsed into the PropertyMap representation. This could
+	 * be e.g. binary data, unknown ID3 frames, etc.
+	 * You can remove items from the returned list, which tells TagLib to remove
+	 * those unsupported elements if you call File::setProperties() with the
+	 * same PropertyMap as argument.
+	 */
+	StringList &unsupportedData();
+	const StringList &unsupportedData() const;
+
+	/*!
+	 * Removes all entries which have an empty value list.
+	 */
+	void removeEmpty();
+
+	String toString() const;
+
+	/*!
+	 * Converts \a proposed into another String suitable to be used as
+	 * a key, or returns String::null if this is not possible.
+	 */
+	static String prepareKey(const String &proposed);
+
+  private:
+
+	StringList unsupported;
+  };
+
+}
+#endif /* PROPERTYMAP_H_ */
+
+/*** End of inlined file: tpropertymap.h ***/
+
+using namespace TagLib;
+
+PropertyMap::PropertyMap() : SimplePropertyMap()
+{
+}
+
+PropertyMap::PropertyMap(const PropertyMap &m) : SimplePropertyMap(m), unsupported(m.unsupported)
+{
+}
+
+PropertyMap::PropertyMap(const SimplePropertyMap &m)
+{
+  for(SimplePropertyMap::ConstIterator it = m.begin(); it != m.end(); ++it){
+	String key = prepareKey(it->first);
+	if(!key.isNull())
+	  insert(it->first, it->second);
+	else
+	  unsupported.append(it->first);
+  }
+}
+
+PropertyMap::~PropertyMap()
+{
+}
+
+bool PropertyMap::insert(const String &key, const StringList &values)
+{
+  String realKey = prepareKey(key);
+  if(realKey.isNull())
+	return false;
+
+  Iterator result = SimplePropertyMap::find(realKey);
+  if(result == end())
+	SimplePropertyMap::insert(realKey, values);
+  else
+	SimplePropertyMap::operator[](realKey).append(values);
+  return true;
+}
+
+bool PropertyMap::replace(const String &key, const StringList &values)
+{
+  String realKey = prepareKey(key);
+  if(realKey.isNull())
+	return false;
+  SimplePropertyMap::erase(realKey);
+  SimplePropertyMap::insert(realKey, values);
+  return true;
+}
+
+PropertyMap::Iterator PropertyMap::find(const String &key)
+{
+  String realKey = prepareKey(key);
+  if(realKey.isNull())
+	return end();
+  return SimplePropertyMap::find(realKey);
+}
+
+PropertyMap::ConstIterator PropertyMap::find(const String &key) const
+{
+  String realKey = prepareKey(key);
+  if(realKey.isNull())
+	return end();
+  return SimplePropertyMap::find(realKey);
+}
+
+bool PropertyMap::contains(const String &key) const
+{
+  String realKey = prepareKey(key);
+  if(realKey.isNull())
+	return false;
+  return SimplePropertyMap::contains(realKey);
+}
+
+bool PropertyMap::contains(const PropertyMap &other) const
+{
+  for(ConstIterator it = other.begin(); it != other.end(); ++it) {
+	if(!SimplePropertyMap::contains(it->first))
+	  return false;
+	if ((*this)[it->first] != it->second)
+	  return false;
+  }
+  return true;
+}
+
+PropertyMap &PropertyMap::erase(const String &key)
+{
+  String realKey = prepareKey(key);
+  if(!realKey.isNull())
+	SimplePropertyMap::erase(realKey);
+  return *this;
+}
+
+PropertyMap &PropertyMap::erase(const PropertyMap &other)
+{
+  for(ConstIterator it = other.begin(); it != other.end(); ++it)
+	erase(it->first);
+  return *this;
+}
+
+PropertyMap &PropertyMap::merge(const PropertyMap &other)
+{
+  for(PropertyMap::ConstIterator it = other.begin(); it != other.end(); ++it) {
+	insert(it->first, it->second);
+  }
+  unsupported.append(other.unsupported);
+  return *this;
+}
+
+const StringList &PropertyMap::operator[](const String &key) const
+{
+  String realKey = prepareKey(key);
+  return SimplePropertyMap::operator[](realKey);
+}
+
+StringList &PropertyMap::operator[](const String &key)
+{
+  String realKey = prepareKey(key);
+  return SimplePropertyMap::operator[](realKey);
+}
+
+bool PropertyMap::operator==(const PropertyMap &other) const
+{
+  for(ConstIterator it = other.begin(); it != other.end(); ++it) {
+	ConstIterator thisFind = find(it->first);
+	if( thisFind == end() || (thisFind->second != it->second) )
+	  return false;
+  }
+  for(ConstIterator it = begin(); it != end(); ++it) {
+	ConstIterator otherFind = other.find(it->first);
+	if( otherFind == other.end() || (otherFind->second != it->second) )
+	  return false;
+  }
+  return unsupported == other.unsupported;
+}
+
+bool PropertyMap::operator!=(const PropertyMap &other) const
+{
+  return !(*this == other);
+}
+
+String PropertyMap::toString() const
+{
+  String ret = "";
+  for(ConstIterator it = begin(); it != end(); ++it)
+	ret += it->first+"="+it->second.toString(", ") + "\n";
+  if(!unsupported.isEmpty())
+	ret += "Unsupported Data: " + unsupported.toString(", ") + "\n";
+  return ret;
+}
+
+void PropertyMap::removeEmpty()
+{
+  StringList emptyKeys;
+  for(Iterator it = begin(); it != end(); ++it)
+	if(it->second.isEmpty())
+	  emptyKeys.append(it->first);
+  for(StringList::Iterator emptyIt = emptyKeys.begin(); emptyIt != emptyKeys.end(); emptyIt++ )
+	erase(*emptyIt);
+}
+
+StringList &PropertyMap::unsupportedData()
+{
+  return unsupported;
+}
+
+const StringList &PropertyMap::unsupportedData() const
+{
+  return unsupported;
+}
+
+String PropertyMap::prepareKey(const String &proposed) {
+  if(proposed.isEmpty())
+	return String::null;
+  for (String::ConstIterator it = proposed.begin(); it != proposed.end(); it++)
+	// forbid non-printable, non-ascii, '=' (#61) and '~' (#126)
+	if (*it < 32 || *it >= 128 || *it == 61 || *it == 126)
+	  return String::null;
+  return proposed.upper();
+}
+
+/*** End of inlined file: tpropertymap.cpp ***/
+
+
+/*** Start of inlined file: tstring.cpp ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+
+/*** Start of inlined file: unicode.h ***/
+#ifndef TAGLIB_UNICODE_H
+#define TAGLIB_UNICODE_H
+
+/*******************************************************************************
+ *                                                                             *
+ * THIS FILE IS INCLUDED IN TAGLIB, BUT IS NOT COPYRIGHTED BY THE TAGLIB       *
+ * AUTHORS, NOT PART OF THE TAGLIB API AND COULD GO AWAY AT ANY POINT IN TIME. *
+ * AS SUCH IT SHOULD BE CONSIERED FOR INTERNAL USE ONLY.                       *
+ *                                                                             *
+ *******************************************************************************/
+
+#ifndef DO_NOT_DOCUMENT  // tell Doxygen not to document this header
+
+/*
+ * Copyright 2001 Unicode, Inc.
+ *
+ * Disclaimer
+ *
+ * This source code is provided as is by Unicode, Inc. No claims are
+ * made as to fitness for any particular purpose. No warranties of any
+ * kind are expressed or implied. The recipient agrees to determine
+ * applicability of information provided. If this file has been
+ * purchased on magnetic or optical media from Unicode, Inc., the
+ * sole remedy for any claim will be exchange of defective media
+ * within 90 days of receipt.
+ *
+ * Limitations on Rights to Redistribute This Code
+ *
+ * Unicode, Inc. hereby grants the right to freely use the information
+ * supplied in this file in the creation of products supporting the
+ * Unicode Standard, and to make copies of this file in any form
+ * for internal or external distribution as long as this notice
+ * remains attached.
+ */
+
+/*
+ * This file has been modified by Scott Wheeler <wheeler@kde.org> to remove
+ * the UTF32 conversion functions and to place the appropriate functions
+ * in their own C++ namespace.
+ */
+
+/* ---------------------------------------------------------------------
+
+	Conversions between UTF32, UTF-16, and UTF-8.  Header file.
+
+	Several functions are included here, forming a complete set of
+	conversions between the three formats.  UTF-7 is not included
+	here, but is handled in a separate source file.
+
+	Each of these routines takes pointers to input buffers and output
+	buffers.  The input buffers are const.
+
+	Each routine converts the text between *sourceStart and sourceEnd,
+	putting the result into the buffer between *targetStart and
+	targetEnd. Note: the end pointers are *after* the last item: e.g.
+	*(sourceEnd - 1) is the last item.
+
+	The return result indicates whether the conversion was successful,
+	and if not, whether the problem was in the source or target buffers.
+	(Only the first encountered problem is indicated.)
+
+	After the conversion, *sourceStart and *targetStart are both
+	updated to point to the end of last text successfully converted in
+	the respective buffers.
+
+	Input parameters:
+	sourceStart - pointer to a pointer to the source buffer.
+		The contents of this are modified on return so that
+		it points at the next thing to be converted.
+	targetStart - similarly, pointer to pointer to the target buffer.
+	sourceEnd, targetEnd - respectively pointers to the ends of the
+		two buffers, for overflow checking only.
+
+	These conversion functions take a ConversionFlags argument. When this
+	flag is set to strict, both irregular sequences and isolated surrogates
+	will cause an error.  When the flag is set to lenient, both irregular
+	sequences and isolated surrogates are converted.
+
+	Whether the flag is strict or lenient, all illegal sequences will cause
+	an error return. This includes sequences such as: <F4 90 80 80>, <C0 80>,
+	or <A0> in UTF-8, and values above 0x10FFFF in UTF-32. Conformant code
+	must check for illegal sequences.
+
+	When the flag is set to lenient, characters over 0x10FFFF are converted
+	to the replacement character; otherwise (when the flag is set to strict)
+	they constitute an error.
+
+	Output parameters:
+	The value "sourceIllegal" is returned from some routines if the input
+	sequence is malformed.  When "sourceIllegal" is returned, the source
+	value will point to the illegal value that caused the problem. E.g.,
+	in UTF-8 when a sequence is malformed, it points to the start of the
+	malformed sequence.
+
+	Author: Mark E. Davis, 1994.
+	Rev History: Rick McGowan, fixes & updates May 2001.
+		 Fixes & updates, Sept 2001.
+
+------------------------------------------------------------------------ */
+
+/* ---------------------------------------------------------------------
+	The following 4 definitions are compiler-specific.
+	The C standard does not guarantee that wchar_t has at least
+	16 bits, so wchar_t is no less portable than unsigned short!
+	All should be unsigned values to avoid sign extension during
+	bit mask & shift operations.
+------------------------------------------------------------------------ */
+
+/* Some fundamental constants */
+#define UNI_REPLACEMENT_CHAR (UTF32)0x0000FFFD
+#define UNI_MAX_BMP (UTF32)0x0000FFFF
+#define UNI_MAX_UTF16 (UTF32)0x0010FFFF
+#define UNI_MAX_UTF32 (UTF32)0x7FFFFFFF
+
+namespace Unicode {
+
+typedef unsigned long	UTF32;	/* at least 32 bits */
+typedef unsigned short	UTF16;	/* at least 16 bits */
+typedef unsigned char	UTF8;	/* typically 8 bits */
+typedef unsigned char	Boolean; /* 0 or 1 */
+
+typedef enum {
+	conversionOK = 0,	/* conversion successful */
+	sourceExhausted = 1,	/* partial character in source, but hit end */
+	targetExhausted = 2,	/* insuff. room in target for conversion */
+	sourceIllegal = 3	/* source sequence is illegal/malformed */
+} ConversionResult;
+
+typedef enum {
+	strictConversion = 0,
+	lenientConversion
+} ConversionFlags;
+
+ConversionResult ConvertUTF8toUTF16 (
+		const UTF8** sourceStart, const UTF8* sourceEnd,
+		UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags);
+
+ConversionResult ConvertUTF16toUTF8 (
+		const UTF16** sourceStart, const UTF16* sourceEnd,
+		UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags);
+
+Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd);
+
+} // namespace Unicode
+
+/* --------------------------------------------------------------------- */
+
+#endif
+#endif
+
+/*** End of inlined file: unicode.h ***/
+
+
+/*** Start of inlined file: tdebug.h ***/
+/***************************************************************************
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU Lesser General Public License version   *
+ *   2.1 as published by the Free Software Foundation.                     *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful, but   *
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
+ *   02110-1301  USA                                                       *
+ *                                                                         *
+ *   Alternatively, this file is available under the Mozilla Public        *
+ *   License Version 1.1.  You may obtain a copy of the License at         *
+ *   http://www.mozilla.org/MPL/                                           *
+ ***************************************************************************/
+
+#ifndef TAGLIB_DEBUG_H
+#define TAGLIB_DEBUG_H
+
+namespace TagLib {
+
+  class String;
+  class ByteVector;
+
+#ifndef DO_NOT_DOCUMENT
+#ifndef NDEBUG
+
+  /*!
+   * A simple function that prints debugging output to cerr if debugging is
+   * not disabled.
+   *
+   * \warning Do not use this outside of TagLib, it could lead to undefined
+   * symbols in your build if TagLib is built with NDEBUG defined and your
+   * application is not.
+   *
+   * \internal
+   */
+  void debug(const String &s);
+
+  /*!
+   * For debugging binary data.
+   *
+   * \warning Do not use this outside of TagLib, it could lead to undefined
+   * symbols in your build if TagLib is built with NDEBUG defined and your
+   * application is not.
+   *
+   * \internal
+   */
+  void debugData(const ByteVector &v);
+
+#else
+
+  // Define these to an empty statement if debugging is disabled.
+
+#define debug(x)
+#define debugData(x)
+
+#endif
+#endif
+}
+
+#endif
+
+/*** End of inlined file: tdebug.h ***/
 
 #include <iostream>
 
@@ -3868,578 +4639,6 @@ namespace TagLib {
 #endif
 
 /*** End of inlined file: tfilestream.h ***/
-
-
-/*** Start of inlined file: tpropertymap.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it  under the terms of the GNU Lesser General Public License version  *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            *
- *   MA  02110-1301  USA                                                   *
- ***************************************************************************/
-
-#ifndef PROPERTYMAP_H_
-#define PROPERTYMAP_H_
-
-
-/*** Start of inlined file: tmap.h ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-#ifndef TAGLIB_MAP_H
-#define TAGLIB_MAP_H
-
-#include <map>
-using namespace std;
-
-namespace TagLib {
-
-  //! A generic, implicitly shared map.
-
-  /*!
-   * This implements a standard map container that associates a key with a value
-   * and has fast key-based lookups.  This map is also implicitly shared making
-   * it suitable for pass-by-value usage.
-   */
-
-  template <class Key, class T> class Map
-  {
-  public:
-#ifndef DO_NOT_DOCUMENT
-#ifdef WANT_CLASS_INSTANTIATION_OF_MAP
-	// Some STL implementations get snippy over the use of the
-	// class keyword to distinguish different templates; Sun Studio
-	// in particular finds multiple specializations in certain rare
-	// cases and complains about that. GCC doesn't seem to mind,
-	// and uses the typedefs further below without the class keyword.
-	// Not all the specializations of Map can use the class keyword
-	// (when T is not actually a class type), so don't apply this
-	// generally.
-	typedef typename std::map<class Key, class T>::iterator Iterator;
-	typedef typename std::map<class Key, class T>::const_iterator ConstIterator;
-#else
-	typedef typename std::map<Key, T>::iterator Iterator;
-	typedef typename std::map<Key, T>::const_iterator ConstIterator;
-#endif
-#endif
-
-	/*!
-	 * Constructs an empty Map.
-	 */
-	Map();
-
-	/*!
-	 * Make a shallow, implicitly shared, copy of \a m.  Because this is
-	 * implicitly shared, this method is lightweight and suitable for
-	 * pass-by-value usage.
-	 */
-	Map(const Map<Key, T> &m);
-
-	/*!
-	 * Destroys this instance of the Map.
-	 */
-	virtual ~Map();
-
-	/*!
-	 * Returns an STL style iterator to the beginning of the map.  See
-	 * std::map::iterator for the semantics.
-	 */
-	Iterator begin();
-
-	/*!
-	 * Returns an STL style iterator to the beginning of the map.  See
-	 * std::map::const_iterator for the semantics.
-	 */
-	ConstIterator begin() const;
-
-	/*!
-	 * Returns an STL style iterator to the end of the map.  See
-	 * std::map::iterator for the semantics.
-	 */
-	Iterator end();
-
-	/*!
-	 * Returns an STL style iterator to the end of the map.  See
-	 * std::map::const_iterator for the semantics.
-	 */
-	ConstIterator end() const;
-
-	/*!
-	 * Inserts \a value under \a key in the map.  If a value for \a key already
-	 * exists it will be overwritten.
-	 */
-	Map<Key, T> &insert(const Key &key, const T &value);
-
-	/*!
-	 * Removes all of the elements from elements from the map.  This however
-	 * will not delete pointers if the mapped type is a pointer type.
-	 */
-	Map<Key, T> &clear();
-
-	/*!
-	 * The number of elements in the map.
-	 *
-	 * \see isEmpty()
-	 */
-	uint size() const;
-
-	/*!
-	 * Returns true if the map is empty.
-	 *
-	 * \see size()
-	 */
-	bool isEmpty() const;
-
-	/*!
-	 * Find the first occurrence of \a key.
-	 */
-	Iterator find(const Key &key);
-
-	/*!
-	 * Find the first occurrence of \a key.
-	 */
-	ConstIterator find(const Key &key) const;
-
-	/*!
-	 * Returns true if the map contains an instance of \a key.
-	 */
-	bool contains(const Key &key) const;
-
-	/*!
-	 * Erase the item at \a it from the list.
-	 */
-	Map<Key, T> &erase(Iterator it);
-
-	/*!
-	 * Erase the item with \a key from the list.
-	 */
-	Map<Key, T> &erase(const Key &key);
-
-	/*!
-	 * Returns a reference to the value associated with \a key.
-	 *
-	 * \note This has undefined behavior if the key is not present in the map.
-	 */
-	const T &operator[](const Key &key) const;
-
-	/*!
-	 * Returns a reference to the value associated with \a key.
-	 *
-	 * \note This has undefined behavior if the key is not present in the map.
-	 */
-	T &operator[](const Key &key);
-
-	/*!
-	 * Make a shallow, implicitly shared, copy of \a m.  Because this is
-	 * implicitly shared, this method is lightweight and suitable for
-	 * pass-by-value usage.
-	 */
-	Map<Key, T> &operator=(const Map<Key, T> &m);
-
-  protected:
-	/*
-	 * If this List is being shared via implicit sharing, do a deep copy of the
-	 * data and separate from the shared members.  This should be called by all
-	 * non-const subclass members.
-	 */
-	void detach();
-
-  private:
-#ifndef DO_NOT_DOCUMENT
-	template <class KeyP, class TP> class MapPrivate;
-	MapPrivate<Key, T> *d;
-#endif
-  };
-
-}
-
-// Since GCC doesn't support the "export" keyword, we have to include the
-// implementation.
-
-
-/*** Start of inlined file: tmap.tcc ***/
-/***************************************************************************
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License version   *
- *   2.1 as published by the Free Software Foundation.                     *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful, but   *
- *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA         *
- *   02110-1301  USA                                                       *
- *                                                                         *
- *   Alternatively, this file is available under the Mozilla Public        *
- *   License Version 1.1.  You may obtain a copy of the License at         *
- *   http://www.mozilla.org/MPL/                                           *
- ***************************************************************************/
-
-namespace TagLib {
-
-////////////////////////////////////////////////////////////////////////////////
-// public members
-////////////////////////////////////////////////////////////////////////////////
-
-template <class Key, class T>
-template <class KeyP, class TP>
-class Map<Key, T>::MapPrivate : public RefCounter
-{
-public:
-  MapPrivate() : RefCounter() {}
-#ifdef WANT_CLASS_INSTANTIATION_OF_MAP
-  MapPrivate(const std::map<class KeyP, class TP>& m) : RefCounter(), map(m) {}
-  std::map<class KeyP, class TP> map;
-#else
-  MapPrivate(const std::map<KeyP, TP>& m) : RefCounter(), map(m) {}
-  std::map<KeyP, TP> map;
-#endif
-};
-
-template <class Key, class T>
-Map<Key, T>::Map()
-{
-  d = new MapPrivate<Key, T>;
-}
-
-template <class Key, class T>
-Map<Key, T>::Map(const Map<Key, T> &m) : d(m.d)
-{
-  d->ref();
-}
-
-template <class Key, class T>
-Map<Key, T>::~Map()
-{
-  if(d->deref())
-	delete(d);
-}
-
-template <class Key, class T>
-typename Map<Key, T>::Iterator Map<Key, T>::begin()
-{
-  detach();
-  return d->map.begin();
-}
-
-template <class Key, class T>
-typename Map<Key, T>::ConstIterator Map<Key, T>::begin() const
-{
-  return d->map.begin();
-}
-
-template <class Key, class T>
-typename Map<Key, T>::Iterator Map<Key, T>::end()
-{
-  detach();
-  return d->map.end();
-}
-
-template <class Key, class T>
-typename Map<Key, T>::ConstIterator Map<Key, T>::end() const
-{
-  return d->map.end();
-}
-
-template <class Key, class T>
-Map<Key, T> &Map<Key, T>::insert(const Key &key, const T &value)
-{
-  detach();
-  d->map[key] = value;
-  return *this;
-}
-
-template <class Key, class T>
-Map<Key, T> &Map<Key, T>::clear()
-{
-  detach();
-  d->map.clear();
-  return *this;
-}
-
-template <class Key, class T>
-bool Map<Key, T>::isEmpty() const
-{
-  return d->map.empty();
-}
-
-template <class Key, class T>
-typename Map<Key, T>::Iterator Map<Key, T>::find(const Key &key)
-{
-  detach();
-  return d->map.find(key);
-}
-
-template <class Key, class T>
-typename Map<Key,T>::ConstIterator Map<Key, T>::find(const Key &key) const
-{
-  return d->map.find(key);
-}
-
-template <class Key, class T>
-bool Map<Key, T>::contains(const Key &key) const
-{
-  return d->map.find(key) != d->map.end();
-}
-
-template <class Key, class T>
-Map<Key, T> &Map<Key,T>::erase(Iterator it)
-{
-  detach();
-  d->map.erase(it);
-  return *this;
-}
-
-template <class Key, class T>
-Map<Key, T> &Map<Key,T>::erase(const Key &key)
-{
-  detach();
-  Iterator it = d->map.find(key);
-  if(it != d->map.end())
-	d->map.erase(it);
-  return *this;
-}
-
-template <class Key, class T>
-TagLib::uint Map<Key, T>::size() const
-{
-  return d->map.size();
-}
-
-template <class Key, class T>
-const T &Map<Key, T>::operator[](const Key &key) const
-{
-  return d->map[key];
-}
-
-template <class Key, class T>
-T &Map<Key, T>::operator[](const Key &key)
-{
-  detach();
-  return d->map[key];
-}
-
-template <class Key, class T>
-Map<Key, T> &Map<Key, T>::operator=(const Map<Key, T> &m)
-{
-  if(&m == this)
-	return *this;
-
-  if(d->deref())
-	delete(d);
-  d = m.d;
-  d->ref();
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// protected members
-////////////////////////////////////////////////////////////////////////////////
-
-template <class Key, class T>
-void Map<Key, T>::detach()
-{
-  if(d->count() > 1) {
-	d->deref();
-	d = new MapPrivate<Key, T>(d->map);
-  }
-}
-
-} // namespace TagLib
-
-/*** End of inlined file: tmap.tcc ***/
-
-#endif
-
-/*** End of inlined file: tmap.h ***/
-
-namespace TagLib {
-
-  typedef Map<String,StringList> SimplePropertyMap;
-
-  //! A map for format-independent <key,valuelist> tag representations.
-
-  /*!
-   * This map implements a generic representation of textual audio metadata
-   * ("tags") realized as pairs of a case-insensitive key
-   * and a nonempty list of corresponding values, each value being an an arbitrary
-   * unicode String.
-   * The key has the same restrictions as in the vorbis comment specification,
-   * i.e. it must contain at least one character; all printable ASCII characters
-   * except '=' and '~' are allowed.
-   *
-   * In order to be safe with other formats, keep these additional restrictions in mind:
-   *
-   * - APE only allows keys from 2 to 16 printable ASCII characters (including space),
-   *   with the exception of these strings: ID3, TAG, OggS, MP+
-   *
-   */
-
-  class TAGLIB_EXPORT PropertyMap: public SimplePropertyMap
-  {
-  public:
-
-	typedef SimplePropertyMap::Iterator Iterator;
-	typedef SimplePropertyMap::ConstIterator ConstIterator;
-
-	PropertyMap();
-
-	PropertyMap(const PropertyMap &m);
-
-	/*!
-	 * Creates a PropertyMap initialized from a SimplePropertyMap. Copies all
-	 * entries from \a m that have valid keys.
-	 * Invalid keys will be appended to the unsupportedData() list.
-	 */
-	PropertyMap(const SimplePropertyMap &m);
-
-	virtual ~PropertyMap();
-
-	/*!
-	 * Inserts \a values under \a key in the map.  If \a key already exists,
-	 * then \values will be appended to the existing StringList.
-	 * The returned value indicates success, i.e. whether \a key is a
-	 * valid key.
-	 */
-	bool insert(const String &key, const StringList &values);
-
-	/*!
-	 * Replaces any existing values for \a key with the given \a values,
-	 * and simply insert them if \a key did not exist before.
-	 * The returned value indicates success, i.e. whether \a key is a
-	 * valid key.
-	 */
-	bool replace(const String &key, const StringList &values);
-
-	/*!
-	 * Find the first occurrence of \a key.
-	 */
-	Iterator find(const String &key);
-
-	/*!
-	 * Find the first occurrence of \a key.
-	 */
-	ConstIterator find(const String &key) const;
-
-	/*!
-	 * Returns true if the map contains values for \a key.
-	 */
-	bool contains(const String &key) const;
-
-	/*!
-	 * Returns true if this map contains all keys of \a other
-	 * and the values coincide for that keys. Does not take
-	 * the unsupportedData list into account.
-	 */
-	bool contains(const PropertyMap &other) const;
-
-	/*!
-	 * Erase the \a key and its values from the map.
-	 */
-	PropertyMap &erase(const String &key);
-
-	/*!
-	 * Erases from this map all keys that appear in \a other.
-	 */
-	PropertyMap &erase(const PropertyMap &other);
-
-	/*!
-	 * Merge the contents of \a other into this PropertyMap.
-	 * If a key is contained in both maps, the values of the second
-	 * are appended to that of the first.
-	 * The unsupportedData() lists are concatenated as well.
-	 */
-	PropertyMap &merge(const PropertyMap &other);
-
-	/*!
-	 * Returns a reference to the value associated with \a key.
-	 *
-	 * \note: This has undefined behavior if the key is not valid or not
-	 * present in the map.
-	 */
-	const StringList &operator[](const String &key) const;
-
-	/*!
-	 * Returns a reference to the value associated with \a key.
-	 *
-	 * \note: This has undefined behavior if the key is not valid or not
-	 * present in the map.
-	 */
-	StringList &operator[](const String &key);
-
-	/*!
-	 * Returns true if and only if \other has the same contents as this map.
-	 */
-	bool operator==(const PropertyMap &other) const;
-
-	/*!
-	 * Returns false if and only \other has the same contents as this map.
-	 */
-	bool operator!=(const PropertyMap &other) const;
-
-	/*!
-	 * If a PropertyMap is read from a File object using File::properties(),
-	 * the StringList returned from this function will represent metadata
-	 * that could not be parsed into the PropertyMap representation. This could
-	 * be e.g. binary data, unknown ID3 frames, etc.
-	 * You can remove items from the returned list, which tells TagLib to remove
-	 * those unsupported elements if you call File::setProperties() with the
-	 * same PropertyMap as argument.
-	 */
-	StringList &unsupportedData();
-	const StringList &unsupportedData() const;
-
-	/*!
-	 * Removes all entries which have an empty value list.
-	 */
-	void removeEmpty();
-
-	String toString() const;
-
-	/*!
-	 * Converts \a proposed into another String suitable to be used as
-	 * a key, or returns String::null if this is not possible.
-	 */
-	static String prepareKey(const String &proposed);
-
-  private:
-
-	StringList unsupported;
-  };
-
-}
-#endif /* PROPERTYMAP_H_ */
-
-/*** End of inlined file: tpropertymap.h ***/
 
 #include <stdio.h>
 #include <string.h>
