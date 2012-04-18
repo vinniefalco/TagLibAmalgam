@@ -1,3 +1,19 @@
+8c6ba38e13c790c733e915d131f82d548c1084b5 2012-04-18 Fix warnings about double to integer conversion
+b6366eee177c5b0575c0670e966cfe1f7d7ee37e 2012-04-18 Fix warnings about integer conversion
+d1617c5f1c93877139305888fabe78807d16154f 2012-04-18 Fix warnings about integer conversion
+dd9b6732d89f35f832d3269705c2b104bf2634a8 2012-04-18 Fix warnings about integer conversion
+971b922ec353fad0defb75e7abb8b6a2357b7743 2012-04-18 Fix warnings about unsafe stdlib functions
+5b1234749fc85d60491d19ab87478fe631bdf601 2012-04-18 Fix warnings about deprecated POSIX names
+c323f3e2c5b7ca471fd0531be6cf9a970c1bd04c 2012-04-18 Fix warnings about integer conversion
+909de48a75c3e9b8df9dae8d63d1fe298309a81e 2012-04-18 Fix warnings about integer conversion
+94485a7f207bd0b7a66ed68f82d5fb26a7b5fc13 2012-04-18 Fix warnings about integer conversion
+571d86ba4d3e9e5d065a4c118ccbe621ba7a20f3 2012-04-18 Fix warning about integer conversion
+3eb0c0ef10b9ac8934901fba289db60614483e69 2012-04-18 Fix warning about integer conversion
+be8cd77a267a501e6514858977a39624c0fc8705 2012-04-18 Fix warning about deprecated POSIX names
+3fd7cd44f1a65945ec6216ab3f8f2916ed769452 2012-04-18 Fix warning about constant comparison
+1dd77c37d1dc8e7a02dfb6145674f187df11a917 2012-04-18 Fix warning about uninitialized variable
+632eece8f1415dcc2792be94eb18513fae3f54c2 2012-04-18 Fix warning about generating assignment operator
+4372e157e7cfc11be47d10fd08d6e0e515f9277f 2012-04-18 Fix warning about generating assignment operator
 dafb3af742461dda7a1f2e6302a54273f1dfe416 2012-04-17 Remove 'using namespace std' in tmap.h
 089643f115bd32610e7456f7a3de673f7b062ca9 2012-04-17 Merge remote-tracking branch 'vinniefalco/rename_enums'
 26f458b87fe0c54e03e342cb926b60af79977f94 2012-04-15 Resolve scope resolution for APE::Footer definitions in apefooter.cpp
