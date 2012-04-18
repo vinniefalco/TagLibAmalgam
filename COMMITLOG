@@ -1,3 +1,4 @@
+dafb3af742461dda7a1f2e6302a54273f1dfe416 2012-04-17 Remove 'using namespace std' in tmap.h
 089643f115bd32610e7456f7a3de673f7b062ca9 2012-04-17 Merge remote-tracking branch 'vinniefalco/rename_enums'
 26f458b87fe0c54e03e342cb926b60af79977f94 2012-04-15 Resolve scope resolution for APE::Footer definitions in apefooter.cpp
 c22791318c0aaa17ed8b347622a1fe379b469c2d 2012-04-15 Resolve ambiguous File symbol in apetag.cpp
