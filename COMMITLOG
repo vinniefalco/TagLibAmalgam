@@ -1,3 +1,22 @@
+a656bba2adffc3d8b1d4bbaca226a8665d006df5 2012-04-18 Fix warnings about double to integer conversion
+390cc8d74f2d4340035f7b31056a5055ed848e7e 2012-04-18 Fix warnings about integer conversion
+4510c2d144988b80389b8c76ff3d83b20a71cfc4 2012-04-18 Fix warnings about integer conversion
+f750c6f13d197d5a7da6c84c0ec2d795343ba3e2 2012-04-18 Fix warnings about integer conversion
+07cba4465fbfac8c0bd53e12d35568259052944d 2012-04-18 Fix warnings about unsafe stdlib functions
+3d33490b5168bdf1cdb1023db0b826e063ade36f 2012-04-18 Fix warnings about deprecated POSIX names
+57423b911028e1cb5e8daa8159fcaeeb64eef097 2012-04-18 Fix warnings about integer conversion
+84fedcdf3fc6ed2d810d5c04ccb69225709326c4 2012-04-18 Fix warnings about integer conversion
+655cadc9e89762b2a8c520e537a8bbdca8788986 2012-04-18 Fix warnings about integer conversion
+e4aa4f8740f43f2d7db36f05b81f05a7e1897fea 2012-04-18 Fix warning about integer conversion
+d5994c6ad2ce9f13ed2a980941363ba52bc84e81 2012-04-18 Fix warning about integer conversion
+243c55b1932394be526cf582292531b11d679966 2012-04-18 Fix warning about deprecated POSIX names
+685d18b600f99b823d611faf546d50fedc7a02fc 2012-04-18 Fix warning about constant comparison
+3f3207cbbce9c151e343941529df11615286a4a1 2012-04-18 Fix warning about uninitialized variable
+fa0e8f4d89834a256037d378cc4cc5ac69693d1c 2012-04-18 Fix warning about generating assignment operator
+d3c0c00223b7b7f8c020d64212cc20db33df4865 2012-04-18 Fix warning about generating assignment operator
+2c2a4863132c2c041df0b2adab471e0731f2dd26 2012-04-20 Merge branch 'stable'
+059f2243b315f9b8c31d491c8b58b192264c5f98 2012-04-20 Prepare 1.7.2 release
+cce6ad46c912c4137131c97f67136a3d11881726 2012-01-10 Reverse the version check, similarly to what mp4v2 does
 dafb3af742461dda7a1f2e6302a54273f1dfe416 2012-04-17 Remove 'using namespace std' in tmap.h
 089643f115bd32610e7456f7a3de673f7b062ca9 2012-04-17 Merge remote-tracking branch 'vinniefalco/rename_enums'
 26f458b87fe0c54e03e342cb926b60af79977f94 2012-04-15 Resolve scope resolution for APE::Footer definitions in apefooter.cpp
